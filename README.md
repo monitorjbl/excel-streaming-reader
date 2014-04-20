@@ -4,6 +4,8 @@ If you've used [Apache POI](http://poi.apache.org) in the past to read in Excel 
 
 There are plenty of good reasons for why Apache has to read in the whole workbook, but most of them have to do with the fact that the library allows you to read and write with random addresses. If (and only if) you just want to read the contents of an Excel file in a fast and memory effecient way, you probably don't need this ability. Unfortunately, there is nothing available in the POI library for reading a streaming workbook (though there is a [streaming writer](http://poi.apache.org/spreadsheet/how-to.html#sxssf)).
 
+Well, that's what this project is for!
+
 # Usage
 
 This library is very specific in how it is meant to be used. You should initialize it like so:
@@ -41,3 +43,5 @@ You may access cells randomly within a row, as the entire row is cached. **Howev
 As of right now, there is not a way of reading *directly* from an InputStream. This is entirely to do with POI's [OPCPackage.open()](http://poi.apache.org/apidocs/org/apache/poi/openxml4j/opc/OPCPackage.html) implementation. This is required to initialize the low-level stream, and unfortunately it will only perform a true stream if the input source is a `java.io.File` object. While the class *has* an overloaded method that will accept an `java.io.InputStream`, it will read the entire stream into memory.
 
 This library provides a method to read from a stream, but it works by reading out the stream into a temporary file. Once the stream has been read out completely, it will attempt to delete the file. The behavior of this is not guaranteed, and you may end up with a lot of temp files that you don't need. If this becomes a problem, you should perform the read yourself so that you have more control over when the file is removed.
+
+A better solution is being investigated currently.
