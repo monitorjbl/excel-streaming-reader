@@ -8,7 +8,17 @@ Well, that's what this project is for!
 
 # Include
 
+This should be available from the Maven Central repository. Just add this to your POM:
 
+```
+<dependencies>
+  <dependency>
+    <groupId>com.thundermoose</groupId>
+    <artifactId>xlsx-streamer</artifactId>
+    <version>0.1</version>
+  </dependency>
+</dependencies>  
+```
 
 # Usage
 
