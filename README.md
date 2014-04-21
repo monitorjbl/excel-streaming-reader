@@ -6,6 +6,10 @@ There are plenty of good reasons for why Apache has to read in the whole workboo
 
 Well, that's what this project is for!
 
+# Include
+
+
+
 # Usage
 
 This library is very specific in how it is meant to be used. You should initialize it like so:
@@ -13,35 +17,63 @@ This library is very specific in how it is meant to be used. You should initiali
 ```java
 import com.thundermoose.xlsx.StreamingReader;
 
-StreamingReader reader = StreamingReader.createReader(new File("path/to/workbook.xlsx"), 0, 100);
+InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
+StreamingReader reader = StreamingReader.builder()
+        .rowCacheSize(100)    // number of rows to keep in memory
+        .bufferSize(4096)     // buffer size to use when reading InputStream to file
+        .sheetIndex(0)        // index of sheet to use (starting from 0)
+        .read(is);            // InputStream or File for XLSX file
 ```
-
-The parameters for this initialization are as follows:
-
-1. Excel file as a java.io.File or a java.io.InputStream
-2. Index of sheet to use, starting from 0
-3. number of rows to cache in memory as stream is read
 
 Once you've done this, you can then iterate through the rows and cells like so:
 
 ```java
-
-StreamingReader reader = StreamingReader.createReader(new File("path/to/workbook.xlsx"), 0, 100);
-
 for (Row r : reader) {
   for (Cell c : r) {
     System.out.println(c.getStringCellValue());
   }
 }
+```
 
+The StreamingReader is an autoclosable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 7, you can do this:
+
+```java
+try (
+  InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
+  StreamingReader reader = StreamingReader.builder()
+          .rowCacheSize(100)
+          .bufferSize(4096)
+          .sheetIndex(0)
+          .read(is);
+) {
+  for (Row r : reader) {
+    for (Cell c : r) {
+      System.out.println(c.getStringCellValue());
+    }
+  }
+}
 ```
 
 You may access cells randomly within a row, as the entire row is cached. **However**, there is no way to randomly access rows. As this is a streaming implementation, only a small number of rows are kept in memory at any given time.
 
-# Notes
+# Supported Methods
 
-As of right now, there is not a way of reading *directly* from an InputStream. This is entirely to do with POI's [OPCPackage.open()](http://poi.apache.org/apidocs/org/apache/poi/openxml4j/opc/OPCPackage.html) implementation. This is required to initialize the low-level stream, and unfortunately it will only perform a true stream if the input source is a `java.io.File` object. While the class *has* an overloaded method that will accept an `java.io.InputStream`, it will read the entire stream into memory.
+Not all POI Cell and Row functions are supported. The most basic ones are (`Cell.getStringCellValue()`, `Cell.getColumnIndex()`, etc.), but don't be surprised if you get a `NotSupportedException` on the more advanced ones.
 
-This library provides a method to read from a stream, but it works by reading out the stream into a temporary file. Once the stream has been read out completely, it will attempt to delete the file. The behavior of this is not guaranteed, and you may end up with a lot of temp files that you don't need. If this becomes a problem, you should perform the read yourself so that you have more control over when the file is removed.
+I'll try to add more support as time goes on, but some items simply can't be read in a streaming fashion. Methods that require dependent values will not have said dependencies available at the point in the stream in which they are read.
 
-A better solution is being investigated currently.
+This is a brief and very generalized list of things that are not supported for reads:
+
+* Functions
+* Macros
+* Styled cells (the styles are kept at the end of the ZIP file)
+
+# Implementation Details
+
+This library will take a provided `InputStream` and output it to the file system. The stream is piped safely through a configurable-sized buffer to prevent large usage of memory. Once the file is created, it is then streamed into memory from the file system.
+
+The reason for needing the stream being outputted in this manner has to do with how ZIP files work. Because the XLSX file format is basically a ZIP file, it's not possible to find all of the entries without reading the entire InputStream.
+
+This is a problem that can't really be gotten around for POI, as it needs a complete list of ZIP entries. The default implementation of reading from an `InputStream` in POI is to read the entire stream directly into memory. This library works by reading out the stream into a temporary file. As part of the auto-close action, the temporary file is deleted.
+
+There are two methods for initializing the

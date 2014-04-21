@@ -39,7 +39,7 @@ import java.util.List;
  * Use this only if your application can handle iterating through an entire workbook, row by
  * row.
  */
-public class StreamingReader implements Iterable<Row> {
+public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingReader.class);
 
   private SharedStringsTable sst;
@@ -48,6 +48,7 @@ public class StreamingReader implements Iterable<Row> {
   private boolean nextIsString;
 
   private int rowCacheSize;
+  private int bufferSize;
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
   private StreamingRow currentRow;
@@ -55,10 +56,11 @@ public class StreamingReader implements Iterable<Row> {
 
   private File tmp;
 
-  private StreamingReader(SharedStringsTable sst, XMLEventReader parser, int rowCacheSize) {
+  private StreamingReader(SharedStringsTable sst, XMLEventReader parser, int rowCacheSize, int bufferSize) {
     this.sst = sst;
     this.parser = parser;
     this.rowCacheSize = rowCacheSize;
+    this.bufferSize = bufferSize;
   }
 
   /**
@@ -136,76 +138,19 @@ public class StreamingReader implements Iterable<Row> {
     return new StreamingIterator();
   }
 
-  /**
-   * Creates a new instance of StreamingReader from a file.
-   *
-   * @param f
-   * @param rowCacheSize
-   * @return
-   */
-  public static StreamingReader createReader(File f, int sheetIndex, int rowCacheSize) {
-    try {
-      OPCPackage pkg = OPCPackage.open(f);
-      XSSFReader reader = new XSSFReader(pkg);
-      SharedStringsTable sst = reader.getSharedStringsTable();
-
-      Iterator<InputStream> iter = reader.getSheetsData();
-      InputStream sheet = null;
-      int index = 0;
-      while (iter.hasNext()) {
-        InputStream is = iter.next();
-        if (index++ == sheetIndex) {
-          sheet = is;
-          log.debug("Found sheet at index [" + sheetIndex + "]");
-          break;
-        }
-      }
-
-      if (sheet == null) {
-        throw new RuntimeException("Unable to find sheet at index [" + sheetIndex + "]");
-      }
-
-      XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
-      return new StreamingReader(sst, parser, rowCacheSize);
-    } catch (IOException e) {
-      throw new OpenException("Failed to open file", e);
-    } catch (OpenXML4JException | XMLStreamException e) {
-      throw new ReadException("Unable to read workbook", e);
+  @Override
+  public void close() {
+    if (tmp != null) {
+      log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+      tmp.delete();
     }
   }
 
-  /**
-   * Creates a new instance of StreamingReader from an InputStream. WARNING: this class will attempt to remove
-   * the file once all data has been read from it, but does not guarantee its deletion. It is not recommended to
-   * use this in production.
-   *
-   * @param is
-   * @param rowCacheSize
-   * @return
-   */
-  public static StreamingReader createReader(InputStream is, int sheetIndex, int rowCacheSize) {
-    File f = null;
-    try {
-      f = writeInputStreamToFile(is);
-      log.debug("Created temp file [" + f.getAbsolutePath() + "]");
-
-      StreamingReader r = createReader(f, sheetIndex, rowCacheSize);
-      r.tmp = f;
-      return r;
-    } catch (IOException e) {
-      throw new ReadException("Unable to read input stream", e);
-    } finally {
-      if (f != null && !f.delete()) {
-        System.err.println("Could not delete file " + f.getAbsolutePath());
-      }
-    }
-  }
-
-  static File writeInputStreamToFile(InputStream is) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xls").toFile();
+  static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
+    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
     try (FileOutputStream fos = new FileOutputStream(f)) {
       int read;
-      byte[] bytes = new byte[1024];
+      byte[] bytes = new byte[bufferSize];
       while ((read = is.read(bytes)) != -1) {
         fos.write(bytes, 0, read);
       }
@@ -215,18 +160,79 @@ public class StreamingReader implements Iterable<Row> {
     }
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  static class Builder {
+    int rowCacheSize = 10;
+    int bufferSize = 1024;
+    int sheetIndex = 0;
+
+    public Builder rowCacheSize(int rowCacheSize) {
+      this.rowCacheSize = rowCacheSize;
+      return this;
+    }
+
+    public Builder bufferSize(int bufferSize) {
+      this.bufferSize = bufferSize;
+      return this;
+    }
+
+    public Builder sheetIndex(int sheetIndex) {
+      this.sheetIndex = sheetIndex;
+      return this;
+    }
+
+    public StreamingReader read(InputStream is) {
+      try {
+        File f = writeInputStreamToFile(is, bufferSize);
+        log.debug("Created temp file [" + f.getAbsolutePath() + "]");
+
+        StreamingReader r = read(f);
+        r.tmp = f;
+        return r;
+      } catch (IOException e) {
+        throw new ReadException("Unable to read input stream", e);
+      }
+    }
+
+    public StreamingReader read(File f) {
+      try {
+        OPCPackage pkg = OPCPackage.open(f);
+        XSSFReader reader = new XSSFReader(pkg);
+        SharedStringsTable sst = reader.getSharedStringsTable();
+
+        Iterator<InputStream> iter = reader.getSheetsData();
+        InputStream sheet = null;
+        int index = 0;
+        while (iter.hasNext()) {
+          InputStream is = iter.next();
+          if (index++ == sheetIndex) {
+            sheet = is;
+            log.debug("Found sheet at index [" + sheetIndex + "]");
+            break;
+          }
+        }
+
+        if (sheet == null) {
+          throw new RuntimeException("Unable to find sheet at index [" + sheetIndex + "]");
+        }
+
+        XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
+        return new StreamingReader(sst, parser, rowCacheSize, bufferSize);
+      } catch (IOException e) {
+        throw new OpenException("Failed to open file", e);
+      } catch (OpenXML4JException | XMLStreamException e) {
+        throw new ReadException("Unable to read workbook", e);
+      }
+    }
+  }
+
   class StreamingIterator implements Iterator<Row> {
     @Override
     public boolean hasNext() {
-      boolean has = (rowCacheIterator != null && rowCacheIterator.hasNext()) || getRow();
-
-      //delete temporary file (if workbook was from inputstream)
-      if (tmp != null && !has) {
-        log.debug("attempting to delete temp file");
-        tmp.delete();
-      }
-
-      return has;
+      return (rowCacheIterator != null && rowCacheIterator.hasNext()) || getRow();
     }
 
     @Override
