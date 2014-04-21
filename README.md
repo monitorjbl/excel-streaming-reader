@@ -8,7 +8,9 @@ Well, that's what this project is for!
 
 # Include
 
-This should be available from the Maven Central repository. Just add this to your POM:
+Hopefully, this will be available from Maven Central soone, but for the moment you'll need to install it yourself. The Maven installation instructions can be found on the [release](https://github.com/monitorjbl/excel-streaming-reader/releases) page.
+
+Once you've installed it, add this to your POM to use it in your projects:
 
 ```
 <dependencies>
