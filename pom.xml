@@ -3,7 +3,6 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>com.thundermoose</groupId>
   <artifactId>xlsx-streamer</artifactId>
   <version>0.1-SNAPSHOT</version>
@@ -21,6 +20,18 @@
       </plugin>
     </plugins>
   </build>
+
+  <licenses>
+    <license>
+      <name>GPLv2</name>
+      <url>https://raw.githubusercontent.com/monitorjbl/excel-streaming-reader/master/LICENSE</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/monitorjbl/excel-streaming-reader.git</url>
+  </scm>
 
   <dependencies>
     <dependency>

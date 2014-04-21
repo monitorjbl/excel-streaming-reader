@@ -68,6 +68,43 @@ This is a brief and very generalized list of things that are not supported for r
 * Macros
 * Styled cells (the styles are kept at the end of the ZIP file)
 
+# Logging
+
+This library uses SLF4j logging. This is a rare use case, but you can plug in your logging provider and get some potentially useful output. Below is an example of doing this with log4j:
+
+**pom.xml dependencies**
+
+```
+<dependencies>
+  <dependency>
+    <groupId>com.thundermoose</groupId>
+    <artifactId>xlsx-streamer</artifactId>
+    <version>0.1</version>
+  </dependency>
+  <dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-log4j12</artifactId>
+    <version>1.7.6</version>
+  </dependency>
+  <dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.17</version>
+  </dependency>
+</dependencies>
+```
+
+**log4j.properties**
+
+```
+log4j.rootLogger=DEBUG, A1
+log4j.appender.A1=org.apache.log4j.ConsoleAppender
+log4j.appender.A1.layout=org.apache.log4j.PatternLayout
+log4j.appender.A1.layout.ConversionPattern=%d{ISO8601} [%c] %p: %m%n
+
+log4j.category.com.thundermoose=DEBUG
+```
+
 # Implementation Details
 
 This library will take a provided `InputStream` and output it to the file system. The stream is piped safely through a configurable-sized buffer to prevent large usage of memory. Once the file is created, it is then streamed into memory from the file system.
