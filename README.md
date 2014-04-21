@@ -31,10 +31,10 @@ import com.thundermoose.xlsx.StreamingReader;
 
 InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
 StreamingReader reader = StreamingReader.builder()
-        .rowCacheSize(100)    // number of rows to keep in memory
-        .bufferSize(4096)     // buffer size to use when reading InputStream to file
-        .sheetIndex(0)        // index of sheet to use (starting from 0)
-        .read(is);            // InputStream or File for XLSX file
+        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
+        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
+        .sheetIndex(0)        // index of sheet to use (defaults to 0)
+        .read(is);            // InputStream or File for XLSX file (required)
 ```
 
 Once you've done this, you can then iterate through the rows and cells like so:
@@ -125,4 +125,15 @@ The reason for needing the stream being outputted in this manner has to do with 
 
 This is a problem that can't really be gotten around for POI, as it needs a complete list of ZIP entries. The default implementation of reading from an `InputStream` in POI is to read the entire stream directly into memory. This library works by reading out the stream into a temporary file. As part of the auto-close action, the temporary file is deleted.
 
-There are two methods for initializing the
+If you need more control over how the file is created/disposed of, there is an option to initialize the library with a `java.io.File`. This file will not be written to or removed:
+
+```java
+File f = new File("/path/to/workbook.xlsx");
+StreamingReader reader = StreamingReader.builder()
+        .rowCacheSize(100)    
+        .bufferSize(4096)     
+        .sheetIndex(0)        
+        .read(f);            
+```
+
+This library will ONLY work with XLSX files. The older XLS format is not capable of being streamed.
