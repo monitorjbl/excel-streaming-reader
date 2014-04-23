@@ -127,7 +127,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
       if (endElement.getName().getLocalPart().equals("v")) {
         currentCell.setContents(lastContents);
-        currentRow.getCellList().add(currentCell);
+        currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
       }
 
     }

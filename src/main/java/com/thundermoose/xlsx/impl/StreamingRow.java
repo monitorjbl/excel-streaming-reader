@@ -7,26 +7,26 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class StreamingRow implements Row {
   private int rowIndex;
-  private List<Cell> cellList = new LinkedList<Cell>();
+  private Map<Integer, Cell> cellMap = new TreeMap<>();
 
   public StreamingRow(int rowIndex) {
     this.rowIndex = rowIndex;
   }
 
-  public List<Cell> getCellList() {
-    return cellList;
+  public Map<Integer, Cell> getCellMap() {
+    return cellMap;
   }
 
-  public void setCellList(List<Cell> cellList) {
-    this.cellList = cellList;
+  public void setCellMap(Map<Integer, Cell> cellMap) {
+    this.cellMap = cellMap;
   }
 
-  /* Supported */
+ /* Supported */
 
   @Override
   public int getRowNum() {
@@ -35,17 +35,17 @@ public class StreamingRow implements Row {
 
   @Override
   public Iterator<Cell> cellIterator() {
-    return cellList.iterator();
+    return cellMap.values().iterator();
   }
 
   @Override
   public Iterator<Cell> iterator() {
-    return cellList.iterator();
+    return cellMap.values().iterator();
   }
 
   @Override
   public Cell getCell(int cellnum) {
-    return cellList.size() > cellnum ? cellList.get(cellnum) : null;
+    return cellMap.get(cellnum);
   }
 
   /* Not supported */
