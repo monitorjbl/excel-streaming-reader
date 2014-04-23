@@ -43,6 +43,11 @@ public class StreamingRow implements Row {
     return cellList.iterator();
   }
 
+  @Override
+  public Cell getCell(int cellnum) {
+    return cellList.size() > cellnum ? cellList.get(cellnum) : null;
+  }
+
   /* Not supported */
 
   @Override
@@ -63,11 +68,6 @@ public class StreamingRow implements Row {
   @Override
   public void setRowNum(int rowNum) {
     throw new NotSupportedException();
-  }
-
-  @Override
-  public Cell getCell(int cellnum) {
-    return cellList.get(cellnum);
   }
 
   @Override

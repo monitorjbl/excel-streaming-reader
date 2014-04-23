@@ -164,7 +164,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     return new Builder();
   }
 
-  static class Builder {
+  public static class Builder {
     int rowCacheSize = 10;
     int bufferSize = 1024;
     int sheetIndex = 0;
