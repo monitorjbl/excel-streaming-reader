@@ -17,7 +17,7 @@ Once you've installed it, add this to your POM to use it in your projects:
   <dependency>
     <groupId>com.thundermoose</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.1</version>
+    <version>0.2.1</version>
   </dependency>
 </dependencies>  
 ```
