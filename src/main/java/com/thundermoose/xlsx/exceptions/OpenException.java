@@ -1,8 +1,5 @@
 package com.thundermoose.xlsx.exceptions;
 
-/**
- * Created by tayjones on 4/20/14.
- */
 public class OpenException extends RuntimeException {
 
   public OpenException() {

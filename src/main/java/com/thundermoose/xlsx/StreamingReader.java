@@ -133,11 +133,21 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
   }
 
+  /**
+   * Returns a new streaming iterator to loop through rows. This iterator is not
+   * guaranteed to have all rows in memory, and any particular iteration may
+   * trigger a load from disk to read in new data.
+   *
+   * @return the streaming iterator
+   */
   @Override
   public Iterator<Row> iterator() {
     return new StreamingIterator();
   }
 
+  /**
+   * Closes the streaming resource, attempting to clean up any temporary files created.
+   */
   @Override
   public void close() {
     if (tmp != null) {
@@ -169,21 +179,59 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     int bufferSize = 1024;
     int sheetIndex = 0;
 
+    /**
+     * The number of rows to keep in memory at any given point.
+     * <p/>
+     * Defaults to 10
+     *
+     * @param rowCacheSize number of rows
+     * @return reference to current {@code Builder}
+     */
     public Builder rowCacheSize(int rowCacheSize) {
       this.rowCacheSize = rowCacheSize;
       return this;
     }
 
+    /**
+     * The number of bytes to read into memory from the input
+     * resource.
+     * <p/>
+     * Defaults to 1024
+     *
+     * @param bufferSize buffer size in bytes
+     * @return reference to current {@code Builder}
+     */
     public Builder bufferSize(int bufferSize) {
       this.bufferSize = bufferSize;
       return this;
     }
 
+    /**
+     * Which sheet to open. There can only be one sheet open
+     * for a single instance of {@code StreamingReader}. If
+     * more sheets need to be read, a new instance must be
+     * created.
+     * <p/>
+     * Defaults to 0
+     *
+     * @param sheetIndex index of sheet
+     * @return reference to current {@code Builder}
+     */
     public Builder sheetIndex(int sheetIndex) {
       this.sheetIndex = sheetIndex;
       return this;
     }
 
+    /**
+     * Reads a given {@code InputStream} and returns a new
+     * instance of {@code StreamingReader}. Due to Apache POI
+     * limitations, a temporary file must be written in order
+     * to create a streaming iterator. This process will use
+     * the same buffer size as specified in {@link #bufferSize(int)}.
+     *
+     * @param is input stream to read in
+     * @return built streaming reader instance
+     */
     public StreamingReader read(InputStream is) {
       try {
         File f = writeInputStreamToFile(is, bufferSize);
@@ -197,6 +245,12 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       }
     }
 
+    /**
+     * Reads a given {@code File} and returns a new instance
+     * of {@code StreamingReader}.
+     * @param f file to read in
+     * @return built streaming reader instance
+     */
     public StreamingReader read(File f) {
       try {
         OPCPackage pkg = OPCPackage.open(f);
