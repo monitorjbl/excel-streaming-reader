@@ -1,4 +1,4 @@
-package com.thundermoose.xlsx.exceptions;
+package com.monitorjbl.xlsx.exceptions;
 
 public class NotSupportedException extends RuntimeException {
 

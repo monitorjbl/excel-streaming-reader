@@ -1,6 +1,6 @@
-package com.thundermoose.xlsx.impl;
+package com.monitorjbl.xlsx.impl;
 
-import com.thundermoose.xlsx.exceptions.NotSupportedException;
+import com.monitorjbl.xlsx.exceptions.NotSupportedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;

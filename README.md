@@ -15,9 +15,9 @@ Once you've installed it, add this to your POM to use it in your projects:
 ```
 <dependencies>
   <dependency>
-    <groupId>com.thundermoose</groupId>
+    <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.3-SNAPSHOT</version>
   </dependency>
 </dependencies>  
 ```
@@ -27,7 +27,7 @@ Once you've installed it, add this to your POM to use it in your projects:
 This library is very specific in how it is meant to be used. You should initialize it like so:
 
 ```java
-import com.thundermoose.xlsx.StreamingReader;
+import com.monitorjbl.xlsx.StreamingReader;
 
 InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
 StreamingReader reader = StreamingReader.builder()
@@ -89,9 +89,9 @@ This library uses SLF4j logging. This is a rare use case, but you can plug in yo
 ```
 <dependencies>
   <dependency>
-    <groupId>com.thundermoose</groupId>
+    <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.1</version>
+    <version>0.2.3-SNAPSHOT</version>
   </dependency>
   <dependency>
     <groupId>org.slf4j</groupId>
@@ -114,7 +114,7 @@ log4j.appender.A1=org.apache.log4j.ConsoleAppender
 log4j.appender.A1.layout=org.apache.log4j.PatternLayout
 log4j.appender.A1.layout.ConversionPattern=%d{ISO8601} [%c] %p: %m%n
 
-log4j.category.com.thundermoose=DEBUG
+log4j.category.com.monitorjbl=DEBUG
 ```
 
 # Implementation Details

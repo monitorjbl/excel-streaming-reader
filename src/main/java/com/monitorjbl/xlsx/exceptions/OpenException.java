@@ -1,4 +1,4 @@
-package com.thundermoose.xlsx.exceptions;
+package com.monitorjbl.xlsx.exceptions;
 
 public class OpenException extends RuntimeException {
 
