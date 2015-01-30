@@ -8,16 +8,16 @@ Well, that's what this project is for!
 
 # Include
 
-Hopefully, this will be available from Maven Central soon, but for the moment you'll need to install it yourself. The Maven installation instructions can be found on the [release](https://github.com/monitorjbl/excel-streaming-reader/releases) page.
+This library is available from from Maven Central, and you can optionally install it yourself. The Maven installation instructions can be found on the [release](https://github.com/monitorjbl/excel-streaming-reader/releases) page.
 
-Once you've installed it, add this to your POM to use it in your projects:
+To use it, add this to your POM:
 
 ```
 <dependencies>
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.2.3</version>
   </dependency>
 </dependencies>  
 ```
@@ -91,7 +91,7 @@ This library uses SLF4j logging. This is a rare use case, but you can plug in yo
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.2.3</version>
   </dependency>
   <dependency>
     <groupId>org.slf4j</groupId>
