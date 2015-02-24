@@ -5,6 +5,7 @@ import com.monitorjbl.xlsx.exceptions.OpenException;
 import com.monitorjbl.xlsx.exceptions.ReadException;
 import com.monitorjbl.xlsx.impl.StreamingCell;
 import com.monitorjbl.xlsx.impl.StreamingRow;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,6 +15,8 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.xml.namespace.QName;
@@ -34,6 +37,10 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+
+import static com.monitorjbl.xlsx.XmlUtils.document;
+import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
 
 /**
  * Streaming Excel workbook implementation. Most advanced features of POI are not supported.
@@ -185,6 +192,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     int rowCacheSize = 10;
     int bufferSize = 1024;
     int sheetIndex = 0;
+    String sheetName;
 
     /**
      * The number of rows to keep in memory at any given point.
@@ -229,6 +237,11 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       return this;
     }
 
+    public Builder sheetName(String sheetName) {
+      this.sheetName = sheetName;
+      return this;
+    }
+
     /**
      * Reads a given {@code InputStream} and returns a new
      * instance of {@code StreamingReader}. Due to Apache POI
@@ -268,18 +281,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         XSSFReader reader = new XSSFReader(pkg);
         SharedStringsTable sst = reader.getSharedStringsTable();
 
-        Iterator<InputStream> iter = reader.getSheetsData();
-        InputStream sheet = null;
-        int index = 0;
-        while (iter.hasNext()) {
-          InputStream is = iter.next();
-          if (index++ == sheetIndex) {
-            sheet = is;
-            log.debug("Found sheet at index [" + sheetIndex + "]");
-            break;
-          }
-        }
-
+        InputStream sheet = findSheet(reader);
         if (sheet == null) {
           throw new RuntimeException("Unable to find sheet at index [" + sheetIndex + "]");
         }
@@ -291,6 +293,36 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       } catch (OpenXML4JException | XMLStreamException e) {
         throw new ReadException("Unable to read workbook", e);
       }
+    }
+
+    InputStream findSheet(XSSFReader reader) throws IOException, InvalidFormatException {
+      int index = sheetIndex;
+      if (sheetName != null) {
+        index = -1;
+        //This file is separate from the worksheet data, and should be fairly small
+        NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
+        for (int i = 0; i < nl.getLength(); i++) {
+          if (Objects.equals(nl.item(i).getAttributes().getNamedItem("name").getTextContent(), sheetName)) {
+            index = i;
+          }
+        }
+        if (index < 0) {
+          return null;
+        }
+      }
+      Iterator<InputStream> iter = reader.getSheetsData();
+      InputStream sheet = null;
+
+      int i = 0;
+      while (iter.hasNext()) {
+        InputStream is = iter.next();
+        if (i++ == index) {
+          sheet = is;
+          log.debug("Found sheet at index [" + sheetIndex + "]");
+          break;
+        }
+      }
+      return sheet;
     }
   }
 

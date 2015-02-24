@@ -203,4 +203,59 @@ public class StreamingReaderTest {
       assertEquals("yeah", row.get(0).getStringCellValue());
     }
   }
+
+  @Test
+  public void testSheetName_zulu() throws Exception {
+    try (
+        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        StreamingReader reader = StreamingReader.builder()
+            .sheetName("SheetZulu")
+            .read(is);
+    ) {
+
+      List<List<Cell>> obj = new ArrayList<>();
+
+      for (Row r : reader) {
+        List<Cell> o = new ArrayList<>();
+        for (Cell c : r) {
+          o.add(c);
+        }
+        obj.add(o);
+      }
+
+      assertEquals(1, obj.size());
+      List<Cell> row;
+
+      row = obj.get(0);
+      assertEquals(1, row.size());
+      assertEquals("yeah", row.get(0).getStringCellValue());
+    }
+  }
+
+  @Test
+  public void testSheetName_alpha() throws Exception {
+    try (
+        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        StreamingReader reader = StreamingReader.builder()
+            .sheetName("SheetAlpha")
+            .read(is);
+    ) {
+      List<List<Cell>> obj = new ArrayList<>();
+
+      for (Row r : reader) {
+        List<Cell> o = new ArrayList<>();
+        for (Cell c : r) {
+          o.add(c);
+        }
+        obj.add(o);
+      }
+
+      assertEquals(1, obj.size());
+      List<Cell> row;
+
+      row = obj.get(0);
+      assertEquals(1, row.size());
+      assertEquals("stuff", row.get(0).getStringCellValue());
+    }
+  }
 }
