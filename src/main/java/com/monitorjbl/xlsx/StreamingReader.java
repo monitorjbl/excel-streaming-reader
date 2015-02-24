@@ -1,5 +1,6 @@
 package com.monitorjbl.xlsx;
 
+import com.monitorjbl.xlsx.exceptions.CloseException;
 import com.monitorjbl.xlsx.exceptions.OpenException;
 import com.monitorjbl.xlsx.exceptions.ReadException;
 import com.monitorjbl.xlsx.impl.StreamingCell;
@@ -150,6 +151,12 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
    */
   @Override
   public void close() {
+    try {
+      parser.close();
+    } catch (XMLStreamException e) {
+      throw new CloseException(e);
+    }
+
     if (tmp != null) {
       log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
       tmp.delete();
@@ -248,6 +255,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     /**
      * Reads a given {@code File} and returns a new instance
      * of {@code StreamingReader}.
+     *
      * @param f file to read in
      * @return built streaming reader instance
      */
