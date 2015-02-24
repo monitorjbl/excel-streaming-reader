@@ -49,7 +49,6 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private boolean nextIsString;
 
   private int rowCacheSize;
-  private int bufferSize;
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
   private StreamingRow currentRow;
@@ -57,11 +56,10 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
   private File tmp;
 
-  private StreamingReader(SharedStringsTable sst, XMLEventReader parser, int rowCacheSize, int bufferSize) {
+  private StreamingReader(SharedStringsTable sst, XMLEventReader parser, int rowCacheSize) {
     this.sst = sst;
     this.parser = parser;
     this.rowCacheSize = rowCacheSize;
-    this.bufferSize = bufferSize;
   }
 
   /**
@@ -287,7 +285,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         }
 
         XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
-        return new StreamingReader(sst, parser, rowCacheSize, bufferSize);
+        return new StreamingReader(sst, parser, rowCacheSize);
       } catch (IOException e) {
         throw new OpenException("Failed to open file", e);
       } catch (OpenXML4JException | XMLStreamException e) {
