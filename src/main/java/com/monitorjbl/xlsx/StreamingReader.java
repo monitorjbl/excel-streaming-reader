@@ -148,6 +148,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
   /**
    * Closes the streaming resource, attempting to clean up any temporary files created.
+   *
+   * @throws com.monitorjbl.xlsx.exceptions.CloseException if there is an issue closing the stream
    */
   @Override
   public void close() {
@@ -238,6 +240,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param is input stream to read in
      * @return built streaming reader instance
+     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the stream
      */
     public StreamingReader read(InputStream is) {
       try {
@@ -258,6 +261,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param f file to read in
      * @return built streaming reader instance
+     * @throws com.monitorjbl.xlsx.exceptions.OpenException if there is an issue opening the file
+     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the file
      */
     public StreamingReader read(File f) {
       try {
