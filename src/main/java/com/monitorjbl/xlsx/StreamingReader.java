@@ -236,6 +236,15 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       return this;
     }
 
+    /**
+     * Which sheet to open. There can only be one sheet open
+     * for a single instance of {@code StreamingReader}. If
+     * more sheets need to be read, a new instance must be
+     * created.
+     *
+     * @param sheetName name of sheet
+     * @return reference to current {@code Builder}
+     */
     public Builder sheetName(String sheetName) {
       this.sheetName = sheetName;
       return this;
