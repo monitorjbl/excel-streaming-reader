@@ -38,8 +38,8 @@ public class StreamingReaderTest {
   public void testTypes() throws Exception {
     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
     try (
-            InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
-            StreamingReader reader = StreamingReader.builder().read(is);
+        InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
@@ -112,8 +112,8 @@ public class StreamingReaderTest {
   @Test
   public void testGaps() throws Exception {
     try (
-            InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
-            StreamingReader reader = StreamingReader.builder().read(is);
+        InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
@@ -155,10 +155,10 @@ public class StreamingReaderTest {
   @Test
   public void testMultipleSheets_alpha() throws Exception {
     try (
-            InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-            StreamingReader reader = StreamingReader.builder()
-                    .sheetIndex(0)
-                    .read(is);
+        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        StreamingReader reader = StreamingReader.builder()
+            .sheetIndex(0)
+            .read(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
@@ -182,10 +182,10 @@ public class StreamingReaderTest {
   @Test
   public void testMultipleSheets_zulu() throws Exception {
     try (
-            InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-            StreamingReader reader = StreamingReader.builder()
-                    .sheetIndex(1)
-                    .read(is);
+        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        StreamingReader reader = StreamingReader.builder()
+            .sheetIndex(1)
+            .read(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
@@ -263,7 +263,7 @@ public class StreamingReaderTest {
   }
 
   @Test(expected = MissingSheetException.class)
-  public void testSheetName_missing() throws Exception {
+  public void testSheetName_missingInStream() throws Exception {
     try (
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
         StreamingReader reader = StreamingReader.builder()
@@ -271,6 +271,20 @@ public class StreamingReaderTest {
             .read(is);
     ) {
       fail("Should have failed");
+    }
+  }
+
+  @Test
+  public void testSheetName_missingInFile() throws Exception {
+    File f = new File("src/test/resources/sheets.xlsx");
+    try (
+        StreamingReader reader = StreamingReader.builder()
+            .sheetName("adsfasdfasdfasdf")
+            .read(f);
+    ) {
+      fail("Should have failed");
+    } catch (MissingSheetException e) {
+      assertTrue(f.exists());
     }
   }
 }

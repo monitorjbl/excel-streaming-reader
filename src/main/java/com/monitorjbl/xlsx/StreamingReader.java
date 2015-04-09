@@ -266,8 +266,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the stream
      */
     public StreamingReader read(InputStream is) {
+      File f = null;
       try {
-        File f = writeInputStreamToFile(is, bufferSize);
+        f = writeInputStreamToFile(is, bufferSize);
         log.debug("Created temp file [" + f.getAbsolutePath() + "]");
 
         StreamingReader r = read(f);
@@ -275,6 +276,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         return r;
       } catch (IOException e) {
         throw new ReadException("Unable to read input stream", e);
+      } catch (RuntimeException e) {
+        f.delete();
+        throw e;
       }
     }
 
@@ -301,14 +305,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
         return new StreamingReader(sst, parser, rowCacheSize);
       } catch (IOException e) {
-        f.delete();
         throw new OpenException("Failed to open file", e);
       } catch (OpenXML4JException | XMLStreamException e) {
-        f.delete();
         throw new ReadException("Unable to read workbook", e);
-      } catch (RuntimeException e) {
-        f.delete();
-        throw e;
       }
     }
 
