@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.monitorjbl</groupId>
   <artifactId>xlsx-streamer</artifactId>
-  <version>0.2.6-SNAPSHOT</version>
+  <version>0.2.6</version>
   <name>Streaming Excel reader</name>
   <description>Streaming Excel reader</description>
   <url>https://github.com/monitorjbl/excel-streaming-reader</url>
