@@ -1,6 +1,7 @@
 package com.monitorjbl.xlsx;
 
 import com.monitorjbl.xlsx.exceptions.CloseException;
+import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import com.monitorjbl.xlsx.exceptions.OpenException;
 import com.monitorjbl.xlsx.exceptions.ReadException;
 import com.monitorjbl.xlsx.impl.StreamingCell;
@@ -291,15 +292,20 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         InputStream sheet = findSheet(reader);
         if (sheet == null) {
-          throw new RuntimeException("Unable to find sheet at index [" + sheetIndex + "]");
+          throw new MissingSheetException("Unable to find sheet at index [" + sheetIndex + "]");
         }
 
         XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
         return new StreamingReader(sst, parser, rowCacheSize);
       } catch (IOException e) {
+        f.delete();
         throw new OpenException("Failed to open file", e);
       } catch (OpenXML4JException | XMLStreamException e) {
+        f.delete();
         throw new ReadException("Unable to read workbook", e);
+      } catch (RuntimeException e) {
+        f.delete();
+        throw e;
       }
     }
 

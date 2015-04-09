@@ -1,5 +1,6 @@
 package com.monitorjbl.xlsx;
 
+import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StreamingReaderTest {
 
@@ -256,6 +259,18 @@ public class StreamingReaderTest {
       row = obj.get(0);
       assertEquals(1, row.size());
       assertEquals("stuff", row.get(0).getStringCellValue());
+    }
+  }
+
+  @Test(expected = MissingSheetException.class)
+  public void testSheetName_missing() throws Exception {
+    try (
+        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        StreamingReader reader = StreamingReader.builder()
+            .sheetName("adsfasdfasdfasdf")
+            .read(is);
+    ) {
+      fail("Should have failed");
     }
   }
 }
