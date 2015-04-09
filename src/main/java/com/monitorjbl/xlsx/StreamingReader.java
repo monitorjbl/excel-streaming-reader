@@ -196,8 +196,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
     /**
      * The number of rows to keep in memory at any given point.
-     * <p/>
+     * <p>
      * Defaults to 10
+     * </p>
      *
      * @param rowCacheSize number of rows
      * @return reference to current {@code Builder}
@@ -210,8 +211,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     /**
      * The number of bytes to read into memory from the input
      * resource.
-     * <p/>
+     * <p>
      * Defaults to 1024
+     * </p>
      *
      * @param bufferSize buffer size in bytes
      * @return reference to current {@code Builder}
@@ -226,8 +228,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * for a single instance of {@code StreamingReader}. If
      * more sheets need to be read, a new instance must be
      * created.
-     * <p/>
+     * <p>
      * Defaults to 0
+     * </p>
      *
      * @param sheetIndex index of sheet
      * @return reference to current {@code Builder}

@@ -10,6 +10,10 @@
   <description>Streaming Excel reader</description>
   <url>https://github.com/monitorjbl/excel-streaming-reader</url>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
   <developers>
     <developer>
       <id>monitorjbl</id>
