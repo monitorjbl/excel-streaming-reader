@@ -56,7 +56,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private boolean nextIsString;
 
   private int rowCacheSize;
-  private List<Row> rowCache = new ArrayList<>();
+  private List<Row> rowCache = new ArrayList<Row>();
   private Iterator<Row> rowCacheIterator;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
@@ -77,7 +77,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private boolean getRow() {
     try {
       int iters = 0;
-      rowCache = new ArrayList<>();
+      rowCache = new ArrayList();
       while (rowCache.size() < rowCacheSize && parser.hasNext()) {
         handleEvent(parser.nextEvent());
         iters++;
@@ -85,7 +85,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       rowCache.add(currentRow);
       rowCacheIterator = rowCache.iterator();
       return iters > 0;
-    } catch (XMLStreamException | SAXException e) {
+    } catch (XMLStreamException e) {
+      log.debug("End of stream");
+    } catch (SAXException e) {
       log.debug("End of stream");
     }
     return false;
@@ -172,16 +174,21 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
   static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
     File f = Files.createTempFile("tmp-", ".xlsx").toFile();
-    try (FileOutputStream fos = new FileOutputStream(f)) {
-      int read;
-      byte[] bytes = new byte[bufferSize];
-      while ((read = is.read(bytes)) != -1) {
-        fos.write(bytes, 0, read);
-      }
-      is.close();
-      fos.close();
-      return f;
+    FileOutputStream fos = null;
+    try {
+        fos = new FileOutputStream(f);
+        int read;
+        byte[] bytes = new byte[bufferSize];
+        while ((read = is.read(bytes)) != -1) {
+          fos.write(bytes, 0, read);
+        }
+      } finally {
+        is.close();
+        if ( fos != null ) {
+            fos.close();
+        }
     }
+    return f;
   }
 
   public static Builder builder() {
@@ -306,7 +313,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         return new StreamingReader(sst, parser, rowCacheSize);
       } catch (IOException e) {
         throw new OpenException("Failed to open file", e);
-      } catch (OpenXML4JException | XMLStreamException e) {
+      } catch (XMLStreamException e) {
+        throw new ReadException("Unable to read workbook", e);
+      } catch (OpenXML4JException e) {
         throw new ReadException("Unable to read workbook", e);
       }
     }

@@ -17,7 +17,11 @@ public class XmlUtils {
   public static Document document(InputStream is) {
     try {
       return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-    } catch (SAXException | IOException | ParserConfigurationException e) {
+    } catch (SAXException e) {
+      throw new ParseException(e);
+    } catch (IOException e) {
+      throw new ParseException(e);
+    } catch (ParserConfigurationException e) {
       throw new ParseException(e);
     }
   }

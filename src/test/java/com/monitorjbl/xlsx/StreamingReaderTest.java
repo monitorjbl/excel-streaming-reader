@@ -22,269 +22,332 @@ import static org.junit.Assert.fail;
 
 public class StreamingReaderTest {
 
-  @Ignore
-  public void testFullSet() throws Exception {
-    Workbook wb = new XSSFWorkbook(new FileInputStream("src/test/resources/gaps.xlsx"));
-    Sheet s = wb.getSheet("Sheet1");
+    @Ignore
+    public void testFullSet() throws Exception {
+        Workbook wb = new XSSFWorkbook(new FileInputStream("src/test/resources/gaps.xlsx"));
+        Sheet s = wb.getSheet("Sheet1");
 
-    for (Row r : s) {
-      for (Cell c : r) {
-        System.out.println(c.getRowIndex() + ":" + c.getColumnIndex());
-      }
-    }
-  }
-
-  @Test
-  public void testTypes() throws Exception {
-    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    try (
-        InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
-        StreamingReader reader = StreamingReader.builder().read(is);
-    ) {
-
-      List<List<Cell>> obj = new ArrayList<>();
-
-      for (Row r : reader) {
-        List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
-          o.add(c);
+        for (Row r : s) {
+            for (Cell c : r) {
+                System.out.println(c.getRowIndex() + ":" + c.getColumnIndex());
+            }
         }
-        obj.add(o);
-      }
-
-      assertEquals(6, obj.size());
-      List<Cell> row;
-
-      row = obj.get(0);
-      assertEquals(2, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
-      assertEquals("Type", row.get(0).getStringCellValue());
-      assertEquals("Value", row.get(1).getStringCellValue());
-
-      row = obj.get(1);
-      assertEquals(2, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
-      assertEquals("string", row.get(0).getStringCellValue());
-      assertEquals("jib-jab", row.get(1).getStringCellValue());
-
-      row = obj.get(2);
-      assertEquals(2, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_NUMERIC, row.get(1).getCellType());
-      assertEquals("int", row.get(0).getStringCellValue());
-      assertEquals(10, row.get(1).getNumericCellValue(), 0);
-
-      row = obj.get(3);
-      assertEquals(2, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_NUMERIC, row.get(1).getCellType());
-      assertEquals("double", row.get(0).getStringCellValue());
-      assertEquals(3.14, row.get(1).getNumericCellValue(), 0);
-
-      row = obj.get(4);
-      assertEquals(2, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_NUMERIC, row.get(1).getCellType());
-      assertEquals("date", row.get(0).getStringCellValue());
-      assertEquals(df.parse("1/1/2014"), row.get(1).getDateCellValue());
-
-      row = obj.get(5);
-      assertEquals(7, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(2).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(3).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(4).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(5).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(6).getCellType());
-      assertEquals("long", row.get(0).getStringCellValue());
-      assertEquals("ass", row.get(1).getStringCellValue());
-      assertEquals("row", row.get(2).getStringCellValue());
-      assertEquals("look", row.get(3).getStringCellValue());
-      assertEquals("at", row.get(4).getStringCellValue());
-      assertEquals("it", row.get(5).getStringCellValue());
-      assertEquals("go", row.get(6).getStringCellValue());
     }
-  }
 
-  @Test
-  public void testGaps() throws Exception {
-    try (
-        InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
-        StreamingReader reader = StreamingReader.builder().read(is);
-    ) {
-      List<List<Cell>> obj = new ArrayList<>();
+    @Test
+    public void testTypes() throws Exception {
+        SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        InputStream is = null;
+        StreamingReader reader = null;
+        try {
+            is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
+            reader = StreamingReader.builder().read(is);
 
-      for (Row r : reader) {
-        List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
-          o.add(c);
+            List<List<Cell>> obj = new ArrayList();
+
+            for (Row r : reader) {
+                List<Cell> o = new ArrayList();
+                if (r != null) {
+                    for (Cell c : r) {
+                        o.add(c);
+                    }
+                }
+                obj.add(o);
+            }
+
+            assertEquals(6, obj.size());
+            List<Cell> row;
+
+            row = obj.get(0);
+            assertEquals(2, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
+            assertEquals("Type", row.get(0).getStringCellValue());
+            assertEquals("Value", row.get(1).getStringCellValue());
+
+            row = obj.get(1);
+            assertEquals(2, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
+            assertEquals("string", row.get(0).getStringCellValue());
+            assertEquals("jib-jab", row.get(1).getStringCellValue());
+
+            row = obj.get(2);
+            assertEquals(2, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_NUMERIC, row.get(1).getCellType());
+            assertEquals("int", row.get(0).getStringCellValue());
+            assertEquals(10, row.get(1).getNumericCellValue(), 0);
+
+            row = obj.get(3);
+            assertEquals(2, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_NUMERIC, row.get(1).getCellType());
+            assertEquals("double", row.get(0).getStringCellValue());
+            assertEquals(3.14, row.get(1).getNumericCellValue(), 0);
+
+            row = obj.get(4);
+            assertEquals(2, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_NUMERIC, row.get(1).getCellType());
+            assertEquals("date", row.get(0).getStringCellValue());
+            assertEquals(df.parse("1/1/2014"), row.get(1).getDateCellValue());
+
+            row = obj.get(5);
+            assertEquals(7, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(2).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(3).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(4).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(5).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(6).getCellType());
+            assertEquals("long", row.get(0).getStringCellValue());
+            assertEquals("ass", row.get(1).getStringCellValue());
+            assertEquals("row", row.get(2).getStringCellValue());
+            assertEquals("look", row.get(3).getStringCellValue());
+            assertEquals("at", row.get(4).getStringCellValue());
+            assertEquals("it", row.get(5).getStringCellValue());
+            assertEquals("go", row.get(6).getStringCellValue());
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (reader != null) {
+                reader.close();
+            }
         }
-        obj.add(o);
-      }
-
-      assertEquals(2, obj.size());
-      List<Cell> row;
-
-      row = obj.get(0);
-      assertEquals(2, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
-      assertEquals("Dat", row.get(0).getStringCellValue());
-      assertEquals(0, row.get(0).getColumnIndex());
-      assertEquals(0, row.get(0).getRowIndex());
-      assertEquals("gap", row.get(1).getStringCellValue());
-      assertEquals(2, row.get(1).getColumnIndex());
-      assertEquals(0, row.get(1).getRowIndex());
-
-      row = obj.get(1);
-      assertEquals(2, row.size());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
-      assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
-      assertEquals("guuurrrrrl", row.get(0).getStringCellValue());
-      assertEquals(0, row.get(0).getColumnIndex());
-      assertEquals(6, row.get(0).getRowIndex());
-      assertEquals("!", row.get(1).getStringCellValue());
-      assertEquals(6, row.get(1).getColumnIndex());
-      assertEquals(6, row.get(1).getRowIndex());
     }
-  }
 
-  @Test
-  public void testMultipleSheets_alpha() throws Exception {
-    try (
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-        StreamingReader reader = StreamingReader.builder()
-            .sheetIndex(0)
-            .read(is);
-    ) {
-      List<List<Cell>> obj = new ArrayList<>();
+    @Test
+    public void testGaps() throws Exception {
+        InputStream is = null;
+        StreamingReader reader = null;
+        try {
+            is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
+            reader = StreamingReader.builder().read(is);
 
-      for (Row r : reader) {
-        List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
-          o.add(c);
+            List<List<Cell>> obj = new ArrayList();
+
+            for (Row r : reader) {
+                List<Cell> o = new ArrayList();
+                for (Cell c : r) {
+                    o.add(c);
+                }
+                obj.add(o);
+            }
+
+            assertEquals(2, obj.size());
+            List<Cell> row;
+
+            row = obj.get(0);
+            assertEquals(2, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
+            assertEquals("Dat", row.get(0).getStringCellValue());
+            assertEquals(0, row.get(0).getColumnIndex());
+            assertEquals(0, row.get(0).getRowIndex());
+            assertEquals("gap", row.get(1).getStringCellValue());
+            assertEquals(2, row.get(1).getColumnIndex());
+            assertEquals(0, row.get(1).getRowIndex());
+
+            row = obj.get(1);
+            assertEquals(2, row.size());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+            assertEquals(Cell.CELL_TYPE_STRING, row.get(1).getCellType());
+            assertEquals("guuurrrrrl", row.get(0).getStringCellValue());
+            assertEquals(0, row.get(0).getColumnIndex());
+            assertEquals(6, row.get(0).getRowIndex());
+            assertEquals("!", row.get(1).getStringCellValue());
+            assertEquals(6, row.get(1).getColumnIndex());
+            assertEquals(6, row.get(1).getRowIndex());
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (reader != null) {
+                reader.close();
+            }
         }
-        obj.add(o);
-      }
-
-      assertEquals(1, obj.size());
-      List<Cell> row;
-
-      row = obj.get(0);
-      assertEquals(1, row.size());
-      assertEquals("stuff", row.get(0).getStringCellValue());
     }
-  }
 
-  @Test
-  public void testMultipleSheets_zulu() throws Exception {
-    try (
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-        StreamingReader reader = StreamingReader.builder()
-            .sheetIndex(1)
-            .read(is);
-    ) {
+    @Test
+    public void testMultipleSheets_alpha() throws Exception {
+        InputStream is = null;
+        StreamingReader reader = null;
+        try {
+            is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+            reader = StreamingReader.builder()
+                    .sheetIndex(0)
+                    .read(is);
+            List<List<Cell>> obj = new ArrayList();
 
-      List<List<Cell>> obj = new ArrayList<>();
+            for (Row r : reader) {
+                List<Cell> o = new ArrayList();
+                for (Cell c : r) {
+                    o.add(c);
+                }
+                obj.add(o);
+            }
 
-      for (Row r : reader) {
-        List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
-          o.add(c);
+            assertEquals(1, obj.size());
+            List<Cell> row;
+
+            row = obj.get(0);
+            assertEquals(1, row.size());
+            assertEquals("stuff", row.get(0).getStringCellValue());
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (reader != null) {
+                reader.close();
+            }
         }
-        obj.add(o);
-      }
-
-      assertEquals(1, obj.size());
-      List<Cell> row;
-
-      row = obj.get(0);
-      assertEquals(1, row.size());
-      assertEquals("yeah", row.get(0).getStringCellValue());
     }
-  }
 
-  @Test
-  public void testSheetName_zulu() throws Exception {
-    try (
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-        StreamingReader reader = StreamingReader.builder()
-            .sheetName("SheetZulu")
-            .read(is);
-    ) {
+    @Test
+    public void testMultipleSheets_zulu() throws Exception {
+        InputStream is = null;
+        StreamingReader reader = null;
+        try {
+            is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+            reader = StreamingReader.builder()
+                    .sheetIndex(1)
+                    .read(is);
 
-      List<List<Cell>> obj = new ArrayList<>();
+            List<List<Cell>> obj = new ArrayList();
 
-      for (Row r : reader) {
-        List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
-          o.add(c);
+            for (Row r : reader) {
+                List<Cell> o = new ArrayList();
+                for (Cell c : r) {
+                    o.add(c);
+                }
+                obj.add(o);
+            }
+
+            assertEquals(1, obj.size());
+            List<Cell> row;
+
+            row = obj.get(0);
+            assertEquals(1, row.size());
+            assertEquals("yeah", row.get(0).getStringCellValue());
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (reader != null) {
+                reader.close();
+            }
         }
-        obj.add(o);
-      }
-
-      assertEquals(1, obj.size());
-      List<Cell> row;
-
-      row = obj.get(0);
-      assertEquals(1, row.size());
-      assertEquals("yeah", row.get(0).getStringCellValue());
     }
-  }
 
-  @Test
-  public void testSheetName_alpha() throws Exception {
-    try (
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-        StreamingReader reader = StreamingReader.builder()
-            .sheetName("SheetAlpha")
-            .read(is);
-    ) {
-      List<List<Cell>> obj = new ArrayList<>();
+    @Test
+    public void testSheetName_zulu() throws Exception {
+        InputStream is = null;
+        StreamingReader reader = null;
+        try {
+            is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+            reader = StreamingReader.builder()
+                    .sheetName("SheetZulu")
+                    .read(is);
 
-      for (Row r : reader) {
-        List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
-          o.add(c);
+            List<List<Cell>> obj = new ArrayList();
+
+            for (Row r : reader) {
+                List<Cell> o = new ArrayList();
+                for (Cell c : r) {
+                    o.add(c);
+                }
+                obj.add(o);
+            }
+
+            assertEquals(1, obj.size());
+            List<Cell> row;
+
+            row = obj.get(0);
+            assertEquals(1, row.size());
+            assertEquals("yeah", row.get(0).getStringCellValue());
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (reader != null) {
+                reader.close();
+            }
         }
-        obj.add(o);
-      }
-
-      assertEquals(1, obj.size());
-      List<Cell> row;
-
-      row = obj.get(0);
-      assertEquals(1, row.size());
-      assertEquals("stuff", row.get(0).getStringCellValue());
     }
-  }
 
-  @Test(expected = MissingSheetException.class)
-  public void testSheetName_missingInStream() throws Exception {
-    try (
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-        StreamingReader reader = StreamingReader.builder()
-            .sheetName("adsfasdfasdfasdf")
-            .read(is);
-    ) {
-      fail("Should have failed");
-    }
-  }
+    @Test
+    public void testSheetName_alpha() throws Exception {
+        InputStream is = null;
+        StreamingReader reader = null;
+        try {
+            is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+            reader = StreamingReader.builder()
+                    .sheetName("SheetAlpha")
+                    .read(is);
+            List<List<Cell>> obj = new ArrayList();
 
-  @Test
-  public void testSheetName_missingInFile() throws Exception {
-    File f = new File("src/test/resources/sheets.xlsx");
-    try (
-        StreamingReader reader = StreamingReader.builder()
-            .sheetName("adsfasdfasdfasdf")
-            .read(f);
-    ) {
-      fail("Should have failed");
-    } catch (MissingSheetException e) {
-      assertTrue(f.exists());
+            for (Row r : reader) {
+                List<Cell> o = new ArrayList();
+                for (Cell c : r) {
+                    o.add(c);
+                }
+                obj.add(o);
+            }
+
+            assertEquals(1, obj.size());
+            List<Cell> row;
+
+            row = obj.get(0);
+            assertEquals(1, row.size());
+            assertEquals("stuff", row.get(0).getStringCellValue());
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (reader != null) {
+                reader.close();
+            }
+        }
     }
-  }
+
+    @Test(expected = MissingSheetException.class)
+    public void testSheetName_missingInStream() throws Exception {
+        InputStream is = null;
+        StreamingReader reader = null;
+        try {
+            is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+            reader = StreamingReader.builder()
+                    .sheetName("adsfasdfasdfasdf")
+                    .read(is);
+            fail("Should have failed");
+        } finally {
+            if (is != null) {
+                is.close();
+            }
+            if (reader != null) {
+                reader.close();
+            }
+        }
+    }
+
+    @Test
+    public void testSheetName_missingInFile() throws Exception {
+        File f = new File("src/test/resources/sheets.xlsx");
+        StreamingReader reader = null;
+        try {
+            reader = StreamingReader.builder()
+                    .sheetName("adsfasdfasdfasdf")
+                    .read(f);
+            fail("Should have failed");
+        } catch (MissingSheetException e) {
+            assertTrue(f.exists());
+        } finally {
+            if (reader != null) {
+                reader.close();
+            }
+        }
+    }
 }
