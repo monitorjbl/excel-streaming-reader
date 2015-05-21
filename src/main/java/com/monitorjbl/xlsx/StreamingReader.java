@@ -33,11 +33,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
@@ -47,7 +45,7 @@ import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
  * Use this only if your application can handle iterating through an entire workbook, row by
  * row.
  */
-public class StreamingReader implements Iterable<Row>, AutoCloseable {
+public class StreamingReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingReader.class);
 
   private SharedStringsTable sst;
@@ -158,7 +156,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
    *
    * @throws com.monitorjbl.xlsx.exceptions.CloseException if there is an issue closing the stream
    */
-  @Override
+//  @Override
   public void close() {
     try {
       parser.close();
@@ -173,7 +171,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   }
 
   static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
+    File f = File.createTempFile("tmp-", ".xlsx");
     FileOutputStream fos = null;
     try {
         fos = new FileOutputStream(f);
@@ -327,7 +325,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         //This file is separate from the worksheet data, and should be fairly small
         NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
         for (int i = 0; i < nl.getLength(); i++) {
-          if (Objects.equals(nl.item(i).getAttributes().getNamedItem("name").getTextContent(), sheetName)) {
+          if ( nl.item(i).getAttributes().getNamedItem("name").getTextContent()!= null && 
+                  nl.item(i).getAttributes().getNamedItem("name").getTextContent().equals(sheetName) ) {
             index = i;
           }
         }
