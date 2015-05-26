@@ -33,11 +33,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
@@ -47,7 +45,7 @@ import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
  * Use this only if your application can handle iterating through an entire workbook, row by
  * row.
  */
-public class StreamingReader implements Iterable<Row>, AutoCloseable {
+public class StreamingReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingReader.class);
 
   private SharedStringsTable sst;
@@ -56,7 +54,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private boolean nextIsString;
 
   private int rowCacheSize;
-  private List<Row> rowCache = new ArrayList<>();
+  private List<Row> rowCache = new ArrayList<Row>();
   private Iterator<Row> rowCacheIterator;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
@@ -77,7 +75,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private boolean getRow() {
     try {
       int iters = 0;
-      rowCache = new ArrayList<>();
+      rowCache = new ArrayList();
       while (rowCache.size() < rowCacheSize && parser.hasNext()) {
         handleEvent(parser.nextEvent());
         iters++;
@@ -85,7 +83,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       rowCache.add(currentRow);
       rowCacheIterator = rowCache.iterator();
       return iters > 0;
-    } catch (XMLStreamException | SAXException e) {
+    } catch (XMLStreamException e) {
+      log.debug("End of stream");
+    } catch (SAXException e) {
       log.debug("End of stream");
     }
     return false;
@@ -156,7 +156,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
    *
    * @throws com.monitorjbl.xlsx.exceptions.CloseException if there is an issue closing the stream
    */
-  @Override
+//  @Override
   public void close() {
     try {
       parser.close();
@@ -171,17 +171,22 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   }
 
   static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
-    try (FileOutputStream fos = new FileOutputStream(f)) {
-      int read;
-      byte[] bytes = new byte[bufferSize];
-      while ((read = is.read(bytes)) != -1) {
-        fos.write(bytes, 0, read);
-      }
-      is.close();
-      fos.close();
-      return f;
+    File f = File.createTempFile("tmp-", ".xlsx");
+    FileOutputStream fos = null;
+    try {
+        fos = new FileOutputStream(f);
+        int read;
+        byte[] bytes = new byte[bufferSize];
+        while ((read = is.read(bytes)) != -1) {
+          fos.write(bytes, 0, read);
+        }
+      } finally {
+        is.close();
+        if ( fos != null ) {
+            fos.close();
+        }
     }
+    return f;
   }
 
   public static Builder builder() {
@@ -306,7 +311,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         return new StreamingReader(sst, parser, rowCacheSize);
       } catch (IOException e) {
         throw new OpenException("Failed to open file", e);
-      } catch (OpenXML4JException | XMLStreamException e) {
+      } catch (XMLStreamException e) {
+        throw new ReadException("Unable to read workbook", e);
+      } catch (OpenXML4JException e) {
         throw new ReadException("Unable to read workbook", e);
       }
     }
@@ -318,7 +325,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         //This file is separate from the worksheet data, and should be fairly small
         NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
         for (int i = 0; i < nl.getLength(); i++) {
-          if (Objects.equals(nl.item(i).getAttributes().getNamedItem("name").getTextContent(), sheetName)) {
+          if ( nl.item(i).getAttributes().getNamedItem("name").getTextContent()!= null && 
+                  nl.item(i).getAttributes().getNamedItem("name").getTextContent().equals(sheetName) ) {
             index = i;
           }
         }
