@@ -24,11 +24,7 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
+import javax.xml.stream.events.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -82,7 +78,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         handleEvent(parser.nextEvent());
         iters++;
       }
-      rowCache.add(currentRow);
+      if (currentRow.getCellMap().size() > 0) {
+        rowCache.add(currentRow);
+      }
       rowCacheIterator = rowCache.iterator();
       return iters > 0;
     } catch (XMLStreamException | SAXException e) {

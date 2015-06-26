@@ -16,23 +16,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class StreamingReaderTest {
-
-  @Ignore
-  public void testFullSet() throws Exception {
-    Workbook wb = new XSSFWorkbook(new FileInputStream("src/test/resources/gaps.xlsx"));
-    Sheet s = wb.getSheet("Sheet1");
-
-    for (Row r : s) {
-      for (Cell c : r) {
-        System.out.println(c.getRowIndex() + ":" + c.getColumnIndex());
-      }
-    }
-  }
 
   @Test
   public void testTypes() throws Exception {
@@ -285,6 +271,23 @@ public class StreamingReaderTest {
       fail("Should have failed");
     } catch (MissingSheetException e) {
       assertTrue(f.exists());
+    }
+  }
+
+  @Test
+  public void testIteration() throws Exception {
+    File f = new File("src/test/resources/large.xlsx");
+    try (
+        StreamingReader reader = StreamingReader.builder()
+            .rowCacheSize(5)
+            .read(f)) {
+      int i = 1;
+      for (Row r : reader) {
+        System.out.println(i);
+        assertEquals(i, r.getCell(0).getNumericCellValue(), 0);
+        assertEquals("#" + i, r.getCell(1).getStringCellValue());
+        i++;
+      }
     }
   }
 }
