@@ -3,10 +3,6 @@ package com.monitorjbl.xlsx;
 import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -14,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -288,6 +285,25 @@ public class StreamingReaderTest {
         assertEquals("#" + i, r.getCell(1).getStringCellValue());
         i++;
       }
+    }
+  }
+
+  @Test
+  public void testLeadingZeroes() throws Exception {
+    File f = new File("src/test/resources/leadingZeroes.xlsx");
+
+    try (StreamingReader reader = StreamingReader.builder().read(f)) {
+      Iterator<Row> iter = reader.iterator();
+      iter.hasNext();
+      
+      Row r1 = iter.next();
+      assertEquals(1, r1.getCell(0).getNumericCellValue(), 0);
+      assertEquals("1", r1.getCell(0).getStringCellValue());
+
+      Row r2 = iter.next();
+      assertEquals(2, r2.getCell(0).getNumericCellValue(), 0);
+      assertEquals("0002", r2.getCell(0).getStringCellValue());
+
     }
   }
 }
