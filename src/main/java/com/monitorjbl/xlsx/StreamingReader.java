@@ -49,13 +49,13 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private SharedStringsTable sst;
   private XMLEventReader parser;
   private String lastContents;
-  private boolean nextIsString;
 
   private int rowCacheSize;
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
+  private String currentCellType;
 
   private File tmp;
 
@@ -116,24 +116,25 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         currentCell = cc;
 
         Attribute type = startElement.getAttributeByName(new QName("t"));
-        String cellType = type == null ? null : type.getValue();
-        nextIsString = cellType != null && cellType.equals("s");
+        currentCellType = type == null ? null : type.getValue();
       }
       // Clear contents cache
       lastContents = "";
     } else if (event.getEventType() == XMLStreamConstants.END_ELEMENT) {
       EndElement endElement = event.asEndElement();
-      if (nextIsString) {
+      if (Objects.equals(currentCellType, "s")) {
         int idx = Integer.parseInt(lastContents);
         lastContents = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
-        nextIsString = false;
       }
 
       if (endElement.getName().getLocalPart().equals("v")) {
         currentCell.setContents(lastContents);
+        currentCell.setType(currentCellType);
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
       }
 
+      //reset type
+      currentCellType = null;
     }
   }
 

@@ -280,7 +280,6 @@ public class StreamingReaderTest {
             .read(f)) {
       int i = 1;
       for (Row r : reader) {
-        System.out.println(i);
         assertEquals(i, r.getCell(0).getNumericCellValue(), 0);
         assertEquals("#" + i, r.getCell(1).getStringCellValue());
         i++;
@@ -295,15 +294,16 @@ public class StreamingReaderTest {
     try (StreamingReader reader = StreamingReader.builder().read(f)) {
       Iterator<Row> iter = reader.iterator();
       iter.hasNext();
-      
+
       Row r1 = iter.next();
       assertEquals(1, r1.getCell(0).getNumericCellValue(), 0);
       assertEquals("1", r1.getCell(0).getStringCellValue());
+      assertEquals(Cell.CELL_TYPE_NUMERIC, r1.getCell(0).getCellType());
 
       Row r2 = iter.next();
       assertEquals(2, r2.getCell(0).getNumericCellValue(), 0);
       assertEquals("0002", r2.getCell(0).getStringCellValue());
-
+      assertEquals(Cell.CELL_TYPE_STRING, r2.getCell(0).getCellType());
     }
   }
 }

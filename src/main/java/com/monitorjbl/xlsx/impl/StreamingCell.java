@@ -16,12 +16,11 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class StreamingCell implements Cell {
-  public static final String NUMERIC_REGEX = "-?\\d+(\\.\\d+)?";
-
   private int columnIndex;
   private int rowIndex;
 
   private Object contents;
+  private String type;
   private Row row;
 
   public StreamingCell(int columnIndex, int rowIndex) {
@@ -37,12 +36,16 @@ public class StreamingCell implements Cell {
     this.contents = contents;
   }
 
-  public void setRow(Row row) {
-    this.row = row;
+  public String getType() {
+    return type;
   }
 
-  static boolean isNumeric(String str) {
-    return str.matches(NUMERIC_REGEX);
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public void setRow(Row row) {
+    this.row = row;
   }
 
   /* Supported */
@@ -91,10 +94,12 @@ public class StreamingCell implements Cell {
   public int getCellType() {
     if (contents == null) {
       return Cell.CELL_TYPE_BLANK;
-    } else if (isNumeric(contents.toString())) {
+    } else if ("n".equals(type)) {
       return Cell.CELL_TYPE_NUMERIC;
-    } else {
+    } else if("s".equals(type)){
       return Cell.CELL_TYPE_STRING;
+    } else {
+      throw new UnsupportedOperationException("Unrecognized cell type '");
     }
   }
 
