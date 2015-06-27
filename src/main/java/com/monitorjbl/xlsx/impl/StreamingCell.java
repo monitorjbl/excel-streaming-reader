@@ -3,13 +3,7 @@ package com.monitorjbl.xlsx.impl;
 import com.monitorjbl.xlsx.exceptions.NotSupportedException;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Calendar;
@@ -86,6 +80,9 @@ public class StreamingCell implements Cell {
    * currently supported.
    *
    * @return the cell type
+   * @throws java.lang.UnsupportedOperationException Thrown if the type is not one supported
+   * by the streamer. It may be possible to still read the value as a supported type via
+   * {@code getStringCellValue()}, {@code getNumericCellValue}, or {@code getDateCellValue()}
    * @see Cell#CELL_TYPE_BLANK
    * @see Cell#CELL_TYPE_NUMERIC
    * @see Cell#CELL_TYPE_STRING
@@ -96,10 +93,10 @@ public class StreamingCell implements Cell {
       return Cell.CELL_TYPE_BLANK;
     } else if ("n".equals(type)) {
       return Cell.CELL_TYPE_NUMERIC;
-    } else if("s".equals(type)){
+    } else if ("s".equals(type)) {
       return Cell.CELL_TYPE_STRING;
     } else {
-      throw new UnsupportedOperationException("Unrecognized cell type '");
+      throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
     }
   }
 
