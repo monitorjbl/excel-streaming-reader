@@ -96,7 +96,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public int getCellType() {
-    if (contents == null) {
+    if (contents == null || type == null) {
       return Cell.CELL_TYPE_BLANK;
     } else if ("n".equals(type)) {
       return Cell.CELL_TYPE_NUMERIC;
