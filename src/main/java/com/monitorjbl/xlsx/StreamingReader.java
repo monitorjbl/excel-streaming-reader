@@ -72,21 +72,16 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   /**
    * Read through a number of rows equal to the rowCacheSize field or until there is no more data to read
    *
-   * @return
+   * @return true if data was read
    */
   private boolean getRow() {
     try {
-      int iters = 0;
-      rowCache = new ArrayList<>();
+      rowCache.clear();
       while (rowCache.size() < rowCacheSize && parser.hasNext()) {
         handleEvent(parser.nextEvent());
-        iters++;
-      }
-      if (currentRow.getCellMap().size() > 0) {
-        rowCache.add(currentRow);
       }
       rowCacheIterator = rowCache.iterator();
-      return iters > 0;
+      return rowCacheIterator.hasNext();
     } catch (XMLStreamException | SAXException e) {
       log.debug("End of stream");
     }
@@ -105,40 +100,41 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       lastContents += c.getData();
     } else if (event.getEventType() == XMLStreamConstants.START_ELEMENT) {
       StartElement startElement = event.asStartElement();
-      if (startElement.getName().getLocalPart().equals("c")) {
+      String tagLocalName = startElement.getName().getLocalPart();
+      
+      if ("row".equals(tagLocalName)) {
+        Attribute rowIndex = startElement.getAttributeByName(new QName("r"));
+        currentRow = new StreamingRow(Integer.parseInt(rowIndex.getValue()));
+      } if ("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
         String[] coord = ref.getValue().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
-        StreamingCell cc = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1);
-
-        if (currentCell == null || currentCell.getRowIndex() != cc.getRowIndex()) {
-          if (currentRow != null) {
-            rowCache.add(currentRow);
-          }
-          currentRow = new StreamingRow(cc.getRowIndex());
-        }
-        currentCell = cc;
+        currentCell = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1);
 
         Attribute type = startElement.getAttributeByName(new QName("t"));
-        currentCellType = type == null ? null : type.getValue();
+        if(type != null) {
+          currentCell.setType(type.getValue());
+        }
       }
+      
       // Clear contents cache
       lastContents = "";
     } else if (event.getEventType() == XMLStreamConstants.END_ELEMENT) {
       EndElement endElement = event.asEndElement();
-      if (Objects.equals(currentCellType, "s")) {
-        int idx = Integer.parseInt(lastContents);
-        lastContents = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
-      }
+      String tagLocalName = endElement.getName().getLocalPart();
 
-      if (endElement.getName().getLocalPart().equals("v")) {
+      if ("v".equals(tagLocalName)) {
+        if ("s".equals(currentCell.getType())) {
+          int idx = Integer.parseInt(lastContents);
+          lastContents = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+        }
         currentCell.setContents(lastContents);
-        currentCell.setType(currentCellType);
+      } else if ("row".equals(tagLocalName) && currentRow != null) {
+        rowCache.add(currentRow);
+      } else if ("c".equals(tagLocalName)) {
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
       }
 
-      //reset type
-      currentCellType = null;
     }
   }
 
