@@ -59,7 +59,6 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private Iterator<Row> rowCacheIterator;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
-  private String currentCellType;
 
   private File tmp;
 
@@ -105,7 +104,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       if ("row".equals(tagLocalName)) {
         Attribute rowIndex = startElement.getAttributeByName(new QName("r"));
         currentRow = new StreamingRow(Integer.parseInt(rowIndex.getValue()));
-      } if ("c".equals(tagLocalName)) {
+      } else if ("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
         String[] coord = ref.getValue().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
