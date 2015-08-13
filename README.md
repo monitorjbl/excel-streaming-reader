@@ -17,7 +17,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.2.8</version>
+    <version>0.2.9</version>
   </dependency>
 </dependencies>  
 ```
@@ -92,7 +92,7 @@ This library uses SLF4j logging. This is a rare use case, but you can plug in yo
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.2.8</version>
+    <version>0.2.9</version>
   </dependency>
   <dependency>
     <groupId>org.slf4j</groupId>
