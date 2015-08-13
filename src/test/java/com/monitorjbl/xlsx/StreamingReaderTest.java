@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import static org.hamcrest.core.Is.is;
+import org.junit.Assert;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -306,6 +308,16 @@ public class StreamingReaderTest {
       assertEquals(2, r2.getCell(0).getNumericCellValue(), 0);
       assertEquals("0002", r2.getCell(0).getStringCellValue());
       assertEquals(Cell.CELL_TYPE_STRING, r2.getCell(0).getCellType());
+    }
+  }
+  
+  @Test
+  public void testReadingEmptyFile() throws Exception {
+    File f = new File("src/test/resources/empty_sheet.xlsx");
+
+    try (StreamingReader reader = StreamingReader.builder().read(f)) {
+      Iterator<Row> iter = reader.iterator();
+      Assert.assertThat(iter.hasNext(), is(false));
     }
   }
 }
