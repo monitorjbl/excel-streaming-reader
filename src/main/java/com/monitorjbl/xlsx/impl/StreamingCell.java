@@ -28,12 +28,12 @@ public class StreamingCell implements Cell {
    * cell.  The value is usually in a "v" element within the cell.
    */
   public static enum XSSF_DATA_TYPE {
-     BOOLEAN,
-     ERROR,
-     FORMULA,
-     INLINE_STRING,
-     NUMBER,
-     SST_INDEX
+    BOOLEAN,
+    ERROR,
+    FORMULA,
+    INLINE_STRING,
+    NUMBER,
+    SST_INDEX
   }
 
   /**
@@ -89,7 +89,7 @@ public class StreamingCell implements Cell {
    *         cell value instead of the raw one.
    */
   public XSSF_DATA_TYPE getXssfDataType() {
-     return xssfDataType;
+    return xssfDataType;
   }
 
   /**
@@ -100,7 +100,7 @@ public class StreamingCell implements Cell {
    *        the actual cell value instead of the raw one.
    */
   public void setXssfDataType(XSSF_DATA_TYPE xssfDataType) {
-     this.xssfDataType = xssfDataType;
+    this.xssfDataType = xssfDataType;
   }
 
   /**
@@ -111,7 +111,7 @@ public class StreamingCell implements Cell {
    *         <CODE>StylesTable</CODE> to format numeric cell values.
    */
   public Short getNumericFormatIndex() {
-     return numericFormatIndex;
+    return numericFormatIndex;
   }
 
   /**
@@ -122,7 +122,7 @@ public class StreamingCell implements Cell {
    *        in a <CODE>StylesTable</CODE> to format numeric cell values.
    */
   public void setNumericFormatIndex(Short numericFormatIndex) {
-     this.numericFormatIndex = numericFormatIndex;
+    this.numericFormatIndex = numericFormatIndex;
   }
 
   /**
@@ -133,7 +133,7 @@ public class StreamingCell implements Cell {
    *         <CODE>numericFormatIndex</CODE> to format a numeric cell value.
    */
   public String getNumericFormatString() {
-     return numericFormatString;
+    return numericFormatString;
   }
 
   /**
@@ -145,7 +145,7 @@ public class StreamingCell implements Cell {
    *        numeric cell value.
    */
   public void setNumericFormatString(String numericFormatString) {
-     this.numericFormatString = numericFormatString;
+    this.numericFormatString = numericFormatString;
   }
 
   /* Supported */
