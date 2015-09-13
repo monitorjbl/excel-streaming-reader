@@ -154,7 +154,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
           //
           currentCell.setXssfDataType(StreamingCell.XSSF_DATA_TYPE.NUMBER);
 
-          Attribute cellStyle = startElement.getAttributeByName(new QName("s"));
+          final Attribute cellStyle = startElement.getAttributeByName(new QName("s"));
           final String cellStyleString = (cellStyle != null) ? cellStyle.getValue() : null;
 
           XSSFCellStyle style = null;
@@ -177,7 +177,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
           }
         }
       }
-      
+
       // Clear contents cache
       lastContents = "";
     } else if (event.getEventType() == XMLStreamConstants.END_ELEMENT) {
@@ -199,12 +199,11 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         String cellValue = null;
         switch (currentCell.getXssfDataType()) {
           case BOOLEAN:
-            char first = lastContents.charAt(0);
-            cellValue = first == '0' ? "FALSE" : "TRUE";
+            cellValue = (lastContents.charAt(0) == '0') ? "false" : "true";
             break;
 
           case ERROR:
-            cellValue = "\"ERROR:  " + lastContents + '"';
+            cellValue = "ERROR:  " + lastContents;
             break;
 
           case FORMULA:
@@ -219,17 +218,15 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
             //
             // have not seen an example of this, so it's untested.
             //
-            XSSFRichTextString rtsi = new XSSFRichTextString(lastContents);
-            cellValue = '"' + rtsi.toString() + '"';
+            cellValue = new XSSFRichTextString(lastContents).toString();
             break;
 
           case SST_INDEX:
             try {
-              int idx = Integer.parseInt(lastContents);
-              XSSFRichTextString rtss = new XSSFRichTextString(this.sst.getEntryAt(idx));
-              cellValue = '"' + rtss.toString() + '"';
+              final int idx = Integer.parseInt(lastContents);
+              cellValue = new XSSFRichTextString(this.sst.getEntryAt(idx)).toString();
             } catch (java.lang.NumberFormatException nfe) {
-              cellValue = "\"ERROR:  Failed to parse SST index '" + lastContents + "':  " + nfe.toString() + '"';
+              cellValue = "ERROR:  Failed to parse SST index '" + lastContents + "':  " + nfe.toString();
             }
             break;
 
@@ -243,7 +240,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
             break;
 
           default:
-            cellValue = "\"ERROR:  Unexpected cell type:  " + currentCell.getXssfDataType() + '"';
+            cellValue = "ERROR:  Unexpected cell type:  " + currentCell.getXssfDataType();
             break;
         }
 
