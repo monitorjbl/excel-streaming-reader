@@ -87,6 +87,7 @@ public class StreamingRow implements Row {
   /**
    * Not supported.  Added for compatability with POI 3.12.
    */
+  @Override
   public int getOutlineLevel() {
     throw new NotSupportedException();
   }

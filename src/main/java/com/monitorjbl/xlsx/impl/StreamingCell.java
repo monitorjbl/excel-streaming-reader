@@ -248,6 +248,7 @@ public class StreamingCell implements Cell {
   /**
    * Not supported.  Added for compatability with POI 3.12.
    */
+  @Override
   public void removeHyperlink() {
     throw new NotSupportedException();
   }
