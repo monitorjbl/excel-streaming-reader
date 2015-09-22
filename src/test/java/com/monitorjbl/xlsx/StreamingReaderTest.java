@@ -10,12 +10,15 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import static org.hamcrest.core.Is.is;
-import org.junit.Assert;
+import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -24,16 +27,16 @@ public class StreamingReaderTest {
   @Test
   public void testTypes() throws Exception {
     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
         StreamingReader reader = StreamingReader.builder().read(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for (Row r : reader) {
+      for(Row r : reader) {
         List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
+        for(Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -98,15 +101,15 @@ public class StreamingReaderTest {
 
   @Test
   public void testGaps() throws Exception {
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
         StreamingReader reader = StreamingReader.builder().read(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
-      for (Row r : reader) {
+      for(Row r : reader) {
         List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
+        for(Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -141,7 +144,7 @@ public class StreamingReaderTest {
 
   @Test
   public void testMultipleSheets_alpha() throws Exception {
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
         StreamingReader reader = StreamingReader.builder()
             .sheetIndex(0)
@@ -149,9 +152,9 @@ public class StreamingReaderTest {
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
-      for (Row r : reader) {
+      for(Row r : reader) {
         List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
+        for(Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -168,7 +171,7 @@ public class StreamingReaderTest {
 
   @Test
   public void testMultipleSheets_zulu() throws Exception {
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
         StreamingReader reader = StreamingReader.builder()
             .sheetIndex(1)
@@ -177,9 +180,9 @@ public class StreamingReaderTest {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for (Row r : reader) {
+      for(Row r : reader) {
         List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
+        for(Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -196,7 +199,7 @@ public class StreamingReaderTest {
 
   @Test
   public void testSheetName_zulu() throws Exception {
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
         StreamingReader reader = StreamingReader.builder()
             .sheetName("SheetZulu")
@@ -205,9 +208,9 @@ public class StreamingReaderTest {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for (Row r : reader) {
+      for(Row r : reader) {
         List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
+        for(Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -224,7 +227,7 @@ public class StreamingReaderTest {
 
   @Test
   public void testSheetName_alpha() throws Exception {
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
         StreamingReader reader = StreamingReader.builder()
             .sheetName("SheetAlpha")
@@ -232,9 +235,9 @@ public class StreamingReaderTest {
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
-      for (Row r : reader) {
+      for(Row r : reader) {
         List<Cell> o = new ArrayList<>();
-        for (Cell c : r) {
+        for(Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -251,7 +254,7 @@ public class StreamingReaderTest {
 
   @Test(expected = MissingSheetException.class)
   public void testSheetName_missingInStream() throws Exception {
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
         StreamingReader reader = StreamingReader.builder()
             .sheetName("adsfasdfasdfasdf")
@@ -264,13 +267,13 @@ public class StreamingReaderTest {
   @Test
   public void testSheetName_missingInFile() throws Exception {
     File f = new File("src/test/resources/sheets.xlsx");
-    try (
+    try(
         StreamingReader reader = StreamingReader.builder()
             .sheetName("adsfasdfasdfasdf")
             .read(f);
     ) {
       fail("Should have failed");
-    } catch (MissingSheetException e) {
+    } catch(MissingSheetException e) {
       assertTrue(f.exists());
     }
   }
@@ -278,12 +281,12 @@ public class StreamingReaderTest {
   @Test
   public void testIteration() throws Exception {
     File f = new File("src/test/resources/large.xlsx");
-    try (
+    try(
         StreamingReader reader = StreamingReader.builder()
             .rowCacheSize(5)
             .read(f)) {
       int i = 1;
-      for (Row r : reader) {
+      for(Row r : reader) {
         assertEquals(i, r.getCell(0).getNumericCellValue(), 0);
         assertEquals("#" + i, r.getCell(1).getStringCellValue());
         i++;
@@ -295,7 +298,7 @@ public class StreamingReaderTest {
   public void testLeadingZeroes() throws Exception {
     File f = new File("src/test/resources/leadingZeroes.xlsx");
 
-    try (StreamingReader reader = StreamingReader.builder().read(f)) {
+    try(StreamingReader reader = StreamingReader.builder().read(f)) {
       Iterator<Row> iter = reader.iterator();
       iter.hasNext();
 
@@ -310,14 +313,54 @@ public class StreamingReaderTest {
       assertEquals(Cell.CELL_TYPE_STRING, r2.getCell(0).getCellType());
     }
   }
-  
+
   @Test
   public void testReadingEmptyFile() throws Exception {
     File f = new File("src/test/resources/empty_sheet.xlsx");
 
-    try (StreamingReader reader = StreamingReader.builder().read(f)) {
+    try(StreamingReader reader = StreamingReader.builder().read(f)) {
       Iterator<Row> iter = reader.iterator();
-      Assert.assertThat(iter.hasNext(), is(false));
+      assertThat(iter.hasNext(), is(false));
     }
+  }
+
+  @Test
+  public void testSpecialStyles() throws Exception {
+    File f = new File("src/test/resources/special_types.xlsx");
+
+    Map<Integer, List<Cell>> contents = new HashMap<>();
+    try(StreamingReader reader = StreamingReader.builder().read(f)) {
+      for(Row row : reader) {
+        contents.put(row.getRowNum(), new ArrayList<Cell>());
+        for(Cell c : row) {
+          if(c.getColumnIndex() > 0) {
+            contents.get(row.getRowNum()).add(c);
+          }
+        }
+      }
+    }
+
+    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+
+    assertThat(contents.size(), equalTo(2));
+    assertThat(contents.get(1).size(), equalTo(4));
+    assertThat(contents.get(1).get(0).getStringCellValue(), equalTo("Thu\", \"Dec 25\", \"14"));
+    assertThat(contents.get(1).get(0).getDateCellValue(), equalTo(df.parse("25/12/2014")));
+    assertThat(contents.get(1).get(1).getStringCellValue(), equalTo("02/04/15"));
+    assertThat(contents.get(1).get(1).getDateCellValue(), equalTo(df.parse("04/02/2015")));
+    assertThat(contents.get(1).get(2).getStringCellValue(), equalTo("14\". \"Mar\". \"2015"));
+    assertThat(contents.get(1).get(2).getDateCellValue(), equalTo(df.parse("14/03/2015")));
+    assertThat(contents.get(1).get(3).getStringCellValue(), equalTo("2015-05-05"));
+    assertThat(contents.get(1).get(3).getDateCellValue(), equalTo(df.parse("05/05/2015")));
+
+    assertThat(contents.get(2).size(), equalTo(4));
+    assertThat(contents.get(2).get(0).getStringCellValue(), equalTo("3.12"));
+    assertThat(contents.get(2).get(0).getNumericCellValue(), equalTo(3.12312312312));
+    assertThat(contents.get(2).get(1).getStringCellValue(), equalTo("1,023,042"));
+    assertThat(contents.get(2).get(1).getNumericCellValue(), equalTo(1023042.0));
+    assertThat(contents.get(2).get(2).getStringCellValue(), equalTo("-312,231.12"));
+    assertThat(contents.get(2).get(2).getNumericCellValue(), equalTo(-312231.12123145));
+    assertThat(contents.get(2).get(3).getStringCellValue(), equalTo("(132)"));
+    assertThat(contents.get(2).get(3).getNumericCellValue(), equalTo(-132.0));
   }
 }

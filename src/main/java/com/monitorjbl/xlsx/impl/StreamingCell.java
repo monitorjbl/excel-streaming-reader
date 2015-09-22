@@ -20,6 +20,9 @@ public class StreamingCell implements Cell {
   private int rowIndex;
 
   private Object contents;
+  private Object rawContents;
+  private String numericFormat;
+  private Short numericFormatIndex;
   private String type;
   private Row row;
 
@@ -34,6 +37,30 @@ public class StreamingCell implements Cell {
 
   public void setContents(Object contents) {
     this.contents = contents;
+  }
+
+  public Object getRawContents() {
+    return rawContents;
+  }
+
+  public void setRawContents(Object rawContents) {
+    this.rawContents = rawContents;
+  }
+
+  public String getNumericFormat() {
+    return numericFormat;
+  }
+
+  public void setNumericFormat(String numericFormat) {
+    this.numericFormat = numericFormat;
+  }
+
+  public Short getNumericFormatIndex() {
+    return numericFormatIndex;
+  }
+
+  public void setNumericFormatIndex(Short numericFormatIndex) {
+    this.numericFormatIndex = numericFormatIndex;
   }
 
   public String getType() {
@@ -96,12 +123,18 @@ public class StreamingCell implements Cell {
    */
   @Override
   public int getCellType() {
-    if (contents == null || type == null) {
-      return Cell.CELL_TYPE_BLANK;
-    } else if ("n".equals(type)) {
-      return Cell.CELL_TYPE_NUMERIC;
-    } else if ("s".equals(type)) {
-      return Cell.CELL_TYPE_STRING;
+    if(contents == null || type == null) {
+      return CELL_TYPE_BLANK;
+    } else if("n".equals(type)) {
+      return CELL_TYPE_NUMERIC;
+    } else if("s".equals(type) || "inlineStr".equals(type)) {
+      return CELL_TYPE_STRING;
+    } else if("str".equals(type)) {
+      return CELL_TYPE_FORMULA;
+    } else if("b".equals(type)) {
+      return CELL_TYPE_BOOLEAN;
+    } else if("e".equals(type)) {
+      return CELL_TYPE_ERROR;
     } else {
       throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
     }
@@ -127,7 +160,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public double getNumericCellValue() {
-    return Double.parseDouble((String) contents);
+    return Double.parseDouble((String) rawContents);
   }
 
   /**
