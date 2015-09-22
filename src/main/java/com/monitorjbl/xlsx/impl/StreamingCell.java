@@ -23,6 +23,39 @@ public class StreamingCell implements Cell {
   private String type;
   private Row row;
 
+  /**
+   * The cell type of the data value is indicated by an attribute on the
+   * cell.  The value is usually in a "v" element within the cell.
+   */
+  public static enum XSSF_DATA_TYPE {
+    BOOLEAN,
+    ERROR,
+    FORMULA,
+    INLINE_STRING,
+    NUMBER,
+    SST_INDEX
+  }
+
+  /**
+   * Used to format the actual Excel spreadsheet cell value, instead of the raw
+   * one.
+   */
+  private XSSF_DATA_TYPE xssfDataType = null;
+
+  /**
+   * The style index, used to look up a built-in style in a
+   * <CODE>StylesTable</CODE> to format numeric cell values.
+   */
+  private Short numericFormatIndex = null;
+
+  /**
+   * The format <CODE>String</CODE> used in conjunction with the
+   * <CODE>numericFormatIndex</CODE> to format a numeric cell value.
+   *
+   * @see numericFormatIndex
+   */
+  private String numericFormatString = null;
+
   public StreamingCell(int columnIndex, int rowIndex) {
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
@@ -46,6 +79,73 @@ public class StreamingCell implements Cell {
 
   public void setRow(Row row) {
     this.row = row;
+  }
+
+  /**
+   * Return the Excel XSSF spreadsheet cell type, used to determine the actual
+   * cell value instead of the raw one.
+   *
+   * @return the Excel XSSF spreadsheet cell type, used to determine the actual
+   *         cell value instead of the raw one.
+   */
+  public XSSF_DATA_TYPE getXssfDataType() {
+    return xssfDataType;
+  }
+
+  /**
+   * Set the Excel XSSF spreadsheet cell type, used to determine the actual
+   * cell value instead of the raw one.
+   *
+   * @param xssfDataType the Excel XSSF spreadsheet cell type, used to determine
+   *        the actual cell value instead of the raw one.
+   */
+  public void setXssfDataType(XSSF_DATA_TYPE xssfDataType) {
+    this.xssfDataType = xssfDataType;
+  }
+
+  /**
+   * Return the style index, used to look up a built-in style in a
+   * <CODE>StylesTable</CODE> to format numeric cell values.
+   *
+   * @return the style index, used to look up a built-in style in a
+   *         <CODE>StylesTable</CODE> to format numeric cell values.
+   */
+  public Short getNumericFormatIndex() {
+    return numericFormatIndex;
+  }
+
+  /**
+   * Set the style index, used to look up a built-in style in a
+   * <CODE>StylesTable</CODE> to format numeric cell values.
+   *
+   * @param numericFormatIndex the style index, used to look up a built-in style
+   *        in a <CODE>StylesTable</CODE> to format numeric cell values.
+   */
+  public void setNumericFormatIndex(Short numericFormatIndex) {
+    this.numericFormatIndex = numericFormatIndex;
+  }
+
+  /**
+   * Return the format <CODE>String</CODE> used in conjunction with the
+   * <CODE>numericFormatIndex</CODE> to format a numeric cell value.
+   *
+   * @return the format <CODE>String</CODE> used in conjunction with the
+   *         <CODE>numericFormatIndex</CODE> to format a numeric cell value.
+   */
+  public String getNumericFormatString() {
+    return numericFormatString;
+  }
+
+  /**
+   * Set the format <CODE>String</CODE> used in conjunction with the
+   * <CODE>numericFormatIndex</CODE> to format a numeric cell value.
+   *
+   * @param numericFormatString the format <CODE>String</CODE> used in
+   *        conjunction with the <CODE>numericFormatIndex</CODE> to format a
+   *        numeric cell value.
+   */
+  public void setNumericFormatString(String numericFormatString) {
+    this.numericFormatString = numericFormatString;
   }
 
   /* Supported */
@@ -144,6 +244,14 @@ public class StreamingCell implements Cell {
   }
 
   /* Not supported */
+
+  /**
+   * Not supported.  Added for compatability with POI 3.12.
+   */
+  @Override
+  public void removeHyperlink() {
+    throw new NotSupportedException();
+  }
 
   /**
    * Not supported
