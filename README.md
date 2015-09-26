@@ -1,3 +1,5 @@
+![shippable](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge/master)
+
 # Excel Streaming Reader
 
 If you've used [Apache POI](http://poi.apache.org) in the past to read in Excel files, you probably noticed that it's not very memory efficient. Reading in an entire workbook will cause a severe memory usage spike, which can wreak havoc on a server. 
