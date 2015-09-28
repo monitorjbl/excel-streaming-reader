@@ -132,8 +132,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       String tagLocalName = endElement.getName().getLocalPart();
 
       if("v".equals(tagLocalName)) {
-        currentCell.setRawContents(lastContents);
-        currentCell.setContents(formatContents());
+        currentCell.setRawContents(unformattedContents());
+        currentCell.setContents(formattedContents());
       } else if("row".equals(tagLocalName) && currentRow != null) {
         rowCache.add(currentRow);
       } else if("c".equals(tagLocalName)) {
@@ -182,7 +182,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
    *
    * @return
    */
-  String formatContents() {
+  String formattedContents() {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         int idx = Integer.parseInt(lastContents);
@@ -202,6 +202,22 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         } else {
           return lastContents;
         }
+      default:
+        return lastContents;
+    }
+  }
+
+  /**
+   * Returns the contents of the cell, with no formatting applied
+   * @return
+   */
+  String unformattedContents(){
+    switch(currentCell.getType()) {
+      case "s":           //string stored in shared table
+        int idx = Integer.parseInt(lastContents);
+        return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+      case "inlineStr":   //inline string (not in sst)
+        return new XSSFRichTextString(lastContents).toString();
       default:
         return lastContents;
     }
