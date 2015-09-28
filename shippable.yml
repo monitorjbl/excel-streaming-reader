@@ -4,4 +4,4 @@ jdk:
    - oraclejdk7
 
 script:
-   - mvn clean package
+   - mvn clean package -B
