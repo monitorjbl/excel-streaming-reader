@@ -41,6 +41,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
@@ -428,6 +429,12 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   }
 
   class StreamingIterator implements Iterator<Row> {
+    public StreamingIterator() {
+      if(rowCacheIterator == null){
+        hasNext();
+      }
+    }
+
     @Override
     public boolean hasNext() {
       return (rowCacheIterator != null && rowCacheIterator.hasNext()) || getRow();
