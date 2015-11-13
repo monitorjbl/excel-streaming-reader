@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -362,5 +363,16 @@ public class StreamingReaderTest {
     assertThat(contents.get(2).get(2).getNumericCellValue(), equalTo(-312231.12123145));
     assertThat(contents.get(2).get(3).getStringCellValue(), equalTo("(132)"));
     assertThat(contents.get(2).get(3).getNumericCellValue(), equalTo(-132.0));
+  }
+
+  @Test
+  public void testBlankNumerics() throws Exception {
+    File f = new File("src/test/resources/blank_cells.xlsx");
+    try(StreamingReader reader = StreamingReader.builder().read(f)) {
+      Row row = reader.iterator().next();
+      assertThat(row.getCell(1).getStringCellValue(), is(nullValue()));
+      assertThat(row.getCell(1).getDateCellValue(), is(nullValue()));
+      assertThat(row.getCell(1).getNumericCellValue(), equalTo(0.0));
+    }
   }
 }

@@ -160,7 +160,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public double getNumericCellValue() {
-    return Double.parseDouble((String) rawContents);
+    return rawContents == null ? 0.0 : Double.parseDouble((String) rawContents);
   }
 
   /**
@@ -173,7 +173,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public Date getDateCellValue() {
-    return HSSFDateUtil.getJavaDate(getNumericCellValue());
+    return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue());
   }
 
   /* Not supported */
