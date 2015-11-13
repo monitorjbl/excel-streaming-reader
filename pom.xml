@@ -88,7 +88,7 @@
 
   <licenses>
     <license>
-      <name>GPLv2</name>
+      <name>Apache 2.0</name>
       <url>https://raw.githubusercontent.com/monitorjbl/excel-streaming-reader/master/LICENSE</url>
       <distribution>repo</distribution>
     </license>
