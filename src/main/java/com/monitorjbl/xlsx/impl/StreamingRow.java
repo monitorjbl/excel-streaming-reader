@@ -212,4 +212,12 @@ public class StreamingRow implements Row {
     throw new NotSupportedException();
   }
 
+  /**
+   * Not supported
+   */
+  @Override
+  public int getOutlineLevel() {
+    throw new NotSupportedException();
+  }
+
 }

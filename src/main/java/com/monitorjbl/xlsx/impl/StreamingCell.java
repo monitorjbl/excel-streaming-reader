@@ -366,6 +366,14 @@ public class StreamingCell implements Cell {
    * Not supported
    */
   @Override
+  public void removeHyperlink() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
   public CellRangeAddress getArrayFormulaRange() {
     throw new NotSupportedException();
   }
