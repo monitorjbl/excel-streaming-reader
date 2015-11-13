@@ -344,25 +344,25 @@ public class StreamingReaderTest {
     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
     assertThat(contents.size(), equalTo(2));
-    assertThat(contents.get(1).size(), equalTo(4));
-    assertThat(contents.get(1).get(0).getStringCellValue(), equalTo("Thu\", \"Dec 25\", \"14"));
-    assertThat(contents.get(1).get(0).getDateCellValue(), equalTo(df.parse("25/12/2014")));
-    assertThat(contents.get(1).get(1).getStringCellValue(), equalTo("02/04/15"));
-    assertThat(contents.get(1).get(1).getDateCellValue(), equalTo(df.parse("04/02/2015")));
-    assertThat(contents.get(1).get(2).getStringCellValue(), equalTo("14\". \"Mar\". \"2015"));
-    assertThat(contents.get(1).get(2).getDateCellValue(), equalTo(df.parse("14/03/2015")));
-    assertThat(contents.get(1).get(3).getStringCellValue(), equalTo("2015-05-05"));
-    assertThat(contents.get(1).get(3).getDateCellValue(), equalTo(df.parse("05/05/2015")));
+    assertThat(contents.get(0).size(), equalTo(4));
+    assertThat(contents.get(0).get(0).getStringCellValue(), equalTo("Thu\", \"Dec 25\", \"14"));
+    assertThat(contents.get(0).get(0).getDateCellValue(), equalTo(df.parse("25/12/2014")));
+    assertThat(contents.get(0).get(1).getStringCellValue(), equalTo("02/04/15"));
+    assertThat(contents.get(0).get(1).getDateCellValue(), equalTo(df.parse("04/02/2015")));
+    assertThat(contents.get(0).get(2).getStringCellValue(), equalTo("14\". \"Mar\". \"2015"));
+    assertThat(contents.get(0).get(2).getDateCellValue(), equalTo(df.parse("14/03/2015")));
+    assertThat(contents.get(0).get(3).getStringCellValue(), equalTo("2015-05-05"));
+    assertThat(contents.get(0).get(3).getDateCellValue(), equalTo(df.parse("05/05/2015")));
 
-    assertThat(contents.get(2).size(), equalTo(4));
-    assertThat(contents.get(2).get(0).getStringCellValue(), equalTo("3.12"));
-    assertThat(contents.get(2).get(0).getNumericCellValue(), equalTo(3.12312312312));
-    assertThat(contents.get(2).get(1).getStringCellValue(), equalTo("1,023,042"));
-    assertThat(contents.get(2).get(1).getNumericCellValue(), equalTo(1023042.0));
-    assertThat(contents.get(2).get(2).getStringCellValue(), equalTo("-312,231.12"));
-    assertThat(contents.get(2).get(2).getNumericCellValue(), equalTo(-312231.12123145));
-    assertThat(contents.get(2).get(3).getStringCellValue(), equalTo("(132)"));
-    assertThat(contents.get(2).get(3).getNumericCellValue(), equalTo(-132.0));
+    assertThat(contents.get(1).size(), equalTo(4));
+    assertThat(contents.get(1).get(0).getStringCellValue(), equalTo("3.12"));
+    assertThat(contents.get(1).get(0).getNumericCellValue(), equalTo(3.12312312312));
+    assertThat(contents.get(1).get(1).getStringCellValue(), equalTo("1,023,042"));
+    assertThat(contents.get(1).get(1).getNumericCellValue(), equalTo(1023042.0));
+    assertThat(contents.get(1).get(2).getStringCellValue(), equalTo("-312,231.12"));
+    assertThat(contents.get(1).get(2).getNumericCellValue(), equalTo(-312231.12123145));
+    assertThat(contents.get(1).get(3).getStringCellValue(), equalTo("(132)"));
+    assertThat(contents.get(1).get(3).getNumericCellValue(), equalTo(-132.0));
   }
 
   @Test
@@ -373,6 +373,15 @@ public class StreamingReaderTest {
       assertThat(row.getCell(1).getStringCellValue(), is(nullValue()));
       assertThat(row.getCell(1).getDateCellValue(), is(nullValue()));
       assertThat(row.getCell(1).getNumericCellValue(), equalTo(0.0));
+    }
+  }
+
+  @Test
+  public void testFirstRowNumIs0() throws Exception {
+    File f = new File("src/test/resources/data_types.xlsx");
+    try(StreamingReader reader = StreamingReader.builder().read(f)) {
+      Row row = reader.iterator().next();
+      assertThat(row.getRowNum(), equalTo(0));
     }
   }
 }

@@ -112,7 +112,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
       if("row".equals(tagLocalName)) {
         Attribute rowIndex = startElement.getAttributeByName(new QName("r"));
-        currentRow = new StreamingRow(Integer.parseInt(rowIndex.getValue()));
+        currentRow = new StreamingRow(Integer.parseInt(rowIndex.getValue())-1);
       } else if("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
