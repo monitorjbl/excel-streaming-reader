@@ -184,7 +184,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
    * @return
    */
   String formattedContents() {
-    switch(currentCell.getType()) {
+    switch(currentCell.getType() == null ? "" : currentCell.getType()) {
       case "s":           //string stored in shared table
         int idx = Integer.parseInt(lastContents);
         return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
@@ -213,7 +213,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
    * @return
    */
   String unformattedContents(){
-    switch(currentCell.getType()) {
+    switch(currentCell.getType() == null ? "" : currentCell.getType()) {
       case "s":           //string stored in shared table
         int idx = Integer.parseInt(lastContents);
         return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
