@@ -384,4 +384,17 @@ public class StreamingReaderTest {
       assertThat(row.getRowNum(), equalTo(0));
     }
   }
+  
+  @Test
+  public void testNoTypeCell () throws Exception {
+    try(
+      InputStream is = new FileInputStream(new File("src/test/resources/no_type_cell.xlsx"));
+      StreamingReader reader = StreamingReader.builder().read(is);) {
+        for(Row r : reader) {
+          for(Cell c : r) {
+              assertEquals("1", c.getStringCellValue());
+          }
+      }
+    }
+  }
 }
