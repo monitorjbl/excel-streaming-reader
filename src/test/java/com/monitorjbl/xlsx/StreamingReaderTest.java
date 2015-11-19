@@ -403,4 +403,18 @@ public class StreamingReaderTest {
       }
     }
   }
+  
+  @Test
+  public void testEncryption() throws Exception {
+    try (
+        InputStream is = new FileInputStream(new File("src/test/resources/encrypted.xlsx"));
+        StreamingReader reader = StreamingReader.builder().password("test").read(is);) {
+      OUTER: for (Row r : reader) {
+        for (Cell c : r) {
+          assertEquals("Demo", c.getStringCellValue());
+          break OUTER;
+        }
+      }
+    }
+  }
 }

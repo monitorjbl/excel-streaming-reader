@@ -41,11 +41,14 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
+import java.security.GeneralSecurityException;
+import org.apache.poi.poifs.crypt.Decryptor;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
  * Streaming Excel workbook implementation. Most advanced features of POI are not supported.
@@ -278,6 +281,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     int bufferSize = 1024;
     int sheetIndex = 0;
     String sheetName;
+    String password;
 
     /**
      * The number of rows to keep in memory at any given point.
@@ -340,6 +344,22 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
 
     /**
+     * For password protected files specify password to open file.
+     * If the password is incorrect a {@code ReadException} is thrown on
+     * {@code read}.
+     * 
+     * <p>NULL indicates that no password should be used, this is the
+     * default value.</p>
+     *
+     * @param password to use when opening file
+     * @return reference to current {@code Builder}
+     */
+    public Builder password(String password) {
+      this.password = password;
+      return this;
+    }
+    
+    /**
      * Reads a given {@code InputStream} and returns a new
      * instance of {@code StreamingReader}. Due to Apache POI
      * limitations, a temporary file must be written in order
@@ -378,7 +398,19 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public StreamingReader read(File f) {
       try {
-        OPCPackage pkg = OPCPackage.open(f);
+        OPCPackage pkg;
+
+        if (password != null) {
+          // Based on: https://poi.apache.org/encryption.html
+          POIFSFileSystem poifs = new POIFSFileSystem(f);
+          EncryptionInfo info = new EncryptionInfo(poifs);
+          Decryptor d = Decryptor.getInstance(info);
+          d.verifyPassword(password);
+          pkg = OPCPackage.open(d.getDataStream(poifs));
+        } else {
+          pkg = OPCPackage.open(f);
+        }
+        
         XSSFReader reader = new XSSFReader(pkg);
         SharedStringsTable sst = reader.getSharedStringsTable();
         StylesTable styles = reader.getStylesTable();
@@ -394,6 +426,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         throw new OpenException("Failed to open file", e);
       } catch(OpenXML4JException | XMLStreamException e) {
         throw new ReadException("Unable to read workbook", e);
+      } catch(GeneralSecurityException e) {
+        throw new ReadException("Unable to read workbook - Decryption failed", e);
       }
     }
 
