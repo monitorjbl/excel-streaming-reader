@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -22,9 +23,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import org.junit.BeforeClass;
 
 public class StreamingReaderTest {
-
+  @BeforeClass
+  public static void init() {
+    Locale.setDefault(Locale.ENGLISH);
+  }
+  
   @Test
   public void testTypes() throws Exception {
     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
