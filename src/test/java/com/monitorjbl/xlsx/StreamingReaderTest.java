@@ -420,15 +420,15 @@ public class StreamingReaderTest {
   
   @Test
   public void testStringCellValue () throws Exception {
-      try(
-              InputStream is = new FileInputStream(new File("src/test/resources/blank_cell_StringCellValue.xlsx"));
-              StreamingReader reader = StreamingReader.builder().read(is);
-          ) {
+    try (
+        InputStream is = new FileInputStream(new File("src/test/resources/blank_cell_StringCellValue.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+        ) {
             for(Row r : reader) {
                 if (r.getRowNum() == 1) {
                     assertEquals("", r.getCell(1).getStringCellValue());
                 }
             }
-      }
-  }
+        }
+    }
 }
