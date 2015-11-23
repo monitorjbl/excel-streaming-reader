@@ -376,7 +376,7 @@ public class StreamingReaderTest {
     File f = new File("src/test/resources/blank_cells.xlsx");
     try(StreamingReader reader = StreamingReader.builder().read(f)) {
       Row row = reader.iterator().next();
-      assertThat(row.getCell(1).getStringCellValue(), is(nullValue()));
+      assertThat(row.getCell(1).getStringCellValue(), equalTo(""));
       assertThat(row.getCell(1).getDateCellValue(), is(nullValue()));
       assertThat(row.getCell(1).getNumericCellValue(), equalTo(0.0));
     }
@@ -416,5 +416,19 @@ public class StreamingReaderTest {
         }
       }
     }
+  }
+  
+  @Test
+  public void testStringCellValue () throws Exception {
+      try(
+              InputStream is = new FileInputStream(new File("src/test/resources/blank_cell_StringCellValue.xlsx"));
+              StreamingReader reader = StreamingReader.builder().read(is);
+          ) {
+            for(Row r : reader) {
+                if (r.getRowNum() == 1) {
+                    assertEquals("", r.getCell(1).getStringCellValue());
+                }
+            }
+      }
   }
 }
