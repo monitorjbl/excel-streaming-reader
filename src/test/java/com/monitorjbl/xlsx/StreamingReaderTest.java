@@ -3,6 +3,7 @@ package com.monitorjbl.xlsx;
 import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -23,14 +24,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.BeforeClass;
 
 public class StreamingReaderTest {
   @BeforeClass
   public static void init() {
     Locale.setDefault(Locale.ENGLISH);
   }
-  
+
   @Test
   public void testTypes() throws Exception {
     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
@@ -390,45 +390,46 @@ public class StreamingReaderTest {
       assertThat(row.getRowNum(), equalTo(0));
     }
   }
-  
+
   @Test
-  public void testNoTypeCell () throws Exception {
+  public void testNoTypeCell() throws Exception {
     try(
-      InputStream is = new FileInputStream(new File("src/test/resources/no_type_cell.xlsx"));
-      StreamingReader reader = StreamingReader.builder().read(is);) {
-        for(Row r : reader) {
-          for(Cell c : r) {
-              assertEquals("1", c.getStringCellValue());
-          }
+        InputStream is = new FileInputStream(new File("src/test/resources/no_type_cell.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);) {
+      for(Row r : reader) {
+        for(Cell c : r) {
+          assertEquals("1", c.getStringCellValue());
+        }
       }
     }
   }
-  
+
   @Test
   public void testEncryption() throws Exception {
-    try (
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/encrypted.xlsx"));
         StreamingReader reader = StreamingReader.builder().password("test").read(is);) {
-      OUTER: for (Row r : reader) {
-        for (Cell c : r) {
+      OUTER:
+      for(Row r : reader) {
+        for(Cell c : r) {
           assertEquals("Demo", c.getStringCellValue());
           break OUTER;
         }
       }
     }
   }
-  
+
   @Test
-  public void testStringCellValue () throws Exception {
-    try (
+  public void testStringCellValue() throws Exception {
+    try(
         InputStream is = new FileInputStream(new File("src/test/resources/blank_cell_StringCellValue.xlsx"));
         StreamingReader reader = StreamingReader.builder().read(is);
-        ) {
-            for(Row r : reader) {
-                if (r.getRowNum() == 1) {
-                    assertEquals("", r.getCell(1).getStringCellValue());
-                }
-            }
+    ) {
+      for(Row r : reader) {
+        if(r.getRowNum() == 1) {
+          assertEquals("", r.getCell(1).getStringCellValue());
         }
+      }
     }
+  }
 }
