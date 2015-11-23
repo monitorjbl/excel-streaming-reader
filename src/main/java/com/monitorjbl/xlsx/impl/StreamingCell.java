@@ -148,7 +148,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public String getStringCellValue() {
-    return (String) contents;
+    return contents == null ? "" : (String) contents;
   }
 
   /**
