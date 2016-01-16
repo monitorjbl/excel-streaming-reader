@@ -1,4 +1,4 @@
-[![shippable](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a8/badge/master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5)
+[![shippable](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge/master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5)
 
 # Excel Streaming Reader
 
