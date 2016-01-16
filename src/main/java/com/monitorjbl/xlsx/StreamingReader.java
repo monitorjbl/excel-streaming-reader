@@ -9,6 +9,9 @@ import com.monitorjbl.xlsx.impl.StreamingRow;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.poifs.crypt.Decryptor;
+import org.apache.poi.poifs.crypt.EncryptionInfo;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -38,6 +41,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,10 +49,6 @@ import java.util.Objects;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
-import java.security.GeneralSecurityException;
-import org.apache.poi.poifs.crypt.Decryptor;
-import org.apache.poi.poifs.crypt.EncryptionInfo;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
  * Streaming Excel workbook implementation. Most advanced features of POI are not supported.
@@ -115,7 +115,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
       if("row".equals(tagLocalName)) {
         Attribute rowIndex = startElement.getAttributeByName(new QName("r"));
-        currentRow = new StreamingRow(Integer.parseInt(rowIndex.getValue())-1);
+        currentRow = new StreamingRow(Integer.parseInt(rowIndex.getValue()) - 1);
       } else if("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
@@ -213,9 +213,10 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
   /**
    * Returns the contents of the cell, with no formatting applied
+   *
    * @return
    */
-  String unformattedContents(){
+  String unformattedContents() {
     switch(currentCell.getType() == null ? "" : currentCell.getType()) {
       case "s":           //string stored in shared table
         int idx = Integer.parseInt(lastContents);
@@ -347,7 +348,6 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * For password protected files specify password to open file.
      * If the password is incorrect a {@code ReadException} is thrown on
      * {@code read}.
-     * 
      * <p>NULL indicates that no password should be used, this is the
      * default value.</p>
      *
@@ -358,7 +358,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       this.password = password;
       return this;
     }
-    
+
     /**
      * Reads a given {@code InputStream} and returns a new
      * instance of {@code StreamingReader}. Due to Apache POI
@@ -400,7 +400,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       try {
         OPCPackage pkg;
 
-        if (password != null) {
+        if(password != null) {
           // Based on: https://poi.apache.org/encryption.html
           POIFSFileSystem poifs = new POIFSFileSystem(f);
           EncryptionInfo info = new EncryptionInfo(poifs);
@@ -410,7 +410,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         } else {
           pkg = OPCPackage.open(f);
         }
-        
+
         XSSFReader reader = new XSSFReader(pkg);
         SharedStringsTable sst = reader.getSharedStringsTable();
         StylesTable styles = reader.getStylesTable();
@@ -464,7 +464,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
   class StreamingIterator implements Iterator<Row> {
     public StreamingIterator() {
-      if(rowCacheIterator == null){
+      if(rowCacheIterator == null) {
         hasNext();
       }
     }

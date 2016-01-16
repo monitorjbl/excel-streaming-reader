@@ -17,7 +17,7 @@ public class XmlUtils {
   public static Document document(InputStream is) {
     try {
       return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-    } catch (SAXException | IOException | ParserConfigurationException e) {
+    } catch(SAXException | IOException | ParserConfigurationException e) {
       throw new ParseException(e);
     }
   }
@@ -26,7 +26,7 @@ public class XmlUtils {
     try {
       return (NodeList) XPathFactory.newInstance().newXPath().compile(xpath)
           .evaluate(document, XPathConstants.NODESET);
-    } catch (XPathExpressionException e) {
+    } catch(XPathExpressionException e) {
       throw new ParseException(e);
     }
   }
