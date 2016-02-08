@@ -432,4 +432,21 @@ public class StreamingReaderTest {
       }
     }
   }
+
+  @Test
+  public void testNullValueType() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/null_celltype.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+      for(Row r : reader) {
+        for(Cell cell : r) {
+          if (r.getRowNum()  == 0 && cell.getColumnIndex() == 8 ) {
+            assertEquals(0, cell.getCellType());
+            assertEquals("8:00:00", cell.getStringCellValue());
+          }
+        }
+      }
+    }
+  }
 }
