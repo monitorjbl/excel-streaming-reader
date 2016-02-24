@@ -25,6 +25,7 @@ public class StreamingCell implements Cell {
   private Short numericFormatIndex;
   private String type;
   private Row row;
+  private CellStyle cellStyle;
 
   public StreamingCell(int columnIndex, int rowIndex) {
     this.columnIndex = columnIndex;
@@ -302,8 +303,8 @@ public class StreamingCell implements Cell {
    * Not supported
    */
   @Override
-  public void setCellStyle(CellStyle style) {
-    throw new NotSupportedException();
+  public void setCellStyle(CellStyle cellStyle) {
+    this.cellStyle = cellStyle;
   }
 
   /**
@@ -311,7 +312,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public CellStyle getCellStyle() {
-    throw new NotSupportedException();
+    return this.cellStyle;
   }
 
   /**

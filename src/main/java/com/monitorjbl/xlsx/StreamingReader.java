@@ -127,6 +127,18 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         if(type != null) {
           currentCell.setType(type.getValue());
         }
+
+        Attribute style = startElement.getAttributeByName(new QName("s"));
+
+        if(style != null){
+          String indexStr = style.getValue();
+          try{
+            int index = Integer.parseInt(indexStr);
+            currentCell.setCellStyle(stylesTable.getStyleAt(index));
+          } catch(NumberFormatException nfe) {
+            log.warn("Ignoring invalid style index {}", indexStr);
+          }
+        }
       }
 
       // Clear contents cache
