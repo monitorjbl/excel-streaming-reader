@@ -2,6 +2,7 @@ package com.monitorjbl.xlsx;
 
 import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -86,6 +87,7 @@ public class StreamingReaderTest {
       assertEquals(Cell.CELL_TYPE_NUMERIC, row.get(1).getCellType());
       assertEquals("date", row.get(0).getStringCellValue());
       assertEquals(df.parse("1/1/2014"), row.get(1).getDateCellValue());
+      assertTrue(DateUtil.isCellDateFormatted(row.get(1)));
 
       row = obj.get(5);
       assertEquals(7, row.size());

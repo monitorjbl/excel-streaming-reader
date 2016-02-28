@@ -25,6 +25,7 @@ public class StreamingCell implements Cell {
   private Short numericFormatIndex;
   private String type;
   private Row row;
+  private CellStyle cellStyle;
 
   public StreamingCell(int columnIndex, int rowIndex) {
     this.columnIndex = columnIndex;
@@ -73,6 +74,11 @@ public class StreamingCell implements Cell {
 
   public void setRow(Row row) {
     this.row = row;
+  }
+
+  @Override
+  public void setCellStyle(CellStyle cellStyle) {
+    this.cellStyle = cellStyle;
   }
 
   /* Supported */
@@ -175,6 +181,17 @@ public class StreamingCell implements Cell {
   public Date getDateCellValue() {
     return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue());
   }
+
+  /**
+   * Returns the style of the cell
+   *
+   * @return the style of the cell
+   */
+  @Override
+  public CellStyle getCellStyle() {
+    return this.cellStyle;
+  }
+
 
   /* Not supported */
 
@@ -295,22 +312,6 @@ public class StreamingCell implements Cell {
    */
   @Override
   public byte getErrorCellValue() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setCellStyle(CellStyle style) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public CellStyle getCellStyle() {
     throw new NotSupportedException();
   }
 
