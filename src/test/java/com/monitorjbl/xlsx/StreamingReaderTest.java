@@ -1,6 +1,7 @@
 package com.monitorjbl.xlsx;
 
 import com.monitorjbl.xlsx.exceptions.MissingSheetException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
@@ -450,5 +451,12 @@ public class StreamingReaderTest {
         }
       }
     }
+  }
+
+  @Test
+  public void testClosingFiles() throws Exception {
+    OPCPackage o = OPCPackage.open(new File("src/test/resources/blank_cell_StringCellValue.xlsx"));
+
+    o.close();
   }
 }
