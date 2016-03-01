@@ -100,6 +100,19 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute type = startElement.getAttributeByName(new QName("t"));
         if(type != null) {
           currentCell.setType(type.getValue());
+        } else {
+          currentCell.setType("n");
+        }
+
+        Attribute style = startElement.getAttributeByName(new QName("s"));
+        if(style != null){
+          String indexStr = style.getValue();
+          try{
+            int index = Integer.parseInt(indexStr);
+            currentCell.setCellStyle(stylesTable.getStyleAt(index));
+          } catch(NumberFormatException nfe) {
+            log.warn("Ignoring invalid style index {}", indexStr);
+          }
         }
       }
 
@@ -161,7 +174,7 @@ public class StreamingSheetReader implements Iterable<Row> {
    * @return
    */
   String formattedContents() {
-    switch(currentCell.getType() == null ? "" : currentCell.getType()) {
+    switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         int idx = Integer.parseInt(lastContents);
         return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
@@ -191,7 +204,7 @@ public class StreamingSheetReader implements Iterable<Row> {
    * @return
    */
   String unformattedContents() {
-    switch(currentCell.getType() == null ? "" : currentCell.getType()) {
+    switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         int idx = Integer.parseInt(lastContents);
         return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
@@ -214,7 +227,7 @@ public class StreamingSheetReader implements Iterable<Row> {
     return new StreamingRowIterator();
   }
 
-  public void close(){
+  public void close() {
     try {
       parser.close();
     } catch(XMLStreamException e) {
