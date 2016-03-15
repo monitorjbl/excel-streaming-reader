@@ -455,6 +455,18 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testInlineCells() throws Exception {
+    try(
+            InputStream is = new FileInputStream(new File("src/test/resources/inline.xlsx"));
+            StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+      Row row = reader.iterator().next();
+      assertEquals("First inline cell", row.getCell(0).getStringCellValue());
+      assertEquals("Second inline cell", row.getCell(1).getStringCellValue());
+    }
+  }
+
+  @Test
   public void testClosingFiles() throws Exception {
     OPCPackage o = OPCPackage.open(new File("src/test/resources/blank_cell_StringCellValue.xlsx"), PackageAccess.READ);
     o.close();
