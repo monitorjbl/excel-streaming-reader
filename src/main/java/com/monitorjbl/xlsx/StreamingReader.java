@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -60,6 +61,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
   private final SharedStringsTable sst;
   private final StylesTable stylesTable;
+  private final CommentsTable commentsTable;
   private final XMLEventReader parser;
   private final DataFormatter dataFormatter = new DataFormatter();
 
@@ -73,9 +75,10 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
   private File tmp;
 
-  private StreamingReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, int rowCacheSize) {
+  private StreamingReader(SharedStringsTable sst, StylesTable stylesTable, CommentsTable commentsTable, XMLEventReader parser, int rowCacheSize) {
     this.sst = sst;
     this.stylesTable = stylesTable;
+    this.commentsTable = commentsTable;
     this.parser = parser;
     this.rowCacheSize = rowCacheSize;
   }
@@ -155,6 +158,12 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       } else if("row".equals(tagLocalName) && currentRow != null) {
         rowCache.add(currentRow);
       } else if("c".equals(tagLocalName)) {
+        if(commentsTable != null) {
+          String cellRef =
+                  CellReference.convertNumToColString(currentCell.getColumnIndex()) + (currentRow.getRowNum() + 1);
+          currentCell.setCellComment(commentsTable.findCellComment(cellRef));
+        }
+
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
       }
 
@@ -284,6 +293,17 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       is.close();
       fos.close();
       return f;
+    }
+  }
+
+  private static class Sheet {
+
+    final InputStream sheetData;
+    final CommentsTable commentsTable;
+
+    public Sheet(InputStream sheetData, CommentsTable commentsTable) {
+      this.sheetData = sheetData;
+      this.commentsTable = commentsTable;
     }
   }
 
@@ -429,13 +449,13 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         SharedStringsTable sst = reader.getSharedStringsTable();
         StylesTable styles = reader.getStylesTable();
 
-        InputStream sheet = findSheet(reader);
+        Sheet sheet = findSheet(reader);
         if(sheet == null) {
           throw new MissingSheetException("Unable to find sheet at index [" + sheetIndex + "]");
         }
 
-        XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
-        return new StreamingReader(sst, styles, parser, rowCacheSize);
+        XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet.sheetData);
+        return new StreamingReader(sst, styles, sheet.commentsTable, parser, rowCacheSize);
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
       } catch(OpenXML4JException | XMLStreamException e) {
@@ -445,7 +465,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       }
     }
 
-    InputStream findSheet(XSSFReader reader) throws IOException, InvalidFormatException {
+    Sheet findSheet(XSSFReader reader) throws IOException, InvalidFormatException {
       int index = sheetIndex;
       if(sheetName != null) {
         index = -1;
@@ -460,14 +480,15 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
           return null;
         }
       }
-      Iterator<InputStream> iter = reader.getSheetsData();
-      InputStream sheet = null;
+
+      XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) reader.getSheetsData();
+      Sheet sheet = null;
 
       int i = 0;
       while(iter.hasNext()) {
         InputStream is = iter.next();
         if(i++ == index) {
-          sheet = is;
+          sheet = new Sheet(is, iter.getSheetComments());
           log.debug("Found sheet at index [" + sheetIndex + "]");
           break;
         }

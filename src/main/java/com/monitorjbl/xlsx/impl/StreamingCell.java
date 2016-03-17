@@ -26,6 +26,7 @@ public class StreamingCell implements Cell {
   private String type;
   private Row row;
   private CellStyle cellStyle;
+  private Comment comment;
 
   public StreamingCell(int columnIndex, int rowIndex) {
     this.columnIndex = columnIndex;
@@ -80,6 +81,9 @@ public class StreamingCell implements Cell {
   public void setCellStyle(CellStyle cellStyle) {
     this.cellStyle = cellStyle;
   }
+
+  @Override
+  public void setCellComment(Comment comment) { this.comment = comment; }
 
   /* Supported */
 
@@ -191,6 +195,12 @@ public class StreamingCell implements Cell {
   public CellStyle getCellStyle() {
     return this.cellStyle;
   }
+
+  /**
+   * @return the {@link Comment} assigned to the cell or null if non
+   */
+  @Override
+  public Comment getCellComment() { return this.comment; }
 
 
   /* Not supported */
@@ -320,22 +330,6 @@ public class StreamingCell implements Cell {
    */
   @Override
   public void setAsActiveCell() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setCellComment(Comment comment) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Comment getCellComment() {
     throw new NotSupportedException();
   }
 
