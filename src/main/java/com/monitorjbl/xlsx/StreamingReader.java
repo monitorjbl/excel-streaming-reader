@@ -149,7 +149,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       EndElement endElement = event.asEndElement();
       String tagLocalName = endElement.getName().getLocalPart();
 
-      if("v".equals(tagLocalName)) {
+      if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         currentCell.setRawContents(unformattedContents());
         currentCell.setContents(formattedContents());
       } else if("row".equals(tagLocalName) && currentRow != null) {
