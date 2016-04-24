@@ -438,6 +438,21 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testCellComment() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/comments.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+      for(Row r : reader) {
+        if(r.getRowNum() == 0) {
+          assertEquals("yeah", r.getCell(0).getStringCellValue());
+          assertEquals("a comment", r.getCell(0).getCellComment().getString().getString());
+        }
+      }
+    }
+  }
+
+  @Test
   public void testNullValueType() throws Exception {
     try(
         InputStream is = new FileInputStream(new File("src/test/resources/null_celltype.xlsx"));
