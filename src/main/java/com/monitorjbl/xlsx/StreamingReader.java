@@ -72,8 +72,10 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   private StreamingCell currentCell;
 
   private File tmp;
+  private OPCPackage pkg;
 
-  private StreamingReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, int rowCacheSize) {
+  private StreamingReader(OPCPackage pkg, SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, int rowCacheSize) {
+    this.pkg = pkg;
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.parser = parser;
@@ -263,6 +265,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   public void close() {
     try {
       parser.close();
+      pkg.revert();
     } catch(XMLStreamException e) {
       throw new CloseException(e);
     }
@@ -411,9 +414,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the file
      */
     public StreamingReader read(File f) {
-      OPCPackage pkg = null;
-
       try {
+        OPCPackage pkg;
         if(password != null) {
           // Based on: https://poi.apache.org/encryption.html
           POIFSFileSystem poifs = new POIFSFileSystem(f);
@@ -435,22 +437,13 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         }
 
         XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
-        return new StreamingReader(sst, styles, parser, rowCacheSize);
+        return new StreamingReader(pkg, sst, styles, parser, rowCacheSize);
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
       } catch(OpenXML4JException | XMLStreamException e) {
         throw new ReadException("Unable to read workbook", e);
       } catch(GeneralSecurityException e) {
         throw new ReadException("Unable to read workbook - Decryption failed", e);
-      } finally {
-        //close package to prevent locking issues
-        try {
-          if(pkg != null) {
-            pkg.revert();
-          }
-        } catch(Exception e) {
-          log.debug("Could not close file", e);
-        }
       }
     }
 
