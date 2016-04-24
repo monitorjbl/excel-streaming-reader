@@ -105,9 +105,9 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
 
         Attribute style = startElement.getAttributeByName(new QName("s"));
-        if(style != null){
+        if(style != null) {
           String indexStr = style.getValue();
-          try{
+          try {
             int index = Integer.parseInt(indexStr);
             currentCell.setCellStyle(stylesTable.getStyleAt(index));
           } catch(NumberFormatException nfe) {
@@ -122,7 +122,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       EndElement endElement = event.asEndElement();
       String tagLocalName = endElement.getName().getLocalPart();
 
-      if("v".equals(tagLocalName)) {
+      if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         currentCell.setRawContents(unformattedContents());
         currentCell.setContents(formattedContents());
       } else if("row".equals(tagLocalName) && currentRow != null) {

@@ -445,12 +445,24 @@ public class StreamingReaderTest {
     ) {
       for(Row r : reader) {
         for(Cell cell : r) {
-          if (r.getRowNum()  == 0 && cell.getColumnIndex() == 8 ) {
+          if(r.getRowNum() == 0 && cell.getColumnIndex() == 8) {
             assertEquals(0, cell.getCellType());
             assertEquals("8:00:00", cell.getStringCellValue());
           }
         }
       }
+    }
+  }
+
+  @Test
+  public void testInlineCells() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/inline.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+      Row row = reader.iterator().next();
+      assertEquals("First inline cell", row.getCell(0).getStringCellValue());
+      assertEquals("Second inline cell", row.getCell(1).getStringCellValue());
     }
   }
 
