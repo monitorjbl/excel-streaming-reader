@@ -132,9 +132,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         Attribute style = startElement.getAttributeByName(new QName("s"));
 
-        if(style != null){
+        if(style != null) {
           String indexStr = style.getValue();
-          try{
+          try {
             int index = Integer.parseInt(indexStr);
             currentCell.setCellStyle(stylesTable.getStyleAt(index));
           } catch(NumberFormatException nfe) {
@@ -411,9 +411,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the file
      */
     public StreamingReader read(File f) {
-      try {
-        OPCPackage pkg;
+      OPCPackage pkg = null;
 
+      try {
         if(password != null) {
           // Based on: https://poi.apache.org/encryption.html
           POIFSFileSystem poifs = new POIFSFileSystem(f);
@@ -442,6 +442,15 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         throw new ReadException("Unable to read workbook", e);
       } catch(GeneralSecurityException e) {
         throw new ReadException("Unable to read workbook - Decryption failed", e);
+      } finally {
+        //close package to prevent locking issues
+        try {
+          if(pkg != null) {
+            pkg.revert();
+          }
+        } catch(Exception e) {
+          log.debug("Could not close file", e);
+        }
       }
     }
 
