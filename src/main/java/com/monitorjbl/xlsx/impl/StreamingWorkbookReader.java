@@ -41,17 +41,19 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private final List<String> sheetNames = new ArrayList<>();
   private final Builder builder;
   private File tmp;
+  private OPCPackage pkg;
 
   /**
    * This constructor exists only so the StreamingReader can instantiate
    * a StreamingWorkbook using its own reader implementation. Do not use
    * going forward.
    *
-   * @param reader A single streaming reader instance
+   * @param reader  A single streaming reader instance
    * @param builder The builder containing all options
    */
   @Deprecated
-  public StreamingWorkbookReader(StreamingSheetReader reader, Builder builder) {
+  public StreamingWorkbookReader(OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
+    this.pkg = pkg;
     this.sheets = asList(new StreamingSheet(null, reader));
     this.builder = builder;
   }
@@ -83,8 +85,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
   public void init(File f) {
     try {
-      OPCPackage pkg;
-
       if(builder.getPassword() != null) {
         // Based on: https://poi.apache.org/encryption.html
         POIFSFileSystem poifs = new POIFSFileSystem(f);
@@ -152,6 +152,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       for(StreamingSheet sheet : sheets) {
         sheet.getReader().close();
       }
+      pkg.revert();
     } finally {
       if(tmp != null) {
         log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");

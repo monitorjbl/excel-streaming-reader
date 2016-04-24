@@ -1,6 +1,7 @@
 package com.monitorjbl.xlsx.impl;
 
 import com.monitorjbl.xlsx.exceptions.CloseException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;

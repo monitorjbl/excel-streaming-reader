@@ -253,8 +253,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * @deprecated This method will be removed in a future release. Use {@link Builder#open(File)} instead
      */
     public StreamingReader read(File f) {
-      OPCPackage pkg = null;
       try {
+        OPCPackage pkg;
         if(password != null) {
           // Based on: https://poi.apache.org/encryption.html
           POIFSFileSystem poifs = new POIFSFileSystem(f);
@@ -277,22 +277,13 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
 
-        return new StreamingReader(new StreamingWorkbookReader(new StreamingSheetReader(sst, styles, parser, rowCacheSize), this));
+        return new StreamingReader(new StreamingWorkbookReader(pkg, new StreamingSheetReader(sst, styles, parser, rowCacheSize), this));
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
       } catch(OpenXML4JException | XMLStreamException e) {
         throw new ReadException("Unable to read workbook", e);
       } catch(GeneralSecurityException e) {
         throw new ReadException("Unable to read workbook - Decryption failed", e);
-      } finally {
-        //close package to prevent locking issues
-        try {
-          if(pkg != null) {
-            pkg.revert();
-          }
-        } catch(Exception e) {
-          log.debug("Could not close file", e);
-        }
       }
     }
 
