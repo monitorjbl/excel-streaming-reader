@@ -1,8 +1,8 @@
 package com.monitorjbl.xlsx;
 
-import com.monitorjbl.xlsx.impl.StreamingWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class StreamingWorkbookTest {
   public void testIterateSheets() throws Exception {
     try(
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-        StreamingWorkbook workbook = StreamingReader.builder().open(is);
+        Workbook workbook = StreamingReader.builder().open(is);
     ) {
 
       assertEquals(2, workbook.getNumberOfSheets());

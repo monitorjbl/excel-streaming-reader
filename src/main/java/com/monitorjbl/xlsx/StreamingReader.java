@@ -13,6 +13,7 @@ import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -114,10 +115,16 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       return bufferSize;
     }
 
+    /**
+     * @deprecated This method will be removed in a future release.
+     */
     public int getSheetIndex() {
       return sheetIndex;
     }
 
+    /**
+     * @deprecated This method will be removed in a future release.
+     */
     public String getSheetName() {
       return sheetName;
     }
@@ -166,6 +173,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param sheetIndex index of sheet
      * @return reference to current {@code Builder}
+     * @deprecated This method will be removed in a future release. Use {@link StreamingWorkbook#getSheetAt(int)} instead.
      */
     public Builder sheetIndex(int sheetIndex) {
       this.sheetIndex = sheetIndex;
@@ -180,6 +188,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param sheetName name of sheet
      * @return reference to current {@code Builder}
+     * @deprecated This method will be removed in a future release. Use {@link StreamingWorkbook#getSheet(String)} instead.
      */
     public Builder sheetName(String sheetName) {
       this.sheetName = sheetName;
@@ -201,13 +210,33 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       return this;
     }
 
-    public StreamingWorkbook open(InputStream is) {
+    /**
+     * Reads a given {@code InputStream} and returns a new
+     * instance of {@code Workbook}. Due to Apache POI
+     * limitations, a temporary file must be written in order
+     * to create a streaming iterator. This process will use
+     * the same buffer size as specified in {@link #bufferSize(int)}.
+     *
+     * @param is input stream to read in
+     * @return A {@link Workbook} that can be read from
+     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the stream
+     */
+    public Workbook open(InputStream is) {
       StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
       workbook.init(is);
       return new StreamingWorkbook(workbook);
     }
 
-    public StreamingWorkbook open(File file) {
+    /**
+     * Reads a given {@code File} and returns a new instance
+     * of {@code Workbook}.
+     *
+     * @param file file to read in
+     * @return built streaming reader instance
+     * @throws com.monitorjbl.xlsx.exceptions.OpenException if there is an issue opening the file
+     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the file
+     */
+    public Workbook open(File file) {
       StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
       workbook.init(file);
       return new StreamingWorkbook(workbook);
@@ -287,7 +316,10 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       }
     }
 
-    InputStream findSheet(XSSFReader reader) throws IOException, InvalidFormatException {
+    /**
+     * @deprecated This will be removed when the transition to the 1.x API is complete
+     */
+    private InputStream findSheet(XSSFReader reader) throws IOException, InvalidFormatException {
       int index = sheetIndex;
       if(sheetName != null) {
         index = -1;

@@ -8,6 +8,43 @@ There are plenty of good reasons for why Apache has to read in the whole workboo
 
 This library serves as a wrapper around that streaming API while preserving the syntax of the standard POI API. Read on to see if it's right for you.
 
+# Important! Read first!
+
+This README is for the newly minted 1.0.0 version. You may be looking for the old version's documentation or code, which you can still find in [the 0.2.x
+branch](https://github.com/monitorjbl/excel-streaming-reader/tree/0.2.x). The 0.2.x branch will have important bugfixes backported to it going forward, but
+new features will not be (aparet from any exceptional circumstances).
+
+The 1.x versions include a new API that allows users to interact with POI `Workbooks` and `Sheets` in a streaming fashion. The new API is mostly backwards
+compatible with the 0.2 version, with a slight difference:
+
+**0.2.x**
+
+```java
+
+InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
+StreamingReader reader = StreamingReader.builder()
+        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
+        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
+        .sheetIndex(0)        // index of sheet to use (defaults to 0)
+        .sheetName("sheet1")  // name of sheet to use (overrides sheetIndex)
+        .read(is);            // InputStream or File for XLSX file (required)
+
+```
+
+**1.x**
+
+```java
+InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
+Workbook workbook = StreamingReader.builder()
+        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
+        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
+        .sheetIndex(0)        // index of sheet to use (defaults to 0)
+        .open(is);            // InputStream or File for XLSX file (required)
+```
+
+In the interests of easing the transition from the old API, the 0.2.x method will still work, however it is marked deprecated and will be removed in a future
+ release. If it's at all possible, please update your code to use the 1.x API.
+
 # Include
 
 This library is available from from Maven Central, and you can optionally install it yourself. The Maven installation instructions can be found on the [release](https://github.com/monitorjbl/excel-streaming-reader/releases) page.
@@ -19,7 +56,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </dependency>
 </dependencies>  
 ```
@@ -30,14 +67,12 @@ This library is very specific in how it is meant to be used. You should initiali
 
 ```java
 import com.monitorjbl.xlsx.StreamingReader;
-import com.monitorjbl.xlsx.StreamingWorkbook;
 
 InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-StreamingWorkbook workbook = StreamingReader.builder()
+Workbook workbook = StreamingReader.builder()
         .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
         .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
         .sheetIndex(0)        // index of sheet to use (defaults to 0)
-        .sheetName("sheet1")  // name of sheet to use (overrides sheetIndex)
         .open(is);            // InputStream or File for XLSX file (required)
 ```
 
@@ -54,12 +89,18 @@ for (Sheet sheet : workbook){
 }
 ```
 
+Or open a sheet by name or index:
+
+```java
+Sheet sheet = workbook.getSheet("My Sheet")
+```
+
 The StreamingWorkbook is an autoclosable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 7, you can do this:
 
 ```java
 try (
   InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-  StreamingWorkbook workbook = StreamingReader.builder()
+  Workbook workbook = StreamingReader.builder()
           .rowCacheSize(100)
           .bufferSize(4096)
           .sheetIndex(0)
@@ -94,14 +135,14 @@ This is a brief and very generalized list of things that are not supported for r
 
 This library uses SLF4j logging. This is a rare use case, but you can plug in your logging provider and get some potentially useful output. Below is an example of doing this with log4j:
 
-**pom.xml dependencies**
+**pom.xml**
 
 ```
 <dependencies>
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
   </dependency>
   <dependency>
     <groupId>org.slf4j</groupId>
