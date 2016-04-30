@@ -12,7 +12,7 @@ This library serves as a wrapper around that streaming API while preserving the 
 
 This README is for the newly minted 1.0.0 version. You may be looking for the old version's documentation or code, which you can still find in [the 0.2.x
 branch](https://github.com/monitorjbl/excel-streaming-reader/tree/0.2.x). The 0.2.x branch will have important bugfixes backported to it going forward, but
-new features will not be (aparet from any exceptional circumstances).
+new features will not be (apart from any exceptional circumstances).
 
 The 1.x versions include a new API that allows users to interact with POI `Workbooks` and `Sheets` in a streaming fashion. The new API is mostly backwards
 compatible with the 0.2 version, with a slight difference:
