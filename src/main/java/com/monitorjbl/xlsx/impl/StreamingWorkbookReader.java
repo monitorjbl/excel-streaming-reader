@@ -48,6 +48,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
    * a StreamingWorkbook using its own reader implementation. Do not use
    * going forward.
    *
+   * @param pkg The POI package that should be closed when this workbook is closed
    * @param reader  A single streaming reader instance
    * @param builder The builder containing all options
    */

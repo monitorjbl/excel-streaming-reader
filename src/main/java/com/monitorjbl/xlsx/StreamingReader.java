@@ -116,6 +116,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
 
     /**
+     * @return The sheet index
      * @deprecated This method will be removed in a future release.
      */
     public int getSheetIndex() {
@@ -123,6 +124,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
 
     /**
+     * @return The sheet name
      * @deprecated This method will be removed in a future release.
      */
     public String getSheetName() {
