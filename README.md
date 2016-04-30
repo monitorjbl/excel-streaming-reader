@@ -180,10 +180,9 @@ If you need more control over how the file is created/disposed of, there is an o
 
 ```java
 File f = new File("/path/to/workbook.xlsx");
-StreamingWorkbook workbook = StreamingReader.builder()
+Workbook workbook = StreamingReader.builder()
         .rowCacheSize(100)    
         .bufferSize(4096)     
-        .sheetIndex(0)        
         .open(f);
 ```
 
