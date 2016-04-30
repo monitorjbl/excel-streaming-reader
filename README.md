@@ -19,7 +19,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.2.12</version>
+    <version>0.3.0-SNAPSHOT</version>
   </dependency>
 </dependencies>  
 ```
@@ -30,40 +30,47 @@ This library is very specific in how it is meant to be used. You should initiali
 
 ```java
 import com.monitorjbl.xlsx.StreamingReader;
+import com.monitorjbl.xlsx.StreamingWorkbook;
 
 InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-StreamingReader reader = StreamingReader.builder()
+StreamingWorkbook workbook = StreamingReader.builder()
         .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
         .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
         .sheetIndex(0)        // index of sheet to use (defaults to 0)
         .sheetName("sheet1")  // name of sheet to use (overrides sheetIndex)
-        .read(is);            // InputStream or File for XLSX file (required)
+        .open(is);            // InputStream or File for XLSX file (required)
 ```
 
 Once you've done this, you can then iterate through the rows and cells like so:
 
 ```java
-for (Row r : reader) {
-  for (Cell c : r) {
-    System.out.println(c.getStringCellValue());
+for (Sheet sheet : workbook){
+  System.out.println(sheet.getSheetName());
+  for (Row r : sheet) {
+    for (Cell c : r) {
+      System.out.println(c.getStringCellValue());
+    }
   }
 }
 ```
 
-The StreamingReader is an autoclosable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 7, you can do this:
+The StreamingWorkbook is an autoclosable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 7, you can do this:
 
 ```java
 try (
   InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-  StreamingReader reader = StreamingReader.builder()
+  StreamingWorkbook workbook = StreamingReader.builder()
           .rowCacheSize(100)
           .bufferSize(4096)
           .sheetIndex(0)
-          .read(is);
+          .open(is);
 ) {
-  for (Row r : reader) {
-    for (Cell c : r) {
-      System.out.println(c.getStringCellValue());
+  for (Sheet sheet : workbook){
+    System.out.println(sheet.getSheetName());
+    for (Row r : sheet) {
+      for (Cell c : r) {
+        System.out.println(c.getStringCellValue());
+      }
     }
   }
 }
@@ -94,7 +101,7 @@ This library uses SLF4j logging. This is a rare use case, but you can plug in yo
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>0.2.12</version>
+    <version>0.3.0-SNAPSHOT</version>
   </dependency>
   <dependency>
     <groupId>org.slf4j</groupId>
@@ -132,11 +139,11 @@ If you need more control over how the file is created/disposed of, there is an o
 
 ```java
 File f = new File("/path/to/workbook.xlsx");
-StreamingReader reader = StreamingReader.builder()
+StreamingWorkbook workbook = StreamingReader.builder()
         .rowCacheSize(100)    
         .bufferSize(4096)     
         .sheetIndex(0)        
-        .read(f);            
+        .open(f);
 ```
 
 This library will ONLY work with XLSX files. The older XLS format is not capable of being streamed.

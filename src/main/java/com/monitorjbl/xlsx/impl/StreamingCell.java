@@ -183,8 +183,6 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Returns the style of the cell
-   *
    * @return the style of the cell
    */
   @Override
