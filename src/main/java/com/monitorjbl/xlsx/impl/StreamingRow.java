@@ -66,6 +66,17 @@ public class StreamingRow implements Row {
     return cellMap.get(cellnum);
   }
 
+  /**
+   * Gets the index of the last cell contained in this row <b>PLUS ONE</b>.
+   * 
+   * @return short representing the last logical cell in the row <b>PLUS ONE</b>,
+   *   or -1 if the row does not contain any cells.
+   */
+  @Override
+  public short getLastCellNum() {
+    return (short) (cellMap.size() == 0 ? -1 : cellMap.size() + 1);
+  }
+
   /* Not supported */
 
   /**
@@ -113,14 +124,6 @@ public class StreamingRow implements Row {
    */
   @Override
   public short getFirstCellNum() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public short getLastCellNum() {
     throw new NotSupportedException();
   }
 
