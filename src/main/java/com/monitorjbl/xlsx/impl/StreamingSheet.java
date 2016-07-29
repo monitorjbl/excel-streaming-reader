@@ -61,6 +61,17 @@ public class StreamingSheet implements Sheet {
     return name;
   }
 
+  /**
+   * Get the hidden state for a given column
+   *
+   * @param columnIndex - the column to set (0-based)
+   * @return hidden - <code>false</code> if the column is visible
+   */
+  @Override
+  public boolean isColumnHidden(int columnIndex) {
+    return reader.isColumnHidden(columnIndex);
+  }
+
   /* Unsupported */
 
   /**
@@ -116,14 +127,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public void setColumnHidden(int columnIndex, boolean hidden) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public boolean isColumnHidden(int columnIndex) {
     throw new UnsupportedOperationException();
   }
 

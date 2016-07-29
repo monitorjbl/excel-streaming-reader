@@ -12,10 +12,12 @@ import java.util.TreeMap;
 
 public class StreamingRow implements Row {
   private int rowIndex;
+  private boolean isHidden;
   private Map<Integer, Cell> cellMap = new TreeMap<>();
 
-  public StreamingRow(int rowIndex) {
+  public StreamingRow(int rowIndex, boolean isHidden) {
     this.rowIndex = rowIndex;
+    this.isHidden = isHidden;
   }
 
   public Map<Integer, Cell> getCellMap() {
@@ -75,6 +77,16 @@ public class StreamingRow implements Row {
   @Override
   public short getLastCellNum() {
     return (short) (cellMap.size() == 0 ? -1 : cellMap.size() + 1);
+  }
+
+  /**
+   * Get whether or not to display this row with 0 height
+   *
+   * @return - zHeight height is zero or not.
+   */
+  @Override
+  public boolean getZeroHeight() {
+    return isHidden;
   }
 
   /* Not supported */
@@ -148,14 +160,6 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setZeroHeight(boolean zHeight) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public boolean getZeroHeight() {
     throw new NotSupportedException();
   }
 

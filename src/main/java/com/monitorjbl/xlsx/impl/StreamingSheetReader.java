@@ -1,7 +1,6 @@
 package com.monitorjbl.xlsx.impl;
 
 import com.monitorjbl.xlsx.exceptions.CloseException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -29,8 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class StreamingSheetReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingSheetReader.class);
@@ -39,6 +40,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final StylesTable stylesTable;
   private final XMLEventReader parser;
   private final DataFormatter dataFormatter = new DataFormatter();
+  private final Set<Integer> hiddenColumns = new HashSet<>();
 
   private int rowCacheSize;
   private List<Row> rowCache = new ArrayList<>();
@@ -89,8 +91,22 @@ public class StreamingSheetReader implements Iterable<Row> {
       String tagLocalName = startElement.getName().getLocalPart();
 
       if("row".equals(tagLocalName)) {
-        Attribute rowIndex = startElement.getAttributeByName(new QName("r"));
-        currentRow = new StreamingRow(Integer.parseInt(rowIndex.getValue()) - 1);
+        Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
+        Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
+        int rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
+        boolean isHidden = isHiddenAttr != null && "1".equals(isHiddenAttr.getValue());
+        currentRow = new StreamingRow(rowIndex, isHidden);
+      } else if("col".equals(tagLocalName)) {
+        Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
+        boolean isHidden = isHiddenAttr != null && "1".equals(isHiddenAttr.getValue());
+        if (isHidden) {
+          Attribute minAttr = startElement.getAttributeByName(new QName("min"));
+          Attribute maxAttr = startElement.getAttributeByName(new QName("max"));
+          int min = Integer.parseInt(minAttr.getValue()) - 1;
+          int max = Integer.parseInt(maxAttr.getValue()) - 1;
+          for (int columnIndex = min; columnIndex <= max; columnIndex++)
+            hiddenColumns.add(columnIndex);
+        }
       } else if("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
@@ -133,6 +149,16 @@ public class StreamingSheetReader implements Iterable<Row> {
       }
 
     }
+  }
+
+  /**
+   * Get the hidden state for a given column
+   *
+   * @param columnIndex - the column to set (0-based)
+   * @return hidden - <code>false</code> if the column is visible
+   */
+  boolean isColumnHidden(int columnIndex) {
+    return hiddenColumns.contains(columnIndex);
   }
 
   /**
