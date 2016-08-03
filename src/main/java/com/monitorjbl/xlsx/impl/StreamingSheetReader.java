@@ -158,6 +158,9 @@ public class StreamingSheetReader implements Iterable<Row> {
    * @return hidden - <code>false</code> if the column is visible
    */
   boolean isColumnHidden(int columnIndex) {
+    if(rowCacheIterator == null) {
+      getRow();
+    }
     return hiddenColumns.contains(columnIndex);
   }
 
