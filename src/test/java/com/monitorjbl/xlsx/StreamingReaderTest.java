@@ -52,7 +52,7 @@ public class StreamingReaderTest {
         obj.add(o);
       }
 
-      assertEquals(6, obj.size());
+      assertEquals(7, obj.size());
       List<Cell> row;
 
       row = obj.get(0);
@@ -107,6 +107,15 @@ public class StreamingReaderTest {
       assertEquals("at", row.get(4).getStringCellValue());
       assertEquals("it", row.get(5).getStringCellValue());
       assertEquals("go", row.get(6).getStringCellValue());
+
+      row = obj.get(6);
+      assertEquals(3, row.size());
+      assertEquals(Cell.CELL_TYPE_STRING, row.get(0).getCellType());
+      assertEquals(Cell.CELL_TYPE_BOOLEAN, row.get(1).getCellType());
+      assertEquals(Cell.CELL_TYPE_BOOLEAN, row.get(2).getCellType());
+      assertEquals("boolean", row.get(0).getStringCellValue());
+      assertEquals(true, row.get(1).getBooleanCellValue());
+      assertEquals(false, row.get(2).getBooleanCellValue());
     }
   }
 
