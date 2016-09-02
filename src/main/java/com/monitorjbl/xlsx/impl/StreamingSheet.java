@@ -115,11 +115,13 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Gets the last row on the sheet
+   *
+   * @return last row contained n this sheet (0-based)
    */
   @Override
   public int getLastRowNum() {
-    throw new UnsupportedOperationException();
+    return reader.getLastRowNum();
   }
 
   /**

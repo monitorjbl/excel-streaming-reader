@@ -42,6 +42,8 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final DataFormatter dataFormatter = new DataFormatter();
   private final Set<Integer> hiddenColumns = new HashSet<>();
 
+  private boolean headerRead;
+  private int lastRowNum;
   private int rowCacheSize;
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
@@ -57,6 +59,34 @@ public class StreamingSheetReader implements Iterable<Row> {
     this.rowCacheSize = rowCacheSize;
   }
 
+  private void readSheetHeader() throws XMLStreamException {
+    while (parser.hasNext()) {
+      XMLEvent event = parser.nextEvent();
+      if(event.getEventType() == XMLStreamConstants.START_ELEMENT) {
+        StartElement startElement = event.asStartElement();
+        String tagLocalName = startElement.getName().getLocalPart();
+        if ("dimension".equals(tagLocalName)) {
+          Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
+          String ref = refAttr!=null?refAttr.getValue():null;
+          if (ref!=null) {
+            // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
+            for (int i=ref.length()-1;i>=0;i--) {
+              if (!Character.isDigit(ref.charAt(i))) {
+              try {
+                  lastRowNum = Integer.parseInt(ref.substring(i+1)) - 1;
+              } catch (NumberFormatException ignore) { }
+                break;
+              }
+            }
+          }
+        } else if("sheetData".equals(tagLocalName)) {
+          break;
+        }
+      }
+    }
+    headerRead = true;
+  }
+
   /**
    * Read through a number of rows equal to the rowCacheSize field or until there is no more data to read
    *
@@ -65,6 +95,8 @@ public class StreamingSheetReader implements Iterable<Row> {
   private boolean getRow() {
     try {
       rowCache.clear();
+      if (!headerRead)
+        readSheetHeader();
       while(rowCache.size() < rowCacheSize && parser.hasNext()) {
         handleEvent(parser.nextEvent());
       }
@@ -162,6 +194,22 @@ public class StreamingSheetReader implements Iterable<Row> {
       getRow();
     }
     return hiddenColumns.contains(columnIndex);
+  }
+
+  /**
+   * Gets the last row on the sheet
+   *
+   * @return
+   */
+  int getLastRowNum() {
+    if (!headerRead) {
+      try {
+        readSheetHeader();
+      } catch (XMLStreamException e) {
+        log.debug("could not read header");
+      }
+    }
+    return lastRowNum;
   }
 
   /**
