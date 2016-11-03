@@ -16,6 +16,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class StreamingCell implements Cell {
+
+  private static final String FALSE_AS_STRING = "0";
+  private static final String TRUE_AS_STRING  = "1";
+
   private int columnIndex;
   private int rowIndex;
 
@@ -183,6 +187,49 @@ public class StreamingCell implements Cell {
   }
 
   /**
+   * Get the value of the cell as a boolean. For strings we throw an exception. For
+   * blank cells we return a false.
+   *
+   * @return the value of the cell as a date
+   */
+  @Override
+  public boolean getBooleanCellValue() {
+    int cellType = getCellType();
+    switch(cellType) {
+      case CELL_TYPE_BLANK:
+        return false;
+      case CELL_TYPE_BOOLEAN:
+        return rawContents != null && TRUE_AS_STRING.equals(rawContents);
+      case CELL_TYPE_FORMULA:
+        throw new NotSupportedException();
+      default:
+        throw typeMismatch(CELL_TYPE_BOOLEAN, cellType, false);
+    }
+  }
+
+  private static RuntimeException typeMismatch(int expectedTypeCode, int actualTypeCode, boolean isFormulaCell) {
+    String msg = "Cannot get a "
+            + getCellTypeName(expectedTypeCode) + " value from a "
+            + getCellTypeName(actualTypeCode) + " " + (isFormulaCell ? "formula " : "") + "cell";
+    return new IllegalStateException(msg);
+  }
+
+  /**
+   * Used to help format error messages
+   */
+  private static String getCellTypeName(int cellTypeCode) {
+    switch (cellTypeCode) {
+      case CELL_TYPE_BLANK:   return "blank";
+      case CELL_TYPE_STRING:  return "text";
+      case CELL_TYPE_BOOLEAN: return "boolean";
+      case CELL_TYPE_ERROR:   return "error";
+      case CELL_TYPE_NUMERIC: return "numeric";
+      case CELL_TYPE_FORMULA: return "formula";
+    }
+    return "#unknown cell type (" + cellTypeCode + ")#";
+  }
+
+  /**
    * @return the style of the cell
    */
   @Override
@@ -295,14 +342,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setCellErrorValue(byte value) {
     throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public boolean getBooleanCellValue() {
-    return false;
   }
 
   /**

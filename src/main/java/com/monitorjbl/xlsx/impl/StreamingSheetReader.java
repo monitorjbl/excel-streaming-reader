@@ -42,6 +42,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final DataFormatter dataFormatter = new DataFormatter();
   private final Set<Integer> hiddenColumns = new HashSet<>();
 
+  private int lastRowNum;
   private int rowCacheSize;
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
@@ -131,6 +132,20 @@ public class StreamingSheetReader implements Iterable<Row> {
             log.warn("Ignoring invalid style index {}", indexStr);
           }
         }
+      } else if ("dimension".equals(tagLocalName)) {
+        Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
+        String ref = refAttr!=null?refAttr.getValue():null;
+        if (ref!=null) {
+          // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
+          for (int i=ref.length()-1;i>=0;i--) {
+            if (!Character.isDigit(ref.charAt(i))) {
+            try {
+                lastRowNum = Integer.parseInt(ref.substring(i+1)) - 1;
+            } catch (NumberFormatException ignore) { }
+              break;
+            }
+          }
+        }
       }
 
       // Clear contents cache
@@ -162,6 +177,18 @@ public class StreamingSheetReader implements Iterable<Row> {
       getRow();
     }
     return hiddenColumns.contains(columnIndex);
+  }
+
+  /**
+   * Gets the last row on the sheet
+   *
+   * @return
+   */
+  int getLastRowNum() {
+    if(rowCacheIterator == null) {
+      getRow();
+    }
+    return lastRowNum;
   }
 
   /**
