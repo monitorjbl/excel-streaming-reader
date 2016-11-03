@@ -13,7 +13,7 @@ import java.util.TreeMap;
 public class StreamingRow implements Row {
   private int rowIndex;
   private boolean isHidden;
-  private Map<Integer, Cell> cellMap = new TreeMap<>();
+  private TreeMap<Integer, Cell> cellMap = new TreeMap<>();
 
   public StreamingRow(int rowIndex, boolean isHidden) {
     this.rowIndex = rowIndex;
@@ -24,7 +24,7 @@ public class StreamingRow implements Row {
     return cellMap;
   }
 
-  public void setCellMap(Map<Integer, Cell> cellMap) {
+  public void setCellMap(TreeMap<Integer, Cell> cellMap) {
     this.cellMap = cellMap;
   }
 
@@ -76,7 +76,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public short getLastCellNum() {
-    return (short) (cellMap.size() == 0 ? -1 : cellMap.size() + 1);
+    return (short) (cellMap.size() == 0 ? -1 : cellMap.lastEntry().getValue().getColumnIndex() + 1);
   }
 
   /**
@@ -87,6 +87,17 @@ public class StreamingRow implements Row {
   @Override
   public boolean getZeroHeight() {
     return isHidden;
+  }
+
+  /**
+   * Gets the number of defined cells (NOT number of cells in the actual row!).
+   * That is to say if only columns 0,4,5 have values then there would be 3.
+   *
+   * @return int representing the number of defined cells in the row.
+   */
+  @Override
+  public int getPhysicalNumberOfCells() {
+    return cellMap.size();
   }
 
   /* Not supported */
@@ -136,14 +147,6 @@ public class StreamingRow implements Row {
    */
   @Override
   public short getFirstCellNum() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public int getPhysicalNumberOfCells() {
     throw new NotSupportedException();
   }
 
