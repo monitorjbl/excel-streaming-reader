@@ -1,5 +1,6 @@
 package com.monitorjbl.xlsx;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -9,8 +10,11 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Locale;
 
+import static org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA;
+import static org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -59,6 +63,27 @@ public class StreamingWorkbookTest {
       assertFalse("Row 0 should not be hidden", sheet.rowIterator().next().getZeroHeight());
       assertTrue("Row 1 should be hidden", sheet.rowIterator().next().getZeroHeight());
       assertFalse("Row 2 should not be hidden", sheet.rowIterator().next().getZeroHeight());
+    }
+  }
+
+  @Test
+  public void testFormulaCells() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/formula_cell.xlsx"));
+        Workbook workbook = StreamingReader.builder().open(is)
+    ) {
+      assertEquals(1, workbook.getNumberOfSheets());
+      Sheet sheet = workbook.getSheetAt(0);
+
+      Iterator<Row> rowIterator = sheet.rowIterator();
+      rowIterator.next();
+      rowIterator.next();
+      Row row3 = rowIterator.next();
+      Cell A3 = row3.getCell(0);
+
+      assertEquals("Cell A3 should be of type formula", CELL_TYPE_FORMULA, A3.getCellType());
+      assertEquals("Cell A3's value should be of type numeric", CELL_TYPE_NUMERIC, A3.getCachedFormulaResultType());
+      assertEquals("Wrong formula", "SUM(A1:A2)", A3.getCellFormula());
     }
   }
 }
