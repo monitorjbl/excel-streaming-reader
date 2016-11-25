@@ -146,6 +146,8 @@ public class StreamingSheetReader implements Iterable<Row> {
             }
           }
         }
+      } else if ("f".equals(tagLocalName)) {
+        currentCell.setType("str");
       }
 
       // Clear contents cache
@@ -161,6 +163,8 @@ public class StreamingSheetReader implements Iterable<Row> {
         rowCache.add(currentRow);
       } else if("c".equals(tagLocalName)) {
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
+      } else if("f".equals(tagLocalName)) {
+        currentCell.setFormula(lastContents);
       }
 
     }

@@ -25,9 +25,11 @@ public class StreamingCell implements Cell {
 
   private Object contents;
   private Object rawContents;
+  private String formula;
   private String numericFormat;
   private Short numericFormatIndex;
   private String type;
+  private String cachedFormulaResultType;
   private Row row;
   private CellStyle cellStyle;
 
@@ -68,11 +70,19 @@ public class StreamingCell implements Cell {
     this.numericFormatIndex = numericFormatIndex;
   }
 
+  public void setFormula(String formula) {
+    this.formula = formula;
+  }
+
   public String getType() {
     return type;
   }
 
   public void setType(String type) {
+    if("str".equals(type)) {
+      // this is a formula cell, cache the value's type
+      cachedFormulaResultType = this.type;
+    }
     this.type = type;
   }
 
@@ -237,6 +247,48 @@ public class StreamingCell implements Cell {
     return this.cellStyle;
   }
 
+  /**
+   * Return a formula for the cell, for example, <code>SUM(C4:E4)</code>
+   *
+   * @return a formula for the cell
+   * @throws IllegalStateException if the cell type returned by {@link #getCellType()} is not CELL_TYPE_FORMULA
+   */
+  @Override
+  public String getCellFormula() {
+    if (type == null || !"str".equals(type))
+      throw new IllegalStateException("This cell does not have a formula");
+    return formula;
+  }
+
+  /**
+   * Only valid for formula cells
+   * @return one of ({@link #CELL_TYPE_NUMERIC}, {@link #CELL_TYPE_STRING},
+   *     {@link #CELL_TYPE_BOOLEAN}, {@link #CELL_TYPE_ERROR}) depending
+   * on the cached value of the formula
+   */
+  @Override
+  public int getCachedFormulaResultType() {
+    if (type != null && "str".equals(type)) {
+      if(contents == null || cachedFormulaResultType == null) {
+        return CELL_TYPE_BLANK;
+      } else if("n".equals(cachedFormulaResultType)) {
+        return CELL_TYPE_NUMERIC;
+      } else if("s".equals(cachedFormulaResultType) || "inlineStr".equals(cachedFormulaResultType)) {
+        return CELL_TYPE_STRING;
+      } else if("str".equals(cachedFormulaResultType)) {
+        return CELL_TYPE_FORMULA;
+      } else if("b".equals(cachedFormulaResultType)) {
+        return CELL_TYPE_BOOLEAN;
+      } else if("e".equals(cachedFormulaResultType)) {
+        return CELL_TYPE_ERROR;
+      } else {
+        throw new UnsupportedOperationException("Unsupported cell type '" + cachedFormulaResultType + "'");
+      }
+    }
+    else  {
+      throw new IllegalStateException("Only formula cells have cached results");
+    }
+  }
 
   /* Not supported */
 
@@ -253,14 +305,6 @@ public class StreamingCell implements Cell {
    */
   @Override
   public Sheet getSheet() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public int getCachedFormulaResultType() {
     throw new NotSupportedException();
   }
 
@@ -309,14 +353,6 @@ public class StreamingCell implements Cell {
    */
   @Override
   public void setCellFormula(String formula) throws FormulaParseException {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public String getCellFormula() {
     throw new NotSupportedException();
   }
 
