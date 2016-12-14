@@ -87,7 +87,8 @@ public class StreamingSheetReader implements Iterable<Row> {
     if(event.getEventType() == XMLStreamConstants.CHARACTERS) {
       Characters c = event.asCharacters();
       lastContents += c.getData();
-    } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT) {
+    } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
+            && isSpreadsheetTag(event.asStartElement().getName())) {
       StartElement startElement = event.asStartElement();
       String tagLocalName = startElement.getName().getLocalPart();
 
@@ -152,7 +153,8 @@ public class StreamingSheetReader implements Iterable<Row> {
 
       // Clear contents cache
       lastContents = "";
-    } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT) {
+    } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT
+            && isSpreadsheetTag(event.asEndElement().getName())) {
       EndElement endElement = event.asEndElement();
       String tagLocalName = endElement.getName().getLocalPart();
 
@@ -168,6 +170,21 @@ public class StreamingSheetReader implements Iterable<Row> {
       }
 
     }
+  }
+
+  /**
+   * Returns true if a tag is part of the main namespace for SpreadsheetML:
+   * <ul>
+   * <li>http://schemas.openxmlformats.org/spreadsheetml/2006/main
+   * <li>http://purl.oclc.org/ooxml/spreadsheetml/main
+   * </ul>
+   * As opposed to http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing, etc.
+   * @param name
+   * @return
+   */
+  private boolean isSpreadsheetTag(QName name) {
+    return (name.getNamespaceURI() != null
+      && name.getNamespaceURI().endsWith("/main"));
   }
 
   /**
