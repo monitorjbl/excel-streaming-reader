@@ -480,4 +480,17 @@ public class StreamingReaderTest {
     OPCPackage o = OPCPackage.open(new File("src/test/resources/blank_cell_StringCellValue.xlsx"), PackageAccess.READ);
     o.close();
   }
+
+  @Test
+  public void shouldIgnoreSpreadsheetDrawingRows() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/has_spreadsheetdrawing.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+      Iterator<Row> iterator = reader.iterator();
+      while(iterator.hasNext()) {
+        iterator.next();
+      }
+    }
+  }
 }
