@@ -88,7 +88,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       Characters c = event.asCharacters();
       lastContents += c.getData();
     } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
-            && isSpreadsheetTag(event.asStartElement().getName())) {
+        && isSpreadsheetTag(event.asStartElement().getName())) {
       StartElement startElement = event.asStartElement();
       String tagLocalName = startElement.getName().getLocalPart();
 
@@ -101,12 +101,12 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
         boolean isHidden = isHiddenAttr != null && "1".equals(isHiddenAttr.getValue());
-        if (isHidden) {
+        if(isHidden) {
           Attribute minAttr = startElement.getAttributeByName(new QName("min"));
           Attribute maxAttr = startElement.getAttributeByName(new QName("max"));
           int min = Integer.parseInt(minAttr.getValue()) - 1;
           int max = Integer.parseInt(maxAttr.getValue()) - 1;
-          for (int columnIndex = min; columnIndex <= max; columnIndex++)
+          for(int columnIndex = min; columnIndex <= max; columnIndex++)
             hiddenColumns.add(columnIndex);
         }
       } else if("c".equals(tagLocalName)) {
@@ -133,28 +133,28 @@ public class StreamingSheetReader implements Iterable<Row> {
             log.warn("Ignoring invalid style index {}", indexStr);
           }
         }
-      } else if ("dimension".equals(tagLocalName)) {
+      } else if("dimension".equals(tagLocalName)) {
         Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
-        String ref = refAttr!=null?refAttr.getValue():null;
-        if (ref!=null) {
+        String ref = refAttr != null ? refAttr.getValue() : null;
+        if(ref != null) {
           // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
-          for (int i=ref.length()-1;i>=0;i--) {
-            if (!Character.isDigit(ref.charAt(i))) {
-            try {
-                lastRowNum = Integer.parseInt(ref.substring(i+1)) - 1;
-            } catch (NumberFormatException ignore) { }
+          for(int i = ref.length() - 1; i >= 0; i--) {
+            if(!Character.isDigit(ref.charAt(i))) {
+              try {
+                lastRowNum = Integer.parseInt(ref.substring(i + 1)) - 1;
+              } catch(NumberFormatException ignore) { }
               break;
             }
           }
         }
-      } else if ("f".equals(tagLocalName)) {
+      } else if("f".equals(tagLocalName)) {
         currentCell.setType("str");
       }
 
       // Clear contents cache
       lastContents = "";
     } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT
-            && isSpreadsheetTag(event.asEndElement().getName())) {
+        && isSpreadsheetTag(event.asEndElement().getName())) {
       EndElement endElement = event.asEndElement();
       String tagLocalName = endElement.getName().getLocalPart();
 
@@ -179,12 +179,13 @@ public class StreamingSheetReader implements Iterable<Row> {
    * <li>http://purl.oclc.org/ooxml/spreadsheetml/main
    * </ul>
    * As opposed to http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing, etc.
+   *
    * @param name
    * @return
    */
   private boolean isSpreadsheetTag(QName name) {
     return (name.getNamespaceURI() != null
-      && name.getNamespaceURI().endsWith("/main"));
+        && name.getNamespaceURI().endsWith("/main"));
   }
 
   /**
