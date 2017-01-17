@@ -15,6 +15,7 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.stream.XMLEventReader;
@@ -27,8 +28,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
@@ -38,7 +41,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
 
   private final List<StreamingSheet> sheets;
-  private final List<String> sheetNames = new ArrayList<>();
+  private final List<Map<String, String>> sheetProperties = new ArrayList<>();
   private final Builder builder;
   private File tmp;
   private OPCPackage pkg;
@@ -48,7 +51,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
    * a StreamingWorkbook using its own reader implementation. Do not use
    * going forward.
    *
-   * @param pkg The POI package that should be closed when this workbook is closed
+   * @param pkg     The POI package that should be closed when this workbook is closed
    * @param reader  A single streaming reader instance
    * @param builder The builder containing all options
    */
@@ -118,28 +121,29 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     int i = 0;
     while(iter.hasNext()) {
       XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(iter.next());
-      sheets.add(new StreamingSheet(sheetNames.get(i++), new StreamingSheetReader(sst, stylesTable, parser, rowCacheSize)));
+      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, rowCacheSize)));
     }
   }
 
   void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
-    sheetNames.clear();
+    sheetProperties.clear();
     NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
     for(int i = 0; i < nl.getLength(); i++) {
-      sheetNames.add(nl.item(i).getAttributes().getNamedItem("name").getTextContent());
+      Map<String, String> props = new HashMap<>();
+      props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
+
+      Node state = nl.item(i).getAttributes().getNamedItem("state");
+      props.put("state", state == null ? "visible" : state.getTextContent());
+      sheetProperties.add(props);
     }
-  }
-
-  int findSheetByName(String name) {
-    return sheetNames.indexOf(name);
-  }
-
-  String findSheetNameByIndex(int index) {
-    return sheetNames.get(index);
   }
 
   List<? extends Sheet> getSheets() {
     return sheets;
+  }
+
+  public List<Map<String, String>> getSheetProperties() {
+    return sheetProperties;
   }
 
   @Override

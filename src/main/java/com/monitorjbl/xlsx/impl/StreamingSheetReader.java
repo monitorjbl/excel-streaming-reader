@@ -96,11 +96,11 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
         int rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
-        boolean isHidden = isHiddenAttr != null && "1".equals(isHiddenAttr.getValue());
+        boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
         currentRow = new StreamingRow(rowIndex, isHidden);
       } else if("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
-        boolean isHidden = isHiddenAttr != null && "1".equals(isHiddenAttr.getValue());
+        boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
         if(isHidden) {
           Attribute minAttr = startElement.getAttributeByName(new QName("min"));
           Attribute maxAttr = startElement.getAttributeByName(new QName("max"));

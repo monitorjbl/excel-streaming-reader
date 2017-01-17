@@ -187,7 +187,7 @@ public class StreamingReaderTest {
         obj.add(o);
       }
 
-      assertEquals(2, obj.size());
+      assertEquals(3, obj.size());
       List<Cell> row;
 
       row = obj.get(0);
