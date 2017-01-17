@@ -193,6 +193,9 @@ public class StreamingCell implements Cell {
    */
   @Override
   public Date getDateCellValue() {
+    if(getCellType() == CELL_TYPE_STRING){
+      throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
+    }
     return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue());
   }
 

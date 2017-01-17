@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -116,6 +118,33 @@ public class StreamingReaderTest {
       assertEquals("boolean", row.get(0).getStringCellValue());
       assertEquals(true, row.get(1).getBooleanCellValue());
       assertEquals(false, row.get(2).getBooleanCellValue());
+    }
+  }
+
+  @Test
+  public void testGetDateCellValue() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+
+      List<List<Cell>> obj = new ArrayList<>();
+
+      for(Row r : reader) {
+        List<Cell> o = new ArrayList<>();
+        for(Cell c : r) {
+          o.add(c);
+        }
+        obj.add(o);
+      }
+
+      Date dt = obj.get(4).get(1).getDateCellValue();
+      assertNotNull(dt);
+
+      try {
+        obj.get(0).get(0).getDateCellValue();
+        fail("Should have thrown IllegalStateException");
+      } catch(IllegalStateException e) { }
     }
   }
 
