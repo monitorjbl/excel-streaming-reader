@@ -149,6 +149,29 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testGetFirstCellNum() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+
+      List<List<Cell>> obj = new ArrayList<>();
+      List<Row> rows = new ArrayList<>();
+      for(Row r : reader) {
+        rows.add(r);
+        List<Cell> o = new ArrayList<>();
+        for(Cell c : r) {
+          o.add(c);
+        }
+        obj.add(o);
+      }
+
+      assertEquals(3, rows.size());
+      assertEquals(3, rows.get(2).getFirstCellNum());
+    }
+  }
+
+  @Test
   public void testGaps() throws Exception {
     try(
         InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
