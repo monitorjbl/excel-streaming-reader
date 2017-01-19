@@ -38,168 +38,176 @@ import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
 import static java.util.Arrays.asList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
-  private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
+    private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
 
-  private final List<StreamingSheet> sheets;
-  private final List<Map<String, String>> sheetProperties = new ArrayList<>();
-  private final Builder builder;
-  private File tmp;
-  private OPCPackage pkg;
+    private final List<StreamingSheet> sheets;
+    private final List<Map<String, String>> sheetProperties = new ArrayList<>();
+    private final Builder builder;
+    private File tmp;
+    private OPCPackage pkg;
+    private boolean use1904Dates = false;
 
-  /**
-   * This constructor exists only so the StreamingReader can instantiate
-   * a StreamingWorkbook using its own reader implementation. Do not use
-   * going forward.
-   *
-   * @param pkg     The POI package that should be closed when this workbook is closed
-   * @param reader  A single streaming reader instance
-   * @param builder The builder containing all options
-   */
-  @Deprecated
-  public StreamingWorkbookReader(OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
-    this.pkg = pkg;
-    this.sheets = asList(new StreamingSheet(null, reader));
-    this.builder = builder;
-  }
-
-  public StreamingWorkbookReader(Builder builder) {
-    this.sheets = new ArrayList<>();
-    this.builder = builder;
-  }
-
-  public StreamingSheetReader first() {
-    return sheets.get(0).getReader();
-  }
-
-  public void init(InputStream is) {
-    File f = null;
-    try {
-      f = writeInputStreamToFile(is, builder.getBufferSize());
-      log.debug("Created temp file [" + f.getAbsolutePath() + "]");
-
-      init(f);
-      tmp = f;
-    } catch(IOException e) {
-      throw new ReadException("Unable to read input stream", e);
-    } catch(RuntimeException e) {
-      f.delete();
-      throw e;
+    /**
+     * This constructor exists only so the StreamingReader can instantiate
+     * a StreamingWorkbook using its own reader implementation. Do not use
+     * going forward.
+     *
+     * @param pkg     The POI package that should be closed when this workbook is closed
+     * @param reader  A single streaming reader instance
+     * @param builder The builder containing all options
+     */
+    @Deprecated
+    public StreamingWorkbookReader(OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
+        this.pkg = pkg;
+        this.sheets = asList(new StreamingSheet(null, reader));
+        this.builder = builder;
     }
-  }
 
-  public void init(File f) {
-    try {
-      if(builder.getPassword() != null) {
-        // Based on: https://poi.apache.org/encryption.html
-        POIFSFileSystem poifs = new POIFSFileSystem(f);
-        EncryptionInfo info = new EncryptionInfo(poifs);
-        Decryptor d = Decryptor.getInstance(info);
-        d.verifyPassword(builder.getPassword());
-        pkg = OPCPackage.open(d.getDataStream(poifs));
-      } else {
-        pkg = OPCPackage.open(f);
-      }
-
-      XSSFReader reader = new XSSFReader(pkg);
-      SharedStringsTable sst = reader.getSharedStringsTable();
-      StylesTable styles = reader.getStylesTable();
-
-      loadSheets(reader, sst, styles, builder.getRowCacheSize());
-    } catch(IOException e) {
-      throw new OpenException("Failed to open file", e);
-    } catch(OpenXML4JException | XMLStreamException e) {
-      throw new ReadException("Unable to read workbook", e);
-    } catch(GeneralSecurityException e) {
-      throw new ReadException("Unable to read workbook - Decryption failed", e);
+    public StreamingWorkbookReader(Builder builder) {
+        this.sheets = new ArrayList<>();
+        this.builder = builder;
     }
-  }
 
-  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
-      XMLStreamException {
-    lookupSheetNames(reader);
-    Iterator<InputStream> iter = reader.getSheetsData();
-    int i = 0;
-    while(iter.hasNext()) {
-      XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(iter.next());
-      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, rowCacheSize)));
+    public StreamingSheetReader first() {
+        return sheets.get(0).getReader();
     }
-  }
 
-  void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
-    sheetProperties.clear();
-    NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
-    for(int i = 0; i < nl.getLength(); i++) {
-      Map<String, String> props = new HashMap<>();
-      props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
+    public void init(InputStream is) {
+        File f = null;
+        try {
+            f = writeInputStreamToFile(is, builder.getBufferSize());
+            log.debug("Created temp file [" + f.getAbsolutePath() + "]");
 
-      Node state = nl.item(i).getAttributes().getNamedItem("state");
-      props.put("state", state == null ? "visible" : state.getTextContent());
-      sheetProperties.add(props);
+            init(f);
+            tmp = f;
+        } catch (IOException e) {
+            throw new ReadException("Unable to read input stream", e);
+        } catch (RuntimeException e) {
+            f.delete();
+            throw e;
+        }
     }
-  }
 
-  List<? extends Sheet> getSheets() {
-    return sheets;
-  }
+    public void init(File f) {
+        try {
+            if (builder.getPassword() != null) {
+                // Based on: https://poi.apache.org/encryption.html
+                POIFSFileSystem poifs = new POIFSFileSystem(f);
+                EncryptionInfo info = new EncryptionInfo(poifs);
+                Decryptor d = Decryptor.getInstance(info);
+                d.verifyPassword(builder.getPassword());
+                pkg = OPCPackage.open(d.getDataStream(poifs));
+            } else {
+                pkg = OPCPackage.open(f);
+            }
 
-  public List<Map<String, String>> getSheetProperties() {
-    return sheetProperties;
-  }
+            XSSFReader reader = new XSSFReader(pkg);
+            SharedStringsTable sst = reader.getSharedStringsTable();
+            StylesTable styles = reader.getStylesTable();
+            NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
+            if (workbookPr.getLength() == 1) {
+                final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
+                if (date1904 != null) {
+                    use1904Dates = ("1".equals(date1904.getTextContent()));
+                }
+            }
 
-  @Override
-  public Iterator<Sheet> iterator() {
-    return new StreamingSheetIterator(sheets.iterator());
-  }
-
-  @Override
-  public void close() {
-    try {
-      for(StreamingSheet sheet : sheets) {
-        sheet.getReader().close();
-      }
-      pkg.revert();
-    } finally {
-      if(tmp != null) {
-        log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
-        tmp.delete();
-      }
+            loadSheets(reader, sst, styles, builder.getRowCacheSize());
+        } catch (IOException e) {
+            throw new OpenException("Failed to open file", e);
+        } catch (OpenXML4JException | XMLStreamException e) {
+            throw new ReadException("Unable to read workbook", e);
+        } catch (GeneralSecurityException e) {
+            throw new ReadException("Unable to read workbook - Decryption failed", e);
+        }
     }
-  }
 
-  static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
-    try(FileOutputStream fos = new FileOutputStream(f)) {
-      int read;
-      byte[] bytes = new byte[bufferSize];
-      while((read = is.read(bytes)) != -1) {
-        fos.write(bytes, 0, read);
-      }
-      is.close();
-      fos.close();
-      return f;
+    void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
+            XMLStreamException {
+        lookupSheetNames(reader);
+        Iterator<InputStream> iter = reader.getSheetsData();
+        int i = 0;
+        while (iter.hasNext()) {
+            XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(iter.next());
+            sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
+        }
     }
-  }
 
-  static class StreamingSheetIterator implements Iterator<Sheet> {
-    private final Iterator<StreamingSheet> iterator;
+    void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
+        sheetProperties.clear();
+        NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
+        for (int i = 0; i < nl.getLength(); i++) {
+            Map<String, String> props = new HashMap<>();
+            props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
 
-    public StreamingSheetIterator(Iterator<StreamingSheet> iterator) {
-      this.iterator = iterator;
+            Node state = nl.item(i).getAttributes().getNamedItem("state");
+            props.put("state", state == null ? "visible" : state.getTextContent());
+            sheetProperties.add(props);
+        }
+    }
+
+    List<? extends Sheet> getSheets() {
+        return sheets;
+    }
+
+    public List<Map<String, String>> getSheetProperties() {
+        return sheetProperties;
     }
 
     @Override
-    public boolean hasNext() {
-      return iterator.hasNext();
+    public Iterator<Sheet> iterator() {
+        return new StreamingSheetIterator(sheets.iterator());
     }
 
     @Override
-    public Sheet next() {
-      return iterator.next();
+    public void close() {
+        try {
+            for (StreamingSheet sheet : sheets) {
+                sheet.getReader().close();
+            }
+            pkg.revert();
+        } finally {
+            if (tmp != null) {
+                log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+                tmp.delete();
+            }
+        }
     }
 
-    @Override
-    public void remove() {
-      throw new RuntimeException("NotSupported");
+    static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
+        File f = Files.createTempFile("tmp-", ".xlsx").toFile();
+        try (FileOutputStream fos = new FileOutputStream(f)) {
+            int read;
+            byte[] bytes = new byte[bufferSize];
+            while ((read = is.read(bytes)) != -1) {
+                fos.write(bytes, 0, read);
+            }
+            is.close();
+            fos.close();
+            return f;
+        }
     }
-  }
+
+    static class StreamingSheetIterator implements Iterator<Sheet> {
+        private final Iterator<StreamingSheet> iterator;
+
+        public StreamingSheetIterator(Iterator<StreamingSheet> iterator) {
+            this.iterator = iterator;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public Sheet next() {
+            return iterator.next();
+        }
+
+        @Override
+        public void remove() {
+            throw new RuntimeException("NotSupported");
+        }
+    }
 }
