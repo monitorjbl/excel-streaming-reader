@@ -14,7 +14,9 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -140,6 +142,38 @@ public class StreamingReaderTest {
 
       Date dt = obj.get(4).get(1).getDateCellValue();
       assertNotNull(dt);
+      final GregorianCalendar cal = new GregorianCalendar();
+      cal.setTime(dt );
+      assertEquals(cal.get(Calendar.YEAR), 2014);
+
+      try {
+        obj.get(0).get(0).getDateCellValue();
+        fail("Should have thrown IllegalStateException");
+      } catch(IllegalStateException e) { }
+    }
+  }
+  @Test
+  public void testGetDateCellValue1904() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/1904Dates.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+
+      List<List<Cell>> obj = new ArrayList<>();
+
+      for(Row r : reader) {
+        List<Cell> o = new ArrayList<>();
+        for(Cell c : r) {
+          o.add(c);
+        }
+        obj.add(o);
+      }
+
+      Date dt = obj.get(1).get(5).getDateCellValue();
+      assertNotNull(dt);
+      final GregorianCalendar cal = new GregorianCalendar();
+      cal.setTime(dt );
+      assertEquals(cal.get(Calendar.YEAR), 1991);
 
       try {
         obj.get(0).get(0).getDateCellValue();

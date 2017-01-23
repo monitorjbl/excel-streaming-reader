@@ -50,11 +50,13 @@ public class StreamingSheetReader implements Iterable<Row> {
   private String lastContents;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
+  private boolean use1904Dates;
 
-  public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, int rowCacheSize) {
+  public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.parser = parser;
+    this.use1904Dates = use1904Dates;
     this.rowCacheSize = rowCacheSize;
   }
 
@@ -113,7 +115,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
         String[] coord = ref.getValue().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
-        currentCell = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1);
+        currentCell = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1, use1904Dates);
         setFormatString(startElement, currentCell);
 
         Attribute type = startElement.getAttributeByName(new QName("t"));

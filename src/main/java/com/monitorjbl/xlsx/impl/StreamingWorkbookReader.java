@@ -45,6 +45,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private final Builder builder;
   private File tmp;
   private OPCPackage pkg;
+  private boolean use1904Dates = false;
 
   /**
    * This constructor exists only so the StreamingReader can instantiate
@@ -103,6 +104,13 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       XSSFReader reader = new XSSFReader(pkg);
       SharedStringsTable sst = reader.getSharedStringsTable();
       StylesTable styles = reader.getStylesTable();
+      NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
+      if (workbookPr.getLength() == 1) {
+          final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
+          if (date1904 != null) {
+              use1904Dates = ("1".equals(date1904.getTextContent()));
+          }
+      }
 
       loadSheets(reader, sst, styles, builder.getRowCacheSize());
     } catch(IOException e) {
@@ -121,7 +129,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     int i = 0;
     while(iter.hasNext()) {
       XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(iter.next());
-      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, rowCacheSize)));
+      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
     }
   }
 
