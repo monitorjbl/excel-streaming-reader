@@ -152,7 +152,7 @@ public class StreamingRow implements Row {
   public Cell getCell(int cellnum, MissingCellPolicy policy) {
 	  StreamingCell cell = (StreamingCell) cellMap.get(cellnum);
 	  if (policy == Row.CREATE_NULL_AS_BLANK) {
-		  if (cell == null) return new StreamingCell(cellnum, rowIndex);
+		  if (cell == null) return new StreamingCell(cellnum, rowIndex, false);
 
 	  } else if (policy == Row.RETURN_BLANK_AS_NULL) {
 		  if (cell.getCellType() == Cell.CELL_TYPE_BLANK) return null;
