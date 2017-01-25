@@ -19,6 +19,7 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.stream.XMLEventReader;
@@ -296,11 +297,17 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         } else {
           pkg = OPCPackage.open(f);
         }
-
+        boolean use1904Dates = false;
         XSSFReader reader = new XSSFReader(pkg);
         SharedStringsTable sst = reader.getSharedStringsTable();
         StylesTable styles = reader.getStylesTable();
-
+        NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
+        if (workbookPr.getLength() == 1) {
+          final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
+          if (date1904 != null) {
+            use1904Dates = ("1".equals(date1904.getTextContent()));
+          }
+        }
         InputStream sheet = findSheet(reader);
         if(sheet == null) {
           throw new MissingSheetException("Unable to find sheet at index [" + sheetIndex + "]");
@@ -308,7 +315,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
 
-        return new StreamingReader(new StreamingWorkbookReader(pkg, new StreamingSheetReader(sst, styles, parser, rowCacheSize), this));
+        return new StreamingReader(new StreamingWorkbookReader(pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize), this));
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
       } catch(OpenXML4JException | XMLStreamException e) {

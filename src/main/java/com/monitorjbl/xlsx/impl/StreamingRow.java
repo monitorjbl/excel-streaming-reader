@@ -70,9 +70,9 @@ public class StreamingRow implements Row {
 
   /**
    * Gets the index of the last cell contained in this row <b>PLUS ONE</b>.
-   * 
+   *
    * @return short representing the last logical cell in the row <b>PLUS ONE</b>,
-   *   or -1 if the row does not contain any cells.
+   * or -1 if the row does not contain any cells.
    */
   @Override
   public short getLastCellNum() {
@@ -98,6 +98,17 @@ public class StreamingRow implements Row {
   @Override
   public int getPhysicalNumberOfCells() {
     return cellMap.size();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public short getFirstCellNum() {
+    if(cellMap.size() == 0) {
+      return -1;
+    }
+    return cellMap.firstKey().shortValue();
   }
 
   /* Not supported */
@@ -147,14 +158,6 @@ public class StreamingRow implements Row {
 		  if (cell.getCellType() == Cell.CELL_TYPE_BLANK) return null;
 	  }
 	  return cell;
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public short getFirstCellNum() {
-    throw new NotSupportedException();
   }
 
   /**

@@ -23,6 +23,15 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
     this.reader = reader;
   }
 
+  int findSheetByName(String name) {
+    for(int i = 0; i < reader.getSheetProperties().size(); i++) {
+      if(reader.getSheetProperties().get(i).get("name").equals(name)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   /* Supported */
 
   /**
@@ -38,7 +47,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public String getSheetName(int sheet) {
-    return reader.findSheetNameByIndex(sheet);
+    return reader.getSheetProperties().get(sheet).get("name");
   }
 
   /**
@@ -46,7 +55,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public int getSheetIndex(String name) {
-    return reader.findSheetByName(name);
+    return findSheetByName(name);
   }
 
   /**
@@ -55,7 +64,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
   @Override
   public int getSheetIndex(Sheet sheet) {
     if(sheet instanceof StreamingSheet) {
-      return reader.findSheetByName(sheet.getSheetName());
+      return findSheetByName(sheet.getSheetName());
     } else {
       throw new UnsupportedOperationException("Cannot use non-StreamingSheet sheets");
     }
@@ -83,6 +92,22 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
   @Override
   public Sheet getSheet(String name) {
     return reader.getSheets().get(getSheetIndex(name));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isSheetHidden(int sheetIx) {
+    return "hidden".equals(reader.getSheetProperties().get(sheetIx).get("state"));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isSheetVeryHidden(int sheetIx) {
+    return "veryHidden".equals(reader.getSheetProperties().get(sheetIx).get("state"));
   }
 
   /**
@@ -420,22 +445,6 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public void setHidden(boolean hiddenFlag) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public boolean isSheetHidden(int sheetIx) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public boolean isSheetVeryHidden(int sheetIx) {
     throw new UnsupportedOperationException();
   }
 

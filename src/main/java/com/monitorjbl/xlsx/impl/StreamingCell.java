@@ -22,6 +22,7 @@ public class StreamingCell implements Cell {
 
   private int columnIndex;
   private int rowIndex;
+  private final boolean use1904Dates;
 
   private Object contents;
   private Object rawContents;
@@ -33,9 +34,10 @@ public class StreamingCell implements Cell {
   private Row row;
   private CellStyle cellStyle;
 
-  public StreamingCell(int columnIndex, int rowIndex) {
+  public StreamingCell(int columnIndex, int rowIndex, boolean use1904Dates) {
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
+    this.use1904Dates = use1904Dates;
   }
 
   public Object getContents() {
@@ -193,7 +195,10 @@ public class StreamingCell implements Cell {
    */
   @Override
   public Date getDateCellValue() {
-    return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue());
+    if(getCellType() == CELL_TYPE_STRING){
+      throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
+    }
+    return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
   }
 
   /**
