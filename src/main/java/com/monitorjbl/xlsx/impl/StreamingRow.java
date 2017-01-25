@@ -144,7 +144,7 @@ public class StreamingRow implements Row {
 		  if (cell == null) return new StreamingCell(cellnum, rowIndex);
 
 	  } else if (policy == Row.RETURN_BLANK_AS_NULL) {
-		  if (cell.getCachedFormulaResultType() == Cell.CELL_TYPE_BLANK) return null;
+		  if (cell.getCellType() == Cell.CELL_TYPE_BLANK) return null;
 	  }
 	  return cell;
   }

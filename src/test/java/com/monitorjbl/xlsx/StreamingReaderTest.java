@@ -24,6 +24,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -480,4 +482,30 @@ public class StreamingReaderTest {
     OPCPackage o = OPCPackage.open(new File("src/test/resources/blank_cell_StringCellValue.xlsx"), PackageAccess.READ);
     o.close();
   }
+
+	@Test
+	public void testShouldReturnNullForMissingCellPolicy_RETURN_BLANK_AS_NULL() throws Exception {
+  	  try (
+	    InputStream is = new FileInputStream(new File("src/test/resources/blank_cells.xlsx"));
+		StreamingReader reader = StreamingReader.builder()
+		    .read(is);
+		) {
+  	  	  Row row = reader.iterator().next();
+		  assertNotNull(row.getCell(0, Row.RETURN_BLANK_AS_NULL)); //Remain unchanged
+		  assertNull(row.getCell(1, Row.RETURN_BLANK_AS_NULL));
+		}
+	}
+
+	@Test
+	public void testShouldReturnBlankForMissingCellPolicy_CREATE_NULL_AS_BLANK() throws Exception {
+  	  try (
+	    InputStream is = new FileInputStream(new File("src/test/resources/null_cell.xlsx"));
+		StreamingReader reader = StreamingReader.builder()
+		    .read(is);
+		) {
+  	  	  Row row = reader.iterator().next();
+		  assertEquals("B1 is Null ->", row.getCell(0, Row.CREATE_NULL_AS_BLANK).getStringCellValue()); //Remain unchanged
+		  assertNotNull(row.getCell(1, Row.CREATE_NULL_AS_BLANK));
+		}
+	}
 }
