@@ -603,6 +603,7 @@ public class StreamingReaderTest {
 		) {
   	  	  Row row = reader.iterator().next();
 		  assertEquals("B1 is Null ->", row.getCell(0, Row.CREATE_NULL_AS_BLANK).getStringCellValue()); //Remain unchanged
+		  assertThat(row.getCell(1), is(nullValue()));
 		  assertNotNull(row.getCell(1, Row.CREATE_NULL_AS_BLANK));
 		}
 	}
