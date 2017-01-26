@@ -227,6 +227,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
 
     /**
+     * <h1>!!! This option is experimental !!!</h1>
+     *
      * Set the size of the Shared Strings Table cache. This option exists to accommodate
      * extremely large workbooks with millions of unique strings. Normally the SST is entirely
      * loaded into memory, but with large workbooks with high cardinality (i.e., very few
