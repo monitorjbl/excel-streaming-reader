@@ -3,6 +3,7 @@ package com.monitorjbl.xlsx.impl;
 import com.monitorjbl.xlsx.StreamingReader.Builder;
 import com.monitorjbl.xlsx.exceptions.OpenException;
 import com.monitorjbl.xlsx.exceptions.ReadException;
+import com.monitorjbl.xlsx.sst.BufferedStringsTable;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -44,7 +45,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private final List<Map<String, String>> sheetProperties = new ArrayList<>();
   private final Builder builder;
   private File tmp;
+  private File sstCache;
   private OPCPackage pkg;
+  private SharedStringsTable sst;
   private boolean use1904Dates = false;
 
   /**
@@ -57,7 +60,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
    * @param builder The builder containing all options
    */
   @Deprecated
-  public StreamingWorkbookReader(OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
+  public StreamingWorkbookReader(SharedStringsTable sst, File sstCache, OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
+    this.sst = sst;
+    this.sstCache = sstCache;
     this.pkg = pkg;
     this.sheets = asList(new StreamingSheet(null, reader));
     this.builder = builder;
@@ -102,7 +107,14 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       XSSFReader reader = new XSSFReader(pkg);
-      SharedStringsTable sst = reader.getSharedStringsTable();
+      if(builder.getSstCacheSize() > 0) {
+        sstCache = Files.createTempFile("", "").toFile();
+        log.debug("Created sst cache file [" + sstCache.getAbsolutePath() + "]");
+        sst = BufferedStringsTable.getSharedStringsTable(sstCache, builder.getSstCacheSize(), pkg);
+      } else {
+        sst = reader.getSharedStringsTable();
+      }
+
       StylesTable styles = reader.getStylesTable();
       NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
       if (workbookPr.getLength() == 1) {
@@ -170,6 +182,11 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       if(tmp != null) {
         log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
         tmp.delete();
+      }
+      if(sst instanceof BufferedStringsTable){
+        log.debug("Deleting sst cache file [" + tmp.getAbsolutePath() + "]");
+        ((BufferedStringsTable) sst).close();
+        sstCache.delete();
       }
     }
   }

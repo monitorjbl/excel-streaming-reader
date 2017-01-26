@@ -3,6 +3,7 @@ package com.monitorjbl.xlsx;
 import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import com.monitorjbl.xlsx.exceptions.OpenException;
 import com.monitorjbl.xlsx.exceptions.ReadException;
+import com.monitorjbl.xlsx.sst.BufferedStringsTable;
 import com.monitorjbl.xlsx.impl.StreamingSheetReader;
 import com.monitorjbl.xlsx.impl.StreamingWorkbook;
 import com.monitorjbl.xlsx.impl.StreamingWorkbookReader;
@@ -105,6 +106,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     private int rowCacheSize = 10;
     private int bufferSize = 1024;
     private int sheetIndex = 0;
+    private int sstCacheSize = -1;
     private String sheetName;
     private String password;
 
@@ -132,8 +134,19 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       return sheetName;
     }
 
+    /**
+     * @return The password to use to unlock this workbook
+     */
     public String getPassword() {
       return password;
+    }
+
+    /**
+     * @return The size of the shared string table cache. If less than 0, no
+     * cache will be used and the entire table will be loaded into memory.
+     */
+    public int getSstCacheSize() {
+      return sstCacheSize;
     }
 
     /**
@@ -210,6 +223,25 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public Builder password(String password) {
       this.password = password;
+      return this;
+    }
+
+    /**
+     * Set the size of the Shared Strings Table cache. This option exists to accommodate
+     * extremely large workbooks with millions of unique strings. Normally the SST is entirely
+     * loaded into memory, but with large workbooks with high cardinality (i.e., very few
+     * duplicate values) the SST may not fit entirely into memory.
+     * <p>
+     * By default, the entire SST *will* be loaded into memory. Setting a value greater than
+     * 0 for this option will only cache up to this many entries in memory. <strong>However</strong>,
+     * enabling this option at all will have some noticeable performance degredation as you are
+     * trading memory for disk space.
+     *
+     * @param sstCacheSize size of SST cache
+     * @return reference to current {@code Builder}
+     */
+    public Builder sstCacheSize(int sstCacheSize) {
+      this.sstCacheSize = sstCacheSize;
       return this;
     }
 
@@ -297,9 +329,20 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         } else {
           pkg = OPCPackage.open(f);
         }
+
         boolean use1904Dates = false;
         XSSFReader reader = new XSSFReader(pkg);
-        SharedStringsTable sst = reader.getSharedStringsTable();
+
+        SharedStringsTable sst;
+        File sstCache = null;
+        if(sstCacheSize > 0) {
+          sstCache = Files.createTempFile("", "").toFile();
+          log.debug("Created sst cache file [" + sstCache.getAbsolutePath() + "]");
+          sst = BufferedStringsTable.getSharedStringsTable(sstCache, sstCacheSize, pkg);
+        } else {
+          sst = reader.getSharedStringsTable();
+        }
+
         StylesTable styles = reader.getStylesTable();
         NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
         if (workbookPr.getLength() == 1) {
@@ -315,7 +358,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
 
-        return new StreamingReader(new StreamingWorkbookReader(pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize), this));
+        return new StreamingReader(new StreamingWorkbookReader(sst, sstCache, pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize),
+            this));
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
       } catch(OpenXML4JException | XMLStreamException e) {
