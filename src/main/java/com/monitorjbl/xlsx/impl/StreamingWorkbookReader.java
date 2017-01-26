@@ -55,9 +55,11 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
    * a StreamingWorkbook using its own reader implementation. Do not use
    * going forward.
    *
-   * @param pkg     The POI package that should be closed when this workbook is closed
-   * @param reader  A single streaming reader instance
-   * @param builder The builder containing all options
+   * @param sst      The SST data for this workbook
+   * @param sstCache The backing cache file for the SST data
+   * @param pkg      The POI package that should be closed when this workbook is closed
+   * @param reader   A single streaming reader instance
+   * @param builder  The builder containing all options
    */
   @Deprecated
   public StreamingWorkbookReader(SharedStringsTable sst, File sstCache, OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
@@ -117,11 +119,11 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
       StylesTable styles = reader.getStylesTable();
       NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
-      if (workbookPr.getLength() == 1) {
-          final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
-          if (date1904 != null) {
-              use1904Dates = ("1".equals(date1904.getTextContent()));
-          }
+      if(workbookPr.getLength() == 1) {
+        final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
+        if(date1904 != null) {
+          use1904Dates = ("1".equals(date1904.getTextContent()));
+        }
       }
 
       loadSheets(reader, sst, styles, builder.getRowCacheSize());
@@ -183,7 +185,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
         tmp.delete();
       }
-      if(sst instanceof BufferedStringsTable){
+      if(sst instanceof BufferedStringsTable) {
         log.debug("Deleting sst cache file [" + tmp.getAbsolutePath() + "]");
         ((BufferedStringsTable) sst).close();
         sstCache.delete();
