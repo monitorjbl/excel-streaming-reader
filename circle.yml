@@ -12,6 +12,10 @@ machine:
     PATH: $(dirname `pyenv shell 2.7.10; pyenv which python2`):$PATH
     DW_PROJECT_HOME: $HOME
 
+dependencies:
+  override:
+    - mvn dependency:go-offline -s settings.xml
+
 test:
   override:
     - mvn clean test -s settings.xml -q
