@@ -1,0 +1,28 @@
+machine:
+  java:
+    version: openjdk8
+
+  node:
+    version: 6.9.3
+
+  environment:
+    MAVEN_OPTS: "-Xmx1024m -Xms1024m"
+    _JAVA_OPTIONS: "-Xmx768m -Xms768m"
+    AWS_DEFAULT_REGION: "us-east-1"
+    PATH: $(dirname `pyenv shell 2.7.10; pyenv which python2`):$PATH
+    DW_PROJECT_HOME: $HOME
+
+test:
+  override:
+    - mvn clean test -s settings.xml -q
+
+  post:
+    # Stick the surefire test reports where CircleCI can read them
+    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
+    - find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+
+deployment:
+  master:
+    branch: master
+    commands:
+      - mvn deploy -s settings.xml -q
