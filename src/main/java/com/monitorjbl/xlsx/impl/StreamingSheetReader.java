@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class StreamingSheetReader implements Iterable<Row> {
@@ -344,6 +345,11 @@ public class StreamingSheetReader implements Iterable<Row> {
 
     @Override
     public Row next() {
+      if(rowCacheIterator == null || !rowCacheIterator.hasNext()){
+        if(!getRow()){
+          throw new NoSuchElementException();
+        }
+      }
       return rowCacheIterator.next();
     }
 
