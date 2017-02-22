@@ -97,7 +97,11 @@ public class StreamingSheetReader implements Iterable<Row> {
       if("row".equals(tagLocalName)) {
         Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
-        int rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
+        final int rowIndex ;
+        if(rowNumAttr!=null)
+          rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
+        else
+          rowIndex = 0;
         boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
         currentRow = new StreamingRow(rowIndex, isHidden);
       } else if("col".equals(tagLocalName)) {
@@ -106,10 +110,12 @@ public class StreamingSheetReader implements Iterable<Row> {
         if(isHidden) {
           Attribute minAttr = startElement.getAttributeByName(new QName("min"));
           Attribute maxAttr = startElement.getAttributeByName(new QName("max"));
-          int min = Integer.parseInt(minAttr.getValue()) - 1;
-          int max = Integer.parseInt(maxAttr.getValue()) - 1;
-          for(int columnIndex = min; columnIndex <= max; columnIndex++)
-            hiddenColumns.add(columnIndex);
+          if(minAttr!=null && maxAttr!=null) {
+            int min = Integer.parseInt(minAttr.getValue()) - 1;
+            int max = Integer.parseInt(maxAttr.getValue()) - 1;
+            for (int columnIndex = min; columnIndex <= max; columnIndex++)
+              hiddenColumns.add(columnIndex);
+          }
         }
       } else if("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
