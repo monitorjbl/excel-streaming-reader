@@ -133,23 +133,24 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Return the cell type. Note that only the numeric, string, and blank types are
-   * currently supported.
+   * Return the cell type.
+   *
+   * Will return {@link CellType} in version 4.0 of POI.
+   * For forwards compatibility, do not hard-code cell type literals in your code.
    *
    * @return the cell type
-   * @throws UnsupportedOperationException Thrown if the type is not one supported by the streamer.
-   *                                       It may be possible to still read the value as a supported type
-   *                                       via {@code getStringCellValue()}, {@code getNumericCellValue},
-   *                                       or {@code getDateCellValue()}
-   * @see Cell#CELL_TYPE_BLANK
-   * @see Cell#CELL_TYPE_NUMERIC
-   * @see Cell#CELL_TYPE_STRING
    */
   @Override
   public int getCellType() {
     return getCellTypeEnum().getCode();
   }
 
+  /**
+   * Return the cell type.
+   *
+   * @return the cell type
+   * Will be renamed to <code>getCellType()</code> when we make the CellType enum transition in POI 4.0. See bug 59791.
+   */
   @Override
   public CellType getCellTypeEnum() {
     if(contents == null || type == null) {
