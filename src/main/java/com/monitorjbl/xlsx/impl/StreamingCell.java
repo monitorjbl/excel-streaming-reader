@@ -5,11 +5,13 @@ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Calendar;
@@ -145,18 +147,23 @@ public class StreamingCell implements Cell {
    */
   @Override
   public int getCellType() {
+    return getCellTypeEnum().getCode();
+  }
+
+  @Override
+  public CellType getCellTypeEnum() {
     if(contents == null || type == null) {
-      return CELL_TYPE_BLANK;
+      return CellType.BLANK;
     } else if("n".equals(type)) {
-      return CELL_TYPE_NUMERIC;
+      return CellType.NUMERIC;
     } else if("s".equals(type) || "inlineStr".equals(type)) {
-      return CELL_TYPE_STRING;
+      return CellType.STRING;
     } else if("str".equals(type)) {
-      return CELL_TYPE_FORMULA;
+      return CellType.FORMULA;
     } else if("b".equals(type)) {
-      return CELL_TYPE_BOOLEAN;
+      return CellType.BOOLEAN;
     } else if("e".equals(type)) {
-      return CELL_TYPE_ERROR;
+      return CellType.ERROR;
     } else {
       throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
     }
@@ -295,6 +302,14 @@ public class StreamingCell implements Cell {
     }
   }
 
+  /**
+   * Not supported
+   */
+  @Override
+  public CellType getCachedFormulaResultTypeEnum() {
+    throw new NotSupportedException();
+  }
+
   /* Not supported */
 
   /**
@@ -302,6 +317,14 @@ public class StreamingCell implements Cell {
    */
   @Override
   public void setCellType(int cellType) {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setCellType(CellType cellType) {
     throw new NotSupportedException();
   }
 
@@ -398,6 +421,14 @@ public class StreamingCell implements Cell {
    */
   @Override
   public void setAsActiveCell() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public CellAddress getAddress() {
     throw new NotSupportedException();
   }
 

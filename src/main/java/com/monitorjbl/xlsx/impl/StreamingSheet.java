@@ -11,15 +11,19 @@ import org.apache.poi.ss.usermodel.DataValidationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Footer;
 import org.apache.poi.ss.usermodel.Header;
+import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.PrintSetup;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class StreamingSheet implements Sheet {
 
@@ -240,6 +244,22 @@ public class StreamingSheet implements Sheet {
    * Not supported
    */
   @Override
+  public int addMergedRegionUnsafe(CellRangeAddress cellRangeAddress) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void validateMergedRegions() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
   public void setVerticallyCenter(boolean value) {
     throw new UnsupportedOperationException();
   }
@@ -273,6 +293,14 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public void removeMergedRegion(int index) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void removeMergedRegions(Collection<Integer> collection) {
     throw new UnsupportedOperationException();
   }
 
@@ -432,6 +460,22 @@ public class StreamingSheet implements Sheet {
    * Not supported
    */
   @Override
+  public boolean isPrintRowAndColumnHeadings() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setPrintRowAndColumnHeadings(boolean b) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
   public PrintSetup getPrintSetup() {
     throw new UnsupportedOperationException();
   }
@@ -512,6 +556,14 @@ public class StreamingSheet implements Sheet {
    * Not supported
    */
   @Override
+  public void setZoom(int i) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
   public short getTopRow() {
     throw new UnsupportedOperationException();
   }
@@ -529,14 +581,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public void showInPane(int toprow, int leftcol) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void showInPane(short toprow, short leftcol) {
     throw new UnsupportedOperationException();
   }
 
@@ -784,6 +828,30 @@ public class StreamingSheet implements Sheet {
    * Not supported
    */
   @Override
+  public Comment getCellComment(CellAddress cellAddress) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public Map<CellAddress, ? extends Comment> getCellComments() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public Drawing getDrawingPatriarch() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
   public Drawing createDrawingPatriarch() {
     throw new UnsupportedOperationException();
   }
@@ -897,6 +965,46 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public int getColumnOutlineLevel(int columnIndex) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public Hyperlink getHyperlink(int i, int i1) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public Hyperlink getHyperlink(CellAddress cellAddress) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public List<? extends Hyperlink> getHyperlinkList() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public CellAddress getActiveCell() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setActiveCell(CellAddress cellAddress) {
     throw new UnsupportedOperationException();
   }
 }

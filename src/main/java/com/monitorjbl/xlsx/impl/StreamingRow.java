@@ -3,6 +3,7 @@ package com.monitorjbl.xlsx.impl;
 import com.monitorjbl.xlsx.exceptions.NotSupportedException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
@@ -126,6 +127,14 @@ public class StreamingRow implements Row {
    */
   @Override
   public Cell createCell(int column, int type) {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public Cell createCell(int i, CellType cellType) {
     throw new NotSupportedException();
   }
 
