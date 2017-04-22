@@ -113,7 +113,7 @@
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
-      <version>3.13</version>
+      <version>3.16</version>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
@@ -128,19 +128,19 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.6</version>
+      <version>1.7.12</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.8.6</version>
+      <version>2.8.8</version>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.6</version>
+      <version>1.7.12</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -152,7 +152,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

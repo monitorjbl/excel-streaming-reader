@@ -5,11 +5,13 @@ import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.util.Calendar;
@@ -131,32 +133,38 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Return the cell type. Note that only the numeric, string, and blank types are
-   * currently supported.
+   * Return the cell type.
+   *
+   * Will return {@link CellType} in version 4.0 of POI.
+   * For forwards compatibility, do not hard-code cell type literals in your code.
    *
    * @return the cell type
-   * @throws UnsupportedOperationException Thrown if the type is not one supported by the streamer.
-   *                                       It may be possible to still read the value as a supported type
-   *                                       via {@code getStringCellValue()}, {@code getNumericCellValue},
-   *                                       or {@code getDateCellValue()}
-   * @see Cell#CELL_TYPE_BLANK
-   * @see Cell#CELL_TYPE_NUMERIC
-   * @see Cell#CELL_TYPE_STRING
    */
   @Override
   public int getCellType() {
+    return getCellTypeEnum().getCode();
+  }
+
+  /**
+   * Return the cell type.
+   *
+   * @return the cell type
+   * Will be renamed to <code>getCellType()</code> when we make the CellType enum transition in POI 4.0. See bug 59791.
+   */
+  @Override
+  public CellType getCellTypeEnum() {
     if(contents == null || type == null) {
-      return CELL_TYPE_BLANK;
+      return CellType.BLANK;
     } else if("n".equals(type)) {
-      return CELL_TYPE_NUMERIC;
+      return CellType.NUMERIC;
     } else if("s".equals(type) || "inlineStr".equals(type)) {
-      return CELL_TYPE_STRING;
+      return CellType.STRING;
     } else if("str".equals(type)) {
-      return CELL_TYPE_FORMULA;
+      return CellType.FORMULA;
     } else if("b".equals(type)) {
-      return CELL_TYPE_BOOLEAN;
+      return CellType.BOOLEAN;
     } else if("e".equals(type)) {
-      return CELL_TYPE_ERROR;
+      return CellType.ERROR;
     } else {
       throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
     }
@@ -295,6 +303,14 @@ public class StreamingCell implements Cell {
     }
   }
 
+  /**
+   * Not supported
+   */
+  @Override
+  public CellType getCachedFormulaResultTypeEnum() {
+    throw new NotSupportedException();
+  }
+
   /* Not supported */
 
   /**
@@ -302,6 +318,14 @@ public class StreamingCell implements Cell {
    */
   @Override
   public void setCellType(int cellType) {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setCellType(CellType cellType) {
     throw new NotSupportedException();
   }
 
@@ -398,6 +422,14 @@ public class StreamingCell implements Cell {
    */
   @Override
   public void setAsActiveCell() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public CellAddress getAddress() {
     throw new NotSupportedException();
   }
 
