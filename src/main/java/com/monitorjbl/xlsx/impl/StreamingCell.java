@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -386,11 +387,28 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Get the value of the cell as a XSSFRichTextString
+   * <p>
+   * For numeric cells we throw an exception. For blank cells we return an empty string.
+   * For formula cells we return the pre-calculated value if a string, otherwise an exception
+   * </p>
+   * @return the value of the cell as a XSSFRichTextString
    */
   @Override
-  public RichTextString getRichStringCellValue() {
-    throw new NotSupportedException();
+  public XSSFRichTextString getRichStringCellValue() {
+    CellType cellType = getCellTypeEnum();
+    XSSFRichTextString rt;
+    switch (cellType) {
+      case BLANK:
+        rt = new XSSFRichTextString("");
+        break;
+      case STRING:
+        rt = new XSSFRichTextString(getStringCellValue());
+        break;
+      default:
+        throw new NotSupportedException();
+    }
+    return rt;
   }
 
   /**
