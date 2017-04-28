@@ -288,9 +288,9 @@ public class StreamingSheetReader implements Iterable<Row> {
       case "n":           //numeric type
         if(currentCell.getNumericFormat() != null && lastContents.length() > 0) {
           return dataFormatter.formatRawCellContents(
-                  Double.parseDouble(lastContents),
-                  currentCell.getNumericFormatIndex(),
-                  currentCell.getNumericFormat());
+              Double.parseDouble(lastContents),
+              currentCell.getNumericFormatIndex(),
+              currentCell.getNumericFormat());
         } else {
           return lastContents;
         }
