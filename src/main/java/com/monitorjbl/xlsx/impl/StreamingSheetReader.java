@@ -43,6 +43,9 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final Set<Integer> hiddenColumns = new HashSet<>();
 
   private int lastRowNum;
+  private int currentRowNum;
+  private int firstColNum = 0;
+  private int currentColNum;
   private int rowCacheSize;
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
@@ -96,10 +99,15 @@ public class StreamingSheetReader implements Iterable<Row> {
 
       if("row".equals(tagLocalName)) {
         Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
+        int rowIndex = currentRowNum;
+        if (rowNumAttr != null) {
+          rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
+          currentRowNum = rowIndex;
+        }
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
-        int rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
         boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
         currentRow = new StreamingRow(rowIndex, isHidden);
+        currentColNum = firstColNum;
       } else if("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
         boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
@@ -114,8 +122,12 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
-        String[] coord = ref.getValue().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
-        currentCell = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1, use1904Dates);
+        if (ref != null) {
+          String[] coord = ref.getValue().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+          currentCell = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1, use1904Dates);
+        } else {
+          currentCell = new StreamingCell(currentColNum, currentRowNum, use1904Dates);
+        }
         setFormatString(startElement, currentCell);
 
         Attribute type = startElement.getAttributeByName(new QName("t"));
@@ -148,6 +160,12 @@ public class StreamingSheetReader implements Iterable<Row> {
               break;
             }
           }
+          for(int i = 0; i < ref.length(); i++) {
+            if(!Character.isAlphabetic(ref.charAt(i))) {
+              firstColNum = CellReference.convertColStringToIndex(ref.substring(0,i));
+              break;
+            }
+          }
         }
       } else if("f".equals(tagLocalName)) {
         currentCell.setType("str");
@@ -165,8 +183,10 @@ public class StreamingSheetReader implements Iterable<Row> {
         currentCell.setContents(formattedContents());
       } else if("row".equals(tagLocalName) && currentRow != null) {
         rowCache.add(currentRow);
+        currentRowNum++;
       } else if("c".equals(tagLocalName)) {
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
+        currentColNum++;
       } else if("f".equals(tagLocalName)) {
         currentCell.setFormula(lastContents);
       }

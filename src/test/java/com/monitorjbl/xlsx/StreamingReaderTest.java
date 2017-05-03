@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 public class StreamingReaderTest {
@@ -589,6 +590,29 @@ public class StreamingReaderTest {
       assertEquals("First inline cell", row.getCell(0).getRichStringCellValue().getString());
       assertEquals("Second inline cell", row.getCell(1).getStringCellValue());
       assertEquals("Second inline cell", row.getCell(1).getRichStringCellValue().getString());
+    }
+  }
+
+  @Test
+  public void testMissingRattrs() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/missing-r-attrs.xlsx"));
+        StreamingReader reader = StreamingReader.builder().read(is);
+    ) {
+      Row row = reader.iterator().next();
+      assertEquals(0, row.getRowNum());
+      assertEquals("1", row.getCell(0).getStringCellValue());
+      assertEquals("5", row.getCell(4).getStringCellValue());
+      row = reader.iterator().next();
+      assertEquals(1, row.getRowNum());
+      assertEquals("6", row.getCell(0).getStringCellValue());
+      assertEquals("10", row.getCell(4).getStringCellValue());
+      row = reader.iterator().next();
+      assertEquals(6, row.getRowNum());
+      assertEquals("11", row.getCell(0).getStringCellValue());
+      assertEquals("15", row.getCell(4).getStringCellValue());
+
+      assertFalse(reader.iterator().hasNext());
     }
   }
 
