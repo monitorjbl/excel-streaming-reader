@@ -12,6 +12,7 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
@@ -26,11 +27,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -139,10 +142,21 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
       XMLStreamException {
     lookupSheetNames(reader);
-    Iterator<InputStream> iter = reader.getSheetsData();
-    int i = 0;
+
+    //Some workbooks have multiple references to the same sheet. Need to filter
+    //them out before creating the XMLEventReader by keeping track of their URIs.
+    //The sheets are listed in order, so we must keep track of insertion order.
+    SheetIterator iter = (SheetIterator) reader.getSheetsData();
+    Map<URI, InputStream> sheetStreams = new LinkedHashMap<>();
     while(iter.hasNext()) {
-      XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(iter.next());
+      InputStream is = iter.next();
+      sheetStreams.put(iter.getSheetPart().getPartName().getURI(), is);
+    }
+
+    //Iterate over the loaded streams
+    int i = 0;
+    for(URI uri : sheetStreams.keySet()) {
+      XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheetStreams.get(uri));
       sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
     }
   }

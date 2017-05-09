@@ -1,5 +1,6 @@
 package com.monitorjbl.xlsx.impl;
 
+import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -93,7 +94,11 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public Sheet getSheet(String name) {
-    return reader.getSheets().get(getSheetIndex(name));
+    int index = getSheetIndex(name);
+    if(index == -1) {
+      throw new MissingSheetException("Sheet '" + name + "' does not exist");
+    }
+    return reader.getSheets().get(index);
   }
 
   /**
