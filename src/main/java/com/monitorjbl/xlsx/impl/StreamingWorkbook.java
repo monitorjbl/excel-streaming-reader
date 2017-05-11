@@ -49,6 +49,14 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    * {@inheritDoc}
    */
   @Override
+  public Iterator<Sheet> sheetIterator() {
+    throw iterator();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String getSheetName(int sheet) {
     return reader.getSheetProperties().get(sheet).get("name");
   }
@@ -204,14 +212,6 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public Sheet cloneSheet(int sheetNum) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Iterator<Sheet> sheetIterator() {
     throw new UnsupportedOperationException();
   }
 
