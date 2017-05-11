@@ -50,7 +50,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public Iterator<Sheet> sheetIterator() {
-    throw iterator();
+    return iterator();
   }
 
   /**
