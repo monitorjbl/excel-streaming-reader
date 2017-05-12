@@ -655,4 +655,20 @@ public class StreamingReaderTest {
       assertNotNull(row.getCell(1, CREATE_NULL_AS_BLANK));
     }
   }
+
+
+  // Handle a file with a blank SST reference, like <c r="L42" s="1" t="s"><v></v></c>
+  // Normally, if Excel saves the file, that whole <c ...></c> wouldn't even be there.
+  @Test
+  public void testShouldHandleBlankSSTReference() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/blank_sst_reference_doctored.xlsx"));
+        Workbook wb = StreamingReader.builder().open(is);
+    ) {
+      Iterator<Row> iterator = wb.getSheetAt(0).iterator();
+      while(iterator.hasNext()) {
+        iterator.next();
+      }
+    }
+  }
 }
