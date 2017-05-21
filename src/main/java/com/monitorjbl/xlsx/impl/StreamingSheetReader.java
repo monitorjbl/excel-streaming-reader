@@ -1,26 +1,7 @@
 package com.monitorjbl.xlsx.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.Characters;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-
+import com.monitorjbl.xlsx.exceptions.CloseException;
+import com.monitorjbl.xlsx.exceptions.ParseException;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -33,7 +14,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import com.monitorjbl.xlsx.exceptions.CloseException;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class StreamingSheetReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingSheetReader.class);
@@ -79,9 +78,8 @@ public class StreamingSheetReader implements Iterable<Row> {
       rowCacheIterator = rowCache.iterator();
       return rowCacheIterator.hasNext();
     } catch(XMLStreamException | SAXException e) {
-      log.debug("End of stream");
+      throw new ParseException("Error reading XML stream", e);
     }
-    return false;
   }
 
   /**
@@ -102,7 +100,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       if("row".equals(tagLocalName)) {
         Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
         int rowIndex = currentRowNum;
-        if (rowNumAttr != null) {
+        if(rowNumAttr != null) {
           rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
           currentRowNum = rowIndex;
         }
@@ -124,7 +122,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
-        if (ref != null) {
+        if(ref != null) {
           String[] coord = ref.getValue().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
           currentCell = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1, use1904Dates);
         } else {
@@ -166,7 +164,7 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
           for(int i = 0; i < ref.length(); i++) {
             if(!Character.isAlphabetic(ref.charAt(i))) {
-              firstColNum = CellReference.convertColStringToIndex(ref.substring(0,i));
+              firstColNum = CellReference.convertColStringToIndex(ref.substring(0, i));
               break;
             }
           }
