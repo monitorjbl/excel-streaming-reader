@@ -97,7 +97,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       StartElement startElement = event.asStartElement();
       String tagLocalName = startElement.getName().getLocalPart();
 
-      if("row".equals(tagLocalName)) {
+      if("row".equals(tagLocalName) && startElement.getName().getPrefix().isEmpty()) {
         Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
         int rowIndex = currentRowNum;
         if(rowNumAttr != null) {
