@@ -279,8 +279,11 @@ public class StreamingSheetReader implements Iterable<Row> {
   String formattedContents() {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
-        int idx = Integer.parseInt(lastContents);
-        return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+        if (!lastContents.isEmpty()) {
+            int idx = Integer.parseInt(lastContents);
+            return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+        }
+        return lastContents;
       case "inlineStr":   //inline string (not in sst)
         return new XSSFRichTextString(lastContents).toString();
       case "str":         //forumla type
@@ -309,8 +312,11 @@ public class StreamingSheetReader implements Iterable<Row> {
   String unformattedContents() {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
-        int idx = Integer.parseInt(lastContents);
-        return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+        if (!lastContents.isEmpty()) {
+            int idx = Integer.parseInt(lastContents);
+            return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+        }
+        return lastContents;
       case "inlineStr":   //inline string (not in sst)
         return new XSSFRichTextString(lastContents).toString();
       default:
