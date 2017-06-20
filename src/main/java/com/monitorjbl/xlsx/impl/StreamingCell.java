@@ -282,26 +282,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public int getCachedFormulaResultType() {
-    if (type != null && "str".equals(type)) {
-      if(contents == null || cachedFormulaResultType == null) {
-        return CELL_TYPE_BLANK;
-      } else if("n".equals(cachedFormulaResultType)) {
-        return CELL_TYPE_NUMERIC;
-      } else if("s".equals(cachedFormulaResultType) || "inlineStr".equals(cachedFormulaResultType)) {
-        return CELL_TYPE_STRING;
-      } else if("str".equals(cachedFormulaResultType)) {
-        return CELL_TYPE_FORMULA;
-      } else if("b".equals(cachedFormulaResultType)) {
-        return CELL_TYPE_BOOLEAN;
-      } else if("e".equals(cachedFormulaResultType)) {
-        return CELL_TYPE_ERROR;
-      } else {
-        throw new UnsupportedOperationException("Unsupported cell type '" + cachedFormulaResultType + "'");
-      }
-    }
-    else  {
-      throw new IllegalStateException("Only formula cells have cached results");
-    }
+    return getCachedFormulaResultTypeEnum().getCode();
   }
 
   /**
@@ -309,7 +290,26 @@ public class StreamingCell implements Cell {
    */
   @Override
   public CellType getCachedFormulaResultTypeEnum() {
-    throw new NotSupportedException();
+    if (type != null && "str".equals(type)) {
+      if(contents == null || cachedFormulaResultType == null) {
+        return CellType.BLANK;
+      } else if("n".equals(cachedFormulaResultType)) {
+        return CellType.NUMERIC;
+      } else if("s".equals(cachedFormulaResultType) || "inlineStr".equals(cachedFormulaResultType)) {
+        return CellType.STRING;
+      } else if("str".equals(cachedFormulaResultType)) {
+        return CellType.FORMULA;
+      } else if("b".equals(cachedFormulaResultType)) {
+        return CellType.BOOLEAN;
+      } else if("e".equals(cachedFormulaResultType)) {
+        return CellType.ERROR;
+      } else {
+        throw new UnsupportedOperationException("Unsupported cell type '" + cachedFormulaResultType + "'");
+      }
+    }
+    else  {
+      throw new IllegalStateException("Only formula cells have cached results");
+    }
   }
 
   /* Not supported */
