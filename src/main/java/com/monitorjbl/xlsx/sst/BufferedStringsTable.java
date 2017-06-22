@@ -54,7 +54,11 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
 
     switch(ele.getName().getLocalPart()) {
       case "t":
-        Characters chars = xmlEventReader.nextEvent().asCharacters();
+        XMLEvent xmlEvent = xmlEventReader.nextEvent();
+        if (xmlEvent.isEndElement()) {
+          return new CTRstImpl(null);
+        }
+        Characters chars = xmlEvent.asCharacters();
         return new CTRstImpl(chars.getData());
       case "phoneticPr":
       case "rPh;":
