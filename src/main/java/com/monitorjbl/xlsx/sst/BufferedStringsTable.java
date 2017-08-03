@@ -11,7 +11,6 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import java.io.File;
@@ -54,8 +53,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
 
     switch(ele.getName().getLocalPart()) {
       case "t":
-        Characters chars = xmlEventReader.nextEvent().asCharacters();
-        return new CTRstImpl(chars.getData());
+        return new CTRstImpl(xmlEventReader.getElementText());
       case "phoneticPr":
       case "rPh;":
       case "r":
