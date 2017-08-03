@@ -200,7 +200,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         tmp.delete();
       }
       if(sst instanceof BufferedStringsTable) {
-        log.debug("Deleting sst cache file [" + tmp.getAbsolutePath() + "]");
+        log.debug("Deleting sst cache file [" + this.sstCache.getAbsolutePath() + "]");
         ((BufferedStringsTable) sst).close();
         sstCache.delete();
       }

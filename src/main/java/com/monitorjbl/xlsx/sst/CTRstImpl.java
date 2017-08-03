@@ -38,6 +38,8 @@ import java.util.List;
  */
 @JsonIgnoreProperties({"nil","rlist","rphList","setT","setPhoneticPr","immutable","domNode","rarray","rphArray", "phoneticPr"})
 public class CTRstImpl implements CTRst {
+  public static final CTRst EMPTY = new CTRstImpl("");
+
   private final String string;
 
   @JsonCreator
@@ -61,7 +63,7 @@ public class CTRstImpl implements CTRst {
 
   @Override
   public boolean isSetT() {
-    return false;
+    return string != null;
   }
 
   @JsonIgnore
