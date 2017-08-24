@@ -280,7 +280,7 @@ public class StreamingSheetReader implements Iterable<Row> {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
-            int idx = Integer.parseInt(lastContents);
+            int idx = Integer.parseInt(lastContents.trim());
             return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
         }
         return lastContents;
@@ -313,7 +313,7 @@ public class StreamingSheetReader implements Iterable<Row> {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
-            int idx = Integer.parseInt(lastContents);
+            int idx = Integer.parseInt(lastContents.trim());
             return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
         }
         return lastContents;
