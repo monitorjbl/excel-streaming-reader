@@ -1,6 +1,6 @@
 package com.monitorjbl.xlsx.impl;
 
-import org.apache.poi.hssf.util.PaneInformation;
+import org.apache.poi.ss.util.PaneInformation;
 import org.apache.poi.ss.usermodel.AutoFilter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellRange;
