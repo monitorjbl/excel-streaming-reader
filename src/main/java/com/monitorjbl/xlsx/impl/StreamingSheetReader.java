@@ -82,6 +82,25 @@ public class StreamingSheetReader implements Iterable<Row> {
     }
   }
 
+  private String[] splitCellRef(String ref) {
+    int splitPos = -1;
+
+    // start at pos 1, since the first char is expected to always be a letter
+    for(int i=1;i<ref.length();i++) {
+      char c = ref.charAt(i);
+
+      if (c >= '0' && c <= '9') {
+        splitPos = i;
+        break;
+      }
+    }
+
+    return new String[] {
+            ref.substring(0, splitPos),
+            ref.substring(splitPos)
+    };
+  }
+
   /**
    * Handles a SAX event.
    *
@@ -123,7 +142,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
         if(ref != null) {
-          String[] coord = ref.getValue().split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+          String[] coord = splitCellRef(ref.getValue());
           currentCell = new StreamingCell(CellReference.convertColStringToIndex(coord[0]), Integer.parseInt(coord[1]) - 1, use1904Dates);
         } else {
           currentCell = new StreamingCell(currentColNum, currentRowNum, use1904Dates);
@@ -182,7 +201,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
       if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         currentCell.setRawContents(unformattedContents());
-        currentCell.setContents(formattedContents());
+        currentCell.setContentSupplier(formattedContents());
       } else if("row".equals(tagLocalName) && currentRow != null) {
         rowCache.add(currentRow);
         currentRowNum++;
@@ -276,31 +295,49 @@ public class StreamingSheetReader implements Iterable<Row> {
    *
    * @return
    */
-  String formattedContents() {
+  Supplier formattedContents() {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
             int idx = Integer.parseInt(lastContents);
-            return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+            return new StringSupplier(new XSSFRichTextString(sst.getEntryAt(idx)).toString());
         }
-        return lastContents;
+        return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
-        return new XSSFRichTextString(lastContents).toString();
+        return new StringSupplier(new XSSFRichTextString(lastContents).toString());
       case "str":         //forumla type
-        return '"' + lastContents + '"';
+        return new StringSupplier('"' + lastContents + '"');
       case "e":           //error type
-        return "ERROR:  " + lastContents;
+        return new StringSupplier("ERROR:  " + lastContents);
       case "n":           //numeric type
         if(currentCell.getNumericFormat() != null && lastContents.length() > 0) {
-          return dataFormatter.formatRawCellContents(
-              Double.parseDouble(lastContents),
-              currentCell.getNumericFormatIndex(),
-              currentCell.getNumericFormat());
+          // the formatRawCellContents operation incurs a significant overhead on large sheets,
+          // and we want to defer the execution of this method until the value is actually needed.
+          // it is not needed in all cases..
+          final String currentLastContents = lastContents;
+          final int currentNumericFormatIndex = currentCell.getNumericFormatIndex();
+          final String currentNumericFormat = currentCell.getNumericFormat();
+
+          return new Supplier() {
+            String cachedContent;
+
+            @Override
+            public Object getContent() {
+              if (cachedContent == null) {
+                cachedContent = dataFormatter.formatRawCellContents(
+                        Double.parseDouble(currentLastContents),
+                        currentNumericFormatIndex,
+                        currentNumericFormat);
+              }
+
+              return cachedContent;
+            }
+          };
         } else {
-          return lastContents;
+          return new StringSupplier(lastContents);
         }
       default:
-        return lastContents;
+        return new StringSupplier(lastContents);
     }
   }
 
