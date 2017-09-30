@@ -20,6 +20,13 @@ import java.util.Date;
 
 public class StreamingCell implements Cell {
 
+  private static final Supplier NULL_SUPPLIER = new Supplier() {
+    @Override
+    public Object getContent() {
+      return null;
+    }
+  };
+
   private static final String FALSE_AS_STRING = "0";
   private static final String TRUE_AS_STRING  = "1";
 
@@ -27,7 +34,7 @@ public class StreamingCell implements Cell {
   private int rowIndex;
   private final boolean use1904Dates;
 
-  private Object contents;
+  private Supplier contentsSupplier = NULL_SUPPLIER;
   private Object rawContents;
   private String formula;
   private String numericFormat;
@@ -43,16 +50,8 @@ public class StreamingCell implements Cell {
     this.use1904Dates = use1904Dates;
   }
 
-  public Object getContents() {
-    return contents;
-  }
-
-  public void setContents(Object contents) {
-    this.contents = contents;
-  }
-
-  public Object getRawContents() {
-    return rawContents;
+  public void setContentSupplier(Supplier contentsSupplier) {
+    this.contentsSupplier = contentsSupplier;
   }
 
   public void setRawContents(Object rawContents) {
@@ -154,7 +153,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public CellType getCellTypeEnum() {
-    if(contents == null || type == null) {
+    if(contentsSupplier.getContent() == null || type == null) {
       return CellType.BLANK;
     } else if("n".equals(type)) {
       return CellType.NUMERIC;
@@ -179,7 +178,9 @@ public class StreamingCell implements Cell {
    */
   @Override
   public String getStringCellValue() {
-    return contents == null ? "" : (String) contents;
+    Object c = contentsSupplier.getContent();
+
+    return c == null ? "" : (String) c;
   }
 
   /**
@@ -291,7 +292,7 @@ public class StreamingCell implements Cell {
   @Override
   public CellType getCachedFormulaResultTypeEnum() {
     if (type != null && "str".equals(type)) {
-      if(contents == null || cachedFormulaResultType == null) {
+      if(contentsSupplier.getContent() == null || cachedFormulaResultType == null) {
         return CellType.BLANK;
       } else if("n".equals(cachedFormulaResultType)) {
         return CellType.NUMERIC;
