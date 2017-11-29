@@ -15,6 +15,7 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -24,7 +25,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -358,7 +358,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
           throw new MissingSheetException("Unable to find sheet at index [" + sheetIndex + "]");
         }
 
-        XMLEventReader parser = XMLInputFactory.newInstance().createXMLEventReader(sheet);
+        XMLEventReader parser = StaxHelper.newXMLInputFactory().createXMLEventReader(sheet);
 
         return new StreamingReader(new StreamingWorkbookReader(sst, sstCache, pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize),
             this));

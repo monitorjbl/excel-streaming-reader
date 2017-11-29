@@ -235,14 +235,6 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    * Not supported
    */
   @Override
-  public Font findFont(short boldWeight, short color, short fontHeight, String name, boolean italic, boolean strikeout, short typeOffset, byte underline) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
   public Font findFont(boolean b, short i, short i1, String s, boolean b1, boolean b2, short i2, byte b3) {
     throw new UnsupportedOperationException();
   }
