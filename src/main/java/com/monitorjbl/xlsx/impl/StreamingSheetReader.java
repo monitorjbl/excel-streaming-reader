@@ -296,7 +296,17 @@ public class StreamingSheetReader implements Iterable<Row> {
    * @return
    */
   Supplier formattedContents() {
-    switch(currentCell.getType()) {
+    return getFormatterForType(currentCell.getType());
+  }
+
+  /**
+   * Tries to format the contents of the last contents appropriately based on
+   * the provided type and the discovered numeric format.
+   *
+   * @return
+   */
+  private Supplier getFormatterForType(String type) {
+    switch(type) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
             int idx = Integer.parseInt(lastContents);
@@ -305,8 +315,6 @@ public class StreamingSheetReader implements Iterable<Row> {
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
         return new StringSupplier(new XSSFRichTextString(lastContents).toString());
-      case "str":         //forumla type
-        return new StringSupplier('"' + lastContents + '"');
       case "e":           //error type
         return new StringSupplier("ERROR:  " + lastContents);
       case "n":           //numeric type
@@ -335,6 +343,10 @@ public class StreamingSheetReader implements Iterable<Row> {
           };
         } else {
           return new StringSupplier(lastContents);
+        }
+      case "str":         //formula type
+        if (currentCell.supportsSupplierOverride()) {
+          return getFormatterForType(currentCell.getRawCachedFormulaResultType());
         }
       default:
         return new StringSupplier(lastContents);
