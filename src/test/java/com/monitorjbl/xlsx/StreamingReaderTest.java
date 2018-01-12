@@ -4,6 +4,7 @@ import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -669,6 +670,27 @@ public class StreamingReaderTest {
       while(iterator.hasNext()) {
         iterator.next();
       }
+    }
+  }
+
+  // The last cell on this sheet should be a NUMERIC but there is a lingering "f"
+  // tag that was getting attached to the last cell causing it to be a FORUMLA.
+  @Test
+  public void testForumulaOutsideCellIgnored() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/formula_outside_cell.xlsx"));
+        Workbook wb = StreamingReader.builder().open(is);
+    ) {
+      Iterator<Row> rows = wb.getSheetAt(0).iterator();
+      Cell cell = null;
+      while(rows.hasNext()) {
+        Iterator<Cell> cells = rows.next().iterator();
+        while(cells.hasNext()) {
+            cell = cells.next();
+        }
+      }
+      assertNotNull(cell);
+      assertThat(cell.getCellTypeEnum(), is(CellType.NUMERIC));
     }
   }
 }
