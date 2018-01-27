@@ -1,6 +1,8 @@
 package com.monitorjbl.xlsx.impl;
 
-import com.monitorjbl.xlsx.exceptions.NotSupportedException;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -13,10 +15,12 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.model.CommentsTable;
+import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTComment;
 
-import java.util.Calendar;
-import java.util.Date;
+import com.monitorjbl.xlsx.exceptions.NotSupportedException;
 
 public class StreamingCell implements Cell {
 
@@ -24,6 +28,12 @@ public class StreamingCell implements Cell {
     @Override
     public Object getContent() {
       return null;
+    }
+  };
+  private static final Supplier NOT_SUPPORTED_SUPPLIER = new Supplier() {
+    @Override
+    public Object getContent() {
+      throw new NotSupportedException();
     }
   };
 
@@ -34,6 +44,7 @@ public class StreamingCell implements Cell {
   private int rowIndex;
   private final boolean use1904Dates;
 
+  private Supplier commentsTableSupplier = NOT_SUPPORTED_SUPPLIER;
   private Supplier contentsSupplier = NULL_SUPPLIER;
   private Object rawContents;
   private String formula;
@@ -48,6 +59,10 @@ public class StreamingCell implements Cell {
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
     this.use1904Dates = use1904Dates;
+  }
+
+  public void setCommentsTableSupplier(Supplier commentsTableSupplier) {
+    this.commentsTableSupplier = commentsTableSupplier;
   }
 
   public void setContentSupplier(Supplier contentsSupplier) {
@@ -313,6 +328,31 @@ public class StreamingCell implements Cell {
     }
   }
 
+  /**
+   * Retrieve cell comment if set and comment parsing is enabled otherwise null will be returned
+   *
+   * @return the comment set to the current cell or null if not set or comments reading is not enabled
+   */
+  @Override
+  public Comment getCellComment() {
+    CellAddress ref = new CellAddress(rowIndex, columnIndex);
+    CommentsTable commentsTable = (CommentsTable) this.commentsTableSupplier.getContent();
+    CTComment ctComment = commentsTable.getCTComment(ref);
+    if (ctComment == null) {
+      return null;
+    } else {
+      return new XSSFComment(commentsTable, ctComment, null);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public CellAddress getAddress() {
+    return new CellAddress(rowIndex, columnIndex);
+  }
+
   /* Not supported */
 
   /**
@@ -448,23 +488,7 @@ public class StreamingCell implements Cell {
    * Not supported
    */
   @Override
-  public CellAddress getAddress() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
   public void setCellComment(Comment comment) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Comment getCellComment() {
     throw new NotSupportedException();
   }
 

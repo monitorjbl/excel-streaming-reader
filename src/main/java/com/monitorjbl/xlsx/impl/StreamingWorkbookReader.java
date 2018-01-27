@@ -7,6 +7,7 @@ import com.monitorjbl.xlsx.sst.BufferedStringsTable;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -14,8 +15,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -44,6 +47,13 @@ import static java.util.Arrays.asList;
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
 
+  private static final Supplier COMMENTS_NOT_ENABLED = new Supplier() {
+    @Override
+    public Object getContent() {
+      throw new UnsupportedOperationException("Comments parsing is not enabled. Use StreamingReader.Builder.readComments().open(File);");
+    }
+  };
+
   private final List<StreamingSheet> sheets;
   private final List<Map<String, String>> sheetProperties = new ArrayList<>();
   private final Builder builder;
@@ -52,6 +62,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private OPCPackage pkg;
   private SharedStringsTable sst;
   private boolean use1904Dates = false;
+  private StylesTable styles;
 
   /**
    * This constructor exists only so the StreamingReader can instantiate
@@ -120,7 +131,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         sst = reader.getSharedStringsTable();
       }
 
-      StylesTable styles = reader.getStylesTable();
+      styles = reader.getStylesTable();
       NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
       if(workbookPr.getLength() == 1) {
         final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
@@ -129,7 +140,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         }
       }
 
-      loadSheets(reader, sst, styles, builder.getRowCacheSize());
+      loadSheets(reader, sst, styles, pkg, builder.getRowCacheSize());
     } catch(IOException e) {
       throw new OpenException("Failed to open file", e);
     } catch(OpenXML4JException | XMLStreamException e) {
@@ -139,7 +150,18 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
   }
 
-  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
+  private Supplier getCommentsTable(OPCPackage opcPackage, URI uri) throws IOException {
+    if (!builder.shouldLoadCellComments()) {
+      return COMMENTS_NOT_ENABLED;
+    }
+    return new CommentsTableSupplier(opcPackage, uri);
+  }
+
+  protected StylesTable getStyles() {
+    return styles;
+  }
+
+  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, OPCPackage opcPackage, int rowCacheSize) throws IOException, InvalidFormatException,
       XMLStreamException {
     lookupSheetNames(reader);
 
@@ -156,8 +178,13 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     //Iterate over the loaded streams
     int i = 0;
     for(URI uri : sheetStreams.keySet()) {
+      Supplier cts = getCommentsTable(opcPackage, uri);
       XMLEventReader parser = StaxHelper.newXMLInputFactory().createXMLEventReader(sheetStreams.get(uri));
-      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
+      StreamingSheetReader streamingSheetReader = new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize);
+      streamingSheetReader.setCommentsTableSupplier(cts);
+      StreamingSheet streamingSheet = new StreamingSheet(sheetProperties.get(i++).get("name"), streamingSheetReader);
+      streamingSheet.setCommentsTableSupplier(cts);
+      sheets.add(streamingSheet);
     }
   }
 
@@ -241,6 +268,54 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     @Override
     public void remove() {
       throw new RuntimeException("NotSupported");
+    }
+  }
+
+  static class CommentsTableSupplier implements Supplier {
+    private final OPCPackage opcPackage;
+    private final URI sheetUri;
+    private CommentsTable commentsTable;
+
+    CommentsTableSupplier(OPCPackage opcPackage, URI sheetUri) {
+      this.opcPackage = opcPackage;
+      this.sheetUri = sheetUri;
+    }
+
+    @Override
+    public CommentsTable getContent() {
+      if (commentsTable == null) {
+        try {
+          commentsTable = resolveCommentsTable();
+        } catch (IOException e) {
+          throw new ReadException(e);
+        }
+      }
+      return commentsTable;
+    }
+
+    private CommentsTable resolveCommentsTable() throws IOException {
+      // selects comments file based on the described relation in the sheet relations file
+      // comments select cannot be done by index as files index vary depending if the given sheet has any comments or not
+      ArrayList<PackagePart> relations = opcPackage.getPartsByContentType("application/vnd.openxmlformats-package.relationships+xml");
+      String sheetName = sheetUri.getPath().substring(sheetUri.getPath().lastIndexOf('/'));
+      for (PackagePart part : relations) {
+        if (part.getPartName().getURI().toString().contains(sheetName)) {
+          NodeList commentsRelationNode = searchForNodeList(document(part.getInputStream()), "//Relationship[@Type='" + XSSFRelation.SHEET_COMMENTS.getRelation() + "']");
+          if (commentsRelationNode.getLength() > 0) {
+            String commentsPath = commentsRelationNode.item(0).getAttributes().getNamedItem("Target").getNodeValue();
+            commentsPath = commentsPath.substring(commentsPath.lastIndexOf('/'));
+            ArrayList<PackagePart> commentParts = opcPackage.getPartsByContentType(XSSFRelation.SHEET_COMMENTS.getContentType());
+            for (PackagePart commentPart : commentParts) {
+              if (commentPart.getPartName().getURI().toString().contains(commentsPath)) {
+                return new CommentsTable(commentPart);
+              }
+            }
+          }
+        }
+      }
+      // no comments file for the current sheet, no commnets in the sheet
+      // empty comments table that will return null for all requested comments
+      return new CommentsTable();
     }
   }
 }

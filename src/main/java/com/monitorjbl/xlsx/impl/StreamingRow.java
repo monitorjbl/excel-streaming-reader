@@ -14,11 +14,19 @@ import java.util.TreeMap;
 public class StreamingRow implements Row {
   private int rowIndex;
   private boolean isHidden;
+  private final float rowHeight;
+  private final CellStyle rowStyle;
   private TreeMap<Integer, Cell> cellMap = new TreeMap<>();
 
   public StreamingRow(int rowIndex, boolean isHidden) {
+    this(rowIndex, 0, isHidden, null);
+  }
+
+  public StreamingRow(int rowIndex, float rowHeight, boolean isHidden, CellStyle rowStyle) {
     this.rowIndex = rowIndex;
+    this.rowHeight = rowHeight;
     this.isHidden = isHidden;
+    this.rowStyle = rowStyle;
   }
 
   public Map<Integer, Cell> getCellMap() {
@@ -126,6 +134,39 @@ public class StreamingRow implements Row {
     return cell;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public short getHeight() {
+    // the same conversion from XSSFRow
+    return (short) (getHeightInPoints() * 20);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public float getHeightInPoints() {
+    return rowHeight;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isFormatted() {
+    return rowStyle != null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public CellStyle getRowStyle() {
+    return rowStyle;
+  }
+
   /* Not supported */
 
   /**
@@ -189,38 +230,6 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setHeightInPoints(float height) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public short getHeight() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public float getHeightInPoints() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public boolean isFormatted() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public CellStyle getRowStyle() {
     throw new NotSupportedException();
   }
 

@@ -19,14 +19,27 @@ import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.model.CommentsTable;
+import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTComment;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.monitorjbl.xlsx.exceptions.NotSupportedException;
+
 public class StreamingSheet implements Sheet {
 
+  private static final Supplier NOT_SUPPORTED_SUPPLIER = new Supplier() {
+    @Override
+    public Object getContent() {
+      throw new NotSupportedException();
+    }
+  };
+
+  private Supplier commentsTableSupplier = NOT_SUPPORTED_SUPPLIER;
   private final String name;
   private final StreamingSheetReader reader;
 
@@ -37,6 +50,10 @@ public class StreamingSheet implements Sheet {
 
   StreamingSheetReader getReader() {
     return reader;
+  }
+
+  public void setCommentsTableSupplier(Supplier commentsTableSupplier) {
+    this.commentsTableSupplier = commentsTableSupplier;
   }
 
   /* Supported */
@@ -74,6 +91,23 @@ public class StreamingSheet implements Sheet {
   @Override
   public boolean isColumnHidden(int columnIndex) {
     return reader.isColumnHidden(columnIndex);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Comment getCellComment(CellAddress address) {
+    int row = address.getRow();
+    int column = address.getColumn();
+    CellAddress ref = new CellAddress(row, column);
+    CommentsTable commentsTable = (CommentsTable) this.commentsTableSupplier.getContent();
+    CTComment ctComment = commentsTable.getCTComment(ref);
+    if (ctComment == null) {
+      return null;
+    } else {
+      return new XSSFComment(commentsTable, ctComment, null);
+    }
   }
 
   /* Unsupported */
@@ -805,14 +839,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public void autoSizeColumn(int column, boolean useMergedCells) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Comment getCellComment(CellAddress cellAddress) {
     throw new UnsupportedOperationException();
   }
 

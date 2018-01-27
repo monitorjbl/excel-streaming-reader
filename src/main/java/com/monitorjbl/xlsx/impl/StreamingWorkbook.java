@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.SheetVisibility;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.model.StylesTable;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -252,7 +253,11 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public Font getFontAt(short idx) {
-    throw new UnsupportedOperationException();
+    StylesTable styles = reader.getStyles();
+    if (styles != null) {
+      return styles.getFontAt(idx);
+    }
+    return null;
   }
 
   /**

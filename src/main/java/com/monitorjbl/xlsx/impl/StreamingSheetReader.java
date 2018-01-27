@@ -3,6 +3,7 @@ package com.monitorjbl.xlsx.impl;
 import com.monitorjbl.xlsx.exceptions.CloseException;
 import com.monitorjbl.xlsx.exceptions.ParseException;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
@@ -51,6 +52,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
 
+  private Supplier commentsTableSupplier;
   private String lastContents;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
@@ -62,6 +64,10 @@ public class StreamingSheetReader implements Iterable<Row> {
     this.parser = parser;
     this.use1904Dates = use1904Dates;
     this.rowCacheSize = rowCacheSize;
+  }
+
+  public void setCommentsTableSupplier(Supplier commentsTableSupplier) {
+    this.commentsTableSupplier = commentsTableSupplier;
   }
 
   /**
@@ -123,9 +129,19 @@ public class StreamingSheetReader implements Iterable<Row> {
           rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
           currentRowNum = rowIndex;
         }
+        Attribute rowStyleNum = startElement.getAttributeByName(new QName("s"));
+        CellStyle rowStyle = null;
+        if (rowStyleNum != null && stylesTable.getNumCellStyles() > 0) {
+          rowStyle = stylesTable.getStyleAt(Integer.parseInt(rowStyleNum.getValue()));
+        }
+        Attribute rowHeightAttr = startElement.getAttributeByName(new QName("ht"));
+        float rowHeight = 0;
+        if(rowHeightAttr != null) {
+          rowHeight = Float.parseFloat(rowHeightAttr.getValue());
+        }
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
         boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
-        currentRow = new StreamingRow(rowIndex, isHidden);
+        currentRow = new StreamingRow(rowIndex, rowHeight, isHidden, rowStyle);
         currentColNum = firstColNum;
       } else if("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
@@ -147,6 +163,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         } else {
           currentCell = new StreamingCell(currentColNum, currentRowNum, use1904Dates);
         }
+        currentCell.setCommentsTableSupplier(commentsTableSupplier);
         setFormatString(startElement, currentCell);
 
         Attribute type = startElement.getAttributeByName(new QName("t"));

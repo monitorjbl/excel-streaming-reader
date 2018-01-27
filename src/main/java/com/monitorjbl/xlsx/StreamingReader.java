@@ -109,6 +109,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     private int sstCacheSize = -1;
     private String sheetName;
     private String password;
+    private boolean loadComments = false;
 
     public int getRowCacheSize() {
       return rowCacheSize;
@@ -147,6 +148,13 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public int getSstCacheSize() {
       return sstCacheSize;
+    }
+
+    /**
+     * @return if the reader should parse and read the cell comments in the file.
+     */
+    public boolean shouldLoadCellComments() {
+      return loadComments;
     }
 
     /**
@@ -244,6 +252,19 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public Builder sstCacheSize(int sstCacheSize) {
       this.sstCacheSize = sstCacheSize;
+      return this;
+    }
+
+    /**
+     * By default comments will not be loaded as they does not support streaming. They pose memory
+     * risk if the opened file use comments excessively.
+     * <p>If enabled comments contents will be available for all currently accessible cells in the
+     * stream sheet</p>
+     *
+     * @return reference to current {@code Builder}
+     */
+    public Builder readComments() {
+      this.loadComments = true;
       return this;
     }
 
