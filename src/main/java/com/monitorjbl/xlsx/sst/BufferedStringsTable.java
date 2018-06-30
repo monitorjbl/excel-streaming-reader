@@ -1,11 +1,12 @@
 package com.monitorjbl.xlsx.sst;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 
 import javax.xml.stream.XMLEventReader;
@@ -20,7 +21,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
   private final FileBackedList<CTRstImpl> list;
 
   public static BufferedStringsTable getSharedStringsTable(File tmp, int cacheSize, OPCPackage pkg)
-      throws IOException, InvalidFormatException {
+      throws IOException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
     return parts.size() == 0 ? null : new BufferedStringsTable(parts.get(0), tmp, cacheSize);
   }
@@ -103,14 +104,21 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
       skipElement(xmlEventReader); // recursively skip over child
     }
   }
+  
+  @Override
+  public RichTextString getItemAt(int idx) {
+    return new XSSFRichTextString(getEntryAt(idx));
+  }
 
+  @Override
   public CTRst getEntryAt(int idx) {
     CTRst result = list.getAt(idx);
     return result != null ? result : CTRstImpl.EMPTY;
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
+    super.close();
     list.close();
   }
 }

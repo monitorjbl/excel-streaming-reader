@@ -188,7 +188,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     try {
       for(StreamingSheet sheet : sheets) {
         sheet.getReader().close();
@@ -196,11 +196,15 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       pkg.revert();
     } finally {
       if(tmp != null) {
-        log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+        if (log.isDebugEnabled()) {
+          log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+        }
         tmp.delete();
       }
       if(sst instanceof BufferedStringsTable) {
-        log.debug("Deleting sst cache file [" + this.sstCache.getAbsolutePath() + "]");
+        if (log.isDebugEnabled()) {
+          log.debug("Deleting sst cache file [" + this.sstCache.getAbsolutePath() + "]");
+        }
         ((BufferedStringsTable) sst).close();
         sstCache.delete();
       }

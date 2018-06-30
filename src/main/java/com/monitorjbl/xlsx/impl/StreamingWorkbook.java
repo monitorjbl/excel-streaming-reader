@@ -129,7 +129,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    * {@inheritDoc}
    */
   @Override
-  public void close() {
+  public void close() throws IOException {
     reader.close();
   }
 
