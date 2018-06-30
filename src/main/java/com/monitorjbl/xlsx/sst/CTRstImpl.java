@@ -268,6 +268,9 @@ public class CTRstImpl implements CTRst {
   }
 
   @Override
+  public XmlObject copy(XmlOptions xmlOptions) { return null; }
+
+  @Override
   public boolean valueEquals(XmlObject xmlObject) {
     return false;
   }
