@@ -126,10 +126,10 @@
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
-      <artifactId>ooxml-schemas</artifactId>
-      <version>1.4</version>
+      <artifactId>poi-ooxml-schemas</artifactId>
+      <version>4.0.0-SNAPSHOT</version>
       <scope>system</scope>
-      <systemPath>${project.basedir}/lib/ooxml-schemas-1.4.jar</systemPath>
+      <systemPath>${project.basedir}/lib/poi-ooxml-schemas-4.0.0-SNAPSHOT.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.apache.xmlbeans</groupId>
