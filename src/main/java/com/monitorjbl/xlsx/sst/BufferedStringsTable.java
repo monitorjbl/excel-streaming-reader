@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.util.List;
 
 public class BufferedStringsTable extends SharedStringsTable implements AutoCloseable {
-  private final FileBackedList<CTRstImpl> list;
+  private final FileBackedList list;
 
   public static BufferedStringsTable getSharedStringsTable(File tmp, int cacheSize, OPCPackage pkg)
       throws IOException {
@@ -27,7 +27,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
   }
 
   private BufferedStringsTable(PackagePart part, File file, int cacheSize) throws IOException {
-    this.list = new FileBackedList<>(CTRstImpl.class, file, cacheSize);
+    this.list = new FileBackedList(file, cacheSize);
     readFrom(part.getInputStream());
   }
 
@@ -53,7 +53,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
    * href="https://msdn.microsoft.com/en-us/library/documentformat.openxml.spreadsheet.sharedstringitem.aspx">xmlschema
    * type {@code CT_Rst}</a>.
    */
-  private CTRstImpl parseCT_Rst(XMLEventReader xmlEventReader) throws XMLStreamException {
+  private String parseCT_Rst(XMLEventReader xmlEventReader) throws XMLStreamException {
     // Precondition: pointing to <si>;  Post condition: pointing to </si>
     StringBuilder buf = new StringBuilder();
     XMLEvent xmlEvent;
@@ -73,7 +73,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
           throw new IllegalArgumentException(xmlEvent.asStartElement().getName().getLocalPart());
       }
     }
-    return buf.length() > 0 ? new CTRstImpl(buf.toString()) : null;
+    return buf.length() > 0 ? buf.toString() : null;
   }
 
   /**
@@ -104,16 +104,15 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
       skipElement(xmlEventReader); // recursively skip over child
     }
   }
-  
+
   @Override
   public RichTextString getItemAt(int idx) {
-    return new XSSFRichTextString(getEntryAt(idx));
+    return new XSSFRichTextString(list.getAt(idx));
   }
 
   @Override
   public CTRst getEntryAt(int idx) {
-    CTRst result = list.getAt(idx);
-    return result != null ? result : CTRstImpl.EMPTY;
+    return ((XSSFRichTextString)getItemAt(idx)).getCTRst();
   }
 
   @Override
