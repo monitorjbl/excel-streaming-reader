@@ -3,12 +3,12 @@ package com.monitorjbl.xlsx.sst;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import java.io.File;
@@ -33,8 +33,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
   @Override
   public void readFrom(InputStream is) throws IOException {
     try {
-      XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-      XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(is);
+      XMLEventReader xmlEventReader = StaxHelper.newXMLInputFactory().createXMLEventReader(is);
 
       while(xmlEventReader.hasNext()) {
         XMLEvent xmlEvent = xmlEventReader.nextEvent();
