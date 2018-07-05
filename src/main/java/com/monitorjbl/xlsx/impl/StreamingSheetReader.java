@@ -189,7 +189,9 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
         }
       } else if("f".equals(tagLocalName)) {
-        currentCell.setType("str");
+        if (currentCell != null) {
+          currentCell.setType("str");
+        }
       }
 
       // Clear contents cache
@@ -207,9 +209,12 @@ public class StreamingSheetReader implements Iterable<Row> {
         currentRowNum++;
       } else if("c".equals(tagLocalName)) {
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
+        currentCell = null;
         currentColNum++;
       } else if("f".equals(tagLocalName)) {
-        currentCell.setFormula(lastContents);
+        if (currentCell != null) {
+          currentCell.setFormula(lastContents);
+        }
       }
 
     }
