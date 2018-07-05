@@ -1,9 +1,5 @@
 package com.monitorjbl.xlsx.sst;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
@@ -36,14 +32,12 @@ import java.util.List;
  * to callers that the unit tests pass, but it's very likely that advanced uses
  * of POI datatypes will fail.
  */
-@JsonIgnoreProperties({"nil","rlist","rphList","setT","setPhoneticPr","immutable","domNode","rarray","rphArray", "phoneticPr"})
 public class CTRstImpl implements CTRst {
   public static final CTRst EMPTY = new CTRstImpl("");
 
   private final String string;
 
-  @JsonCreator
-  public CTRstImpl(@JsonProperty("string") String string) {
+  public CTRstImpl(String string) {
     this.string = string;
   }
 
@@ -66,7 +60,6 @@ public class CTRstImpl implements CTRst {
     return string != null;
   }
 
-  @JsonIgnore
   @Override
   public void setT(String s) {
     throw new UnsupportedOperationException();
