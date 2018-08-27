@@ -50,6 +50,14 @@ public class StreamingCell implements Cell {
     this.use1904Dates = use1904Dates;
   }
 
+  String getRawCachedFormulaResultType() {
+    return cachedFormulaResultType;
+  }
+
+  boolean supportsSupplierOverride() {
+    return "n".equals(cachedFormulaResultType);
+  }
+
   public void setContentSupplier(Supplier contentsSupplier) {
     this.contentsSupplier = contentsSupplier;
   }
