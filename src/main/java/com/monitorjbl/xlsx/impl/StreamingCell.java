@@ -149,18 +149,7 @@ public class StreamingCell implements Cell {
    * @return the cell type
    */
   @Override
-  public int getCellType() {
-    return getCellTypeEnum().getCode();
-  }
-
-  /**
-   * Return the cell type.
-   *
-   * @return the cell type
-   * Will be renamed to <code>getCellType()</code> when we make the CellType enum transition in POI 4.0. See bug 59791.
-   */
-  @Override
-  public CellType getCellTypeEnum() {
+  public CellType getCellType() {
     if(contentsSupplier.getContent() == null || type == null) {
       return CellType.BLANK;
     } else if("n".equals(type)) {
@@ -176,6 +165,17 @@ public class StreamingCell implements Cell {
     } else {
       throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
     }
+  }
+
+  /**
+   * Return the cell type.
+   *
+   * @return the cell type
+   * Will be renamed to <code>getCellType()</code> when we make the CellType enum transition in POI 4.0. See bug 59791.
+   */
+  @Override
+  public CellType getCellTypeEnum() {
+    return getCellType();
   }
 
   /**
@@ -213,7 +213,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public Date getDateCellValue() {
-    if(getCellType() == CELL_TYPE_STRING){
+    if(getCellType() == CellType.STRING){
       throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
     }
     return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
@@ -227,39 +227,39 @@ public class StreamingCell implements Cell {
    */
   @Override
   public boolean getBooleanCellValue() {
-    int cellType = getCellType();
+    CellType cellType = getCellType();
     switch(cellType) {
-      case CELL_TYPE_BLANK:
+      case BLANK:
         return false;
-      case CELL_TYPE_BOOLEAN:
+      case BOOLEAN:
         return rawContents != null && TRUE_AS_STRING.equals(rawContents);
-      case CELL_TYPE_FORMULA:
+      case FORMULA:
         throw new NotSupportedException();
       default:
-        throw typeMismatch(CELL_TYPE_BOOLEAN, cellType, false);
+        throw typeMismatch(CellType.BOOLEAN, cellType, false);
     }
   }
 
-  private static RuntimeException typeMismatch(int expectedTypeCode, int actualTypeCode, boolean isFormulaCell) {
+  private static RuntimeException typeMismatch(CellType expectedType, CellType actualType, boolean isFormulaCell) {
     String msg = "Cannot get a "
-            + getCellTypeName(expectedTypeCode) + " value from a "
-            + getCellTypeName(actualTypeCode) + " " + (isFormulaCell ? "formula " : "") + "cell";
+            + getCellTypeName(expectedType) + " value from a "
+            + getCellTypeName(actualType) + " " + (isFormulaCell ? "formula " : "") + "cell";
     return new IllegalStateException(msg);
   }
 
   /**
    * Used to help format error messages
    */
-  private static String getCellTypeName(int cellTypeCode) {
-    switch (cellTypeCode) {
-      case CELL_TYPE_BLANK:   return "blank";
-      case CELL_TYPE_STRING:  return "text";
-      case CELL_TYPE_BOOLEAN: return "boolean";
-      case CELL_TYPE_ERROR:   return "error";
-      case CELL_TYPE_NUMERIC: return "numeric";
-      case CELL_TYPE_FORMULA: return "formula";
+  private static String getCellTypeName(CellType cellType) {
+    switch (cellType) {
+      case BLANK:   return "blank";
+      case STRING:  return "text";
+      case BOOLEAN: return "boolean";
+      case ERROR:   return "error";
+      case NUMERIC: return "numeric";
+      case FORMULA: return "formula";
     }
-    return "#unknown cell type (" + cellTypeCode + ")#";
+    return "#unknown cell type (" + cellType + ")#";
   }
 
   /**
@@ -285,20 +285,12 @@ public class StreamingCell implements Cell {
 
   /**
    * Only valid for formula cells
-   * @return one of ({@link #CELL_TYPE_NUMERIC}, {@link #CELL_TYPE_STRING},
-   *     {@link #CELL_TYPE_BOOLEAN}, {@link #CELL_TYPE_ERROR}) depending
+   * @return one of ({@link CellType#NUMERIC}, {@link CellType#STRING},
+   *     {@link CellType#BOOLEAN}, {@link CellType#ERROR}) depending
    * on the cached value of the formula
    */
   @Override
-  public int getCachedFormulaResultType() {
-    return getCachedFormulaResultTypeEnum().getCode();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public CellType getCachedFormulaResultTypeEnum() {
+  public CellType getCachedFormulaResultType() {
     if (type != null && "str".equals(type)) {
       if(contentsSupplier.getContent() == null || cachedFormulaResultType == null) {
         return CellType.BLANK;
@@ -321,15 +313,12 @@ public class StreamingCell implements Cell {
     }
   }
 
-  /* Not supported */
-
-  /**
-   * Not supported
-   */
   @Override
-  public void setCellType(int cellType) {
-    throw new NotSupportedException();
+  public CellType getCachedFormulaResultTypeEnum() {
+    return getCachedFormulaResultType();
   }
+
+  /* Not supported */
 
   /**
    * Not supported
