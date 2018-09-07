@@ -58,7 +58,7 @@ Or open a sheet by name or index:
 Sheet sheet = workbook.getSheet("My Sheet")
 ```
 
-The StreamingWorkbook is an autoclosable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 8, you can do this:
+The StreamingWorkbook is an autocloseable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 8, you can do this:
 
 ```java
 try (
