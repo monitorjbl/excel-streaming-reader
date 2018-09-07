@@ -2,6 +2,7 @@ package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
 import com.github.pjfanning.xlsx.StreamingReader.Builder;
+import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -220,7 +221,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
     @Override
     public void remove() {
-      throw new RuntimeException("NotSupported");
+      throw new NotSupportedException();
     }
   }
 }

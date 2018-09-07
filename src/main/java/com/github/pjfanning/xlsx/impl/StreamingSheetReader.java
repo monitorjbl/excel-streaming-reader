@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.xlsx.exceptions.CloseException;
+import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -412,7 +413,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
     @Override
     public void remove() {
-      throw new RuntimeException("NotSupported");
+      throw new NotSupportedException();
     }
   }
 }
