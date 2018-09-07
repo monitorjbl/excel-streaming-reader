@@ -9,6 +9,8 @@ This implementation supports [Apache POI](http://poi.apache.org) 4.0.0 and only 
 
 A 2.0.0-SNAPSHOT is published to https://oss.sonatype.org/content/repositories/snapshots/com/github/pjfanning/excel-streaming-reader/
 
+[Sample](https://github.com/pjfanning/excel-streaming-reader-sample)
+
 # Include
 
 To use it, add this to your POM:
