@@ -1,12 +1,12 @@
 package com.github.pjfanning.xlsx;
 
+import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
 import com.github.pjfanning.xlsx.exceptions.CloseException;
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
-import com.github.pjfanning.xlsx.sst.BufferedStringsTable;
 import com.github.pjfanning.xlsx.impl.StreamingSheetReader;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -339,11 +339,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         XSSFReader reader = new XSSFReader(pkg);
 
         SharedStringsTable sst;
-        File sstCache = null;
         if(sstCacheSize > 0) {
-          sstCache = Files.createTempFile("", "").toFile();
-          log.debug("Created sst cache file [" + sstCache.getAbsolutePath() + "]");
-          sst = BufferedStringsTable.getSharedStringsTable(sstCache, sstCacheSize, pkg);
+          log.debug("Created sst cache file");
+          sst = new TempFileSharedStringsTable(pkg, true);
         } else {
           sst = reader.getSharedStringsTable();
         }
@@ -363,7 +361,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         XMLEventReader parser = StaxHelper.newXMLInputFactory().createXMLEventReader(sheet);
 
-        return new StreamingReader(new StreamingWorkbookReader(sst, sstCache, pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize),
+        return new StreamingReader(new StreamingWorkbookReader(sst, pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize),
             this));
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
