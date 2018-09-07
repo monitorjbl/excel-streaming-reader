@@ -95,6 +95,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     private int bufferSize = 1024;
     private int sheetIndex = 0;
     private boolean useSstTempFile = false;
+    private boolean encryptSstTempFile = false;
     private String sheetName;
     private String password;
 
@@ -135,6 +136,14 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public boolean useSstTempFile() {
       return useSstTempFile;
+    }
+
+    /**
+     * @return Whether to encrypt the temp file for the Shared Strings data. Only applies if <code>useSstTempFile()</code>
+     * is true.
+     */
+    public boolean encryptSstTempFile() {
+      return encryptSstTempFile;
     }
 
     /**
@@ -233,6 +242,21 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
 
     /**
+     * Enables use of encryption in Shared Strings Table temp file. This only applies if <code>setUseSstTempFile</code>
+     * is set to true.
+     * <p>
+     * By default, the temp file is not encrypted. <strong>However</strong>,
+     * enabling this option could slow down the processing of Shared Strings data.
+     *
+     * @param encryptSstTempFile whether to encrypt the temp file used to store the Shared Strings Table data
+     * @return reference to current {@code Builder}
+     */
+    public Builder setEncryptSstTempFile(boolean encryptSstTempFile) {
+      this.encryptSstTempFile = encryptSstTempFile;
+      return this;
+    }
+
+    /**
      * Reads a given {@code InputStream} and returns a new
      * instance of {@code Workbook}. Due to Apache POI
      * limitations, a temporary file must be written in order
@@ -323,7 +347,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         SharedStringsTable sst;
         if(useSstTempFile) {
           log.debug("Created sst cache file");
-          sst = new TempFileSharedStringsTable(pkg, true);
+          sst = new TempFileSharedStringsTable(pkg, encryptSstTempFile);
         } else {
           sst = reader.getSharedStringsTable();
         }
