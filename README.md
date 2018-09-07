@@ -1,4 +1,5 @@
-[![Run Status](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge?branch=master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5)
+[![Build Status](https://travis-ci.org/pjfanning/excel-streaming-reader.svg?branch=master)](https://travis-ci.org/pjfanning/excel-streaming-reader)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.pjfanning/excel-streaming-reader/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pjfanning/excel-streaming-reader)
 
 # Excel Streaming Reader
 
