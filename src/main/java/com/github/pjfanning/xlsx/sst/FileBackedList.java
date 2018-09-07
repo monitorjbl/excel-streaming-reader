@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx.sst;
+package com.github.pjfanning.xlsx.sst;
 
 import java.io.File;
 import java.io.IOException;

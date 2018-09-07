@@ -1,12 +1,13 @@
-package com.monitorjbl.xlsx;
+package com.github.pjfanning.xlsx;
 
-import com.monitorjbl.xlsx.exceptions.MissingSheetException;
-import com.monitorjbl.xlsx.exceptions.OpenException;
-import com.monitorjbl.xlsx.exceptions.ReadException;
-import com.monitorjbl.xlsx.sst.BufferedStringsTable;
-import com.monitorjbl.xlsx.impl.StreamingSheetReader;
-import com.monitorjbl.xlsx.impl.StreamingWorkbook;
-import com.monitorjbl.xlsx.impl.StreamingWorkbookReader;
+import com.github.pjfanning.xlsx.exceptions.CloseException;
+import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
+import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
+import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
+import com.github.pjfanning.xlsx.exceptions.OpenException;
+import com.github.pjfanning.xlsx.exceptions.ReadException;
+import com.github.pjfanning.xlsx.sst.BufferedStringsTable;
+import com.github.pjfanning.xlsx.impl.StreamingSheetReader;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -35,8 +36,8 @@ import java.security.GeneralSecurityException;
 import java.util.Iterator;
 import java.util.Objects;
 
-import static com.monitorjbl.xlsx.XmlUtils.document;
-import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
+import static com.github.pjfanning.xlsx.XmlUtils.document;
+import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
 
 /**
  * Streaming Excel workbook implementation. Most advanced features of POI are not supported.
@@ -70,7 +71,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
   /**
    * Closes the streaming resource, attempting to clean up any temporary files created.
    *
-   * @throws com.monitorjbl.xlsx.exceptions.CloseException if there is an issue closing the stream
+   * @throws CloseException if there is an issue closing the stream
    */
   @Override
   public void close() throws IOException {
@@ -258,7 +259,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param is input stream to read in
      * @return A {@link Workbook} that can be read from
-     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the stream
+     * @throws ReadException if there is an issue reading the stream
      */
     public Workbook open(InputStream is) {
       StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
@@ -272,8 +273,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param file file to read in
      * @return built streaming reader instance
-     * @throws com.monitorjbl.xlsx.exceptions.OpenException if there is an issue opening the file
-     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the file
+     * @throws OpenException if there is an issue opening the file
+     * @throws ReadException if there is an issue reading the file
      */
     public Workbook open(File file) {
       StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
@@ -290,7 +291,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param is input stream to read in
      * @return built streaming reader instance
-     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the stream
+     * @throws ReadException if there is an issue reading the stream
      * @deprecated This method will be removed in a future release. Use {@link Builder#open(InputStream)} instead
      */
     public StreamingReader read(InputStream is) {
@@ -316,8 +317,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      *
      * @param f file to read in
      * @return built streaming reader instance
-     * @throws com.monitorjbl.xlsx.exceptions.OpenException if there is an issue opening the file
-     * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the file
+     * @throws OpenException if there is an issue opening the file
+     * @throws ReadException if there is an issue reading the file
      * @deprecated This method will be removed in a future release. Use {@link Builder#open(File)} instead
      */
     public StreamingReader read(File f) {

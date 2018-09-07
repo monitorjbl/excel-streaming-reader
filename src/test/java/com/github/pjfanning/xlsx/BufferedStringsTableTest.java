@@ -1,6 +1,6 @@
-package com.monitorjbl.xlsx;
+package com.github.pjfanning.xlsx;
 
-import com.monitorjbl.xlsx.sst.BufferedStringsTable;
+import com.github.pjfanning.xlsx.sst.BufferedStringsTable;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.junit.Test;

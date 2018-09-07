@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx;
+package com.github.pjfanning.xlsx;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,13 +9,12 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import com.github.pjfanning.xlsx.exceptions.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import com.monitorjbl.xlsx.exceptions.ParseException;
 
 public class XmlUtils {
   private static final Logger log = LoggerFactory.getLogger(XmlUtils.class);

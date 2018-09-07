@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx;
+package com.github.pjfanning.xlsx;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

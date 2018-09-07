@@ -1,6 +1,6 @@
-package com.monitorjbl.xlsx.impl;
+package com.github.pjfanning.xlsx.impl;
 
-import com.monitorjbl.xlsx.exceptions.MissingSheetException;
+import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.CellStyle;

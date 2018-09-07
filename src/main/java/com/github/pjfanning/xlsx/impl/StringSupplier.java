@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx.impl;
+package com.github.pjfanning.xlsx.impl;
 
 class StringSupplier implements Supplier {
     private final String val;

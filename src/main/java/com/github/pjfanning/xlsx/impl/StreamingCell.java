@@ -1,6 +1,6 @@
-package com.monitorjbl.xlsx.impl;
+package com.github.pjfanning.xlsx.impl;
 
-import com.monitorjbl.xlsx.exceptions.NotSupportedException;
+import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.Cell;

@@ -1,6 +1,6 @@
-package com.monitorjbl.xlsx;
+package com.github.pjfanning.xlsx;
 
-import com.monitorjbl.xlsx.exceptions.MissingSheetException;
+import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Cell;

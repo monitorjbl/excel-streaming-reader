@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx.exceptions;
+package com.github.pjfanning.xlsx.exceptions;
 
 public class MissingSheetException extends RuntimeException {
 

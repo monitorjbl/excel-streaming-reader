@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx;
+package com.github.pjfanning.xlsx;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;

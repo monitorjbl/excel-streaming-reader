@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx;
+package com.github.pjfanning.xlsx;
 
 import org.apache.poi.ss.usermodel.*;
 import org.junit.BeforeClass;
@@ -10,14 +10,14 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Locale;
 
-import static com.monitorjbl.xlsx.TestUtils.expectCachedType;
-import static com.monitorjbl.xlsx.TestUtils.expectFormula;
-import static com.monitorjbl.xlsx.TestUtils.expectSameStringContent;
-import static com.monitorjbl.xlsx.TestUtils.expectStringContent;
-import static com.monitorjbl.xlsx.TestUtils.expectType;
-import static com.monitorjbl.xlsx.TestUtils.getCellFromNextRow;
-import static com.monitorjbl.xlsx.TestUtils.nextRow;
-import static com.monitorjbl.xlsx.TestUtils.openWorkbook;
+import static com.github.pjfanning.xlsx.TestUtils.expectCachedType;
+import static com.github.pjfanning.xlsx.TestUtils.expectFormula;
+import static com.github.pjfanning.xlsx.TestUtils.expectSameStringContent;
+import static com.github.pjfanning.xlsx.TestUtils.expectStringContent;
+import static com.github.pjfanning.xlsx.TestUtils.expectType;
+import static com.github.pjfanning.xlsx.TestUtils.getCellFromNextRow;
+import static com.github.pjfanning.xlsx.TestUtils.nextRow;
+import static com.github.pjfanning.xlsx.TestUtils.openWorkbook;
 import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.junit.Assert.assertEquals;

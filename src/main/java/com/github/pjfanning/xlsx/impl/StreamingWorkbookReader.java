@@ -1,9 +1,9 @@
-package com.monitorjbl.xlsx.impl;
+package com.github.pjfanning.xlsx.impl;
 
-import com.monitorjbl.xlsx.StreamingReader.Builder;
-import com.monitorjbl.xlsx.exceptions.OpenException;
-import com.monitorjbl.xlsx.exceptions.ReadException;
-import com.monitorjbl.xlsx.sst.BufferedStringsTable;
+import com.github.pjfanning.xlsx.StreamingReader.Builder;
+import com.github.pjfanning.xlsx.exceptions.OpenException;
+import com.github.pjfanning.xlsx.exceptions.ReadException;
+import com.github.pjfanning.xlsx.sst.BufferedStringsTable;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -37,8 +37,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.monitorjbl.xlsx.XmlUtils.document;
-import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
+import static com.github.pjfanning.xlsx.XmlUtils.document;
+import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
 import static java.util.Arrays.asList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {

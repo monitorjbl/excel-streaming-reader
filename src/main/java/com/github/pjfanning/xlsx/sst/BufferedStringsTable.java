@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx.sst;
+package com.github.pjfanning.xlsx.sst;
 
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
