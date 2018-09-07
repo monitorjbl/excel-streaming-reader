@@ -2,70 +2,32 @@
 
 # Excel Streaming Reader
 
-If you've used [Apache POI](http://poi.apache.org) in the past to read in Excel files, you probably noticed that it's not very memory efficient. Reading in an entire workbook will cause a severe memory usage spike, which can wreak havoc on a server. 
+This is a fork of [monitorjbl/excel-streaming-reader](https://github.com/monitorjbl/excel-streaming-reader).
 
-There are plenty of good reasons for why Apache has to read in the whole workbook, but most of them have to do with the fact that the library allows you to read and write with random addresses. If (and only if) you just want to read the contents of an Excel file in a fast and memory effecient way, you probably don't need this ability. Unfortunately, the only thing in the POI library for reading a streaming workbook requires your code to use a SAX-like parser. All of the friendly classes like `Row` and `Cell` are missing from that API.
+This implementation supports [Apache POI](http://poi.apache.org) 4.0.0 and only supports Java 8 and above.
 
-This library serves as a wrapper around that streaming API while preserving the syntax of the standard POI API. Read on to see if it's right for you.
-
-# Important! Read first!
-
-This README is for the newly minted 1.0.0 version. You may be looking for the old version's documentation or code, which you can still find in [the 0.2.x
-branch](https://github.com/monitorjbl/excel-streaming-reader/tree/0.2.x). The 0.2.x branch will have important bugfixes backported to it going forward, but
-new features will not be (apart from any exceptional circumstances).
-
-The 1.x versions include a new API that allows users to interact with POI `Workbooks` and `Sheets` in a streaming fashion. The new API is mostly backwards
-compatible with the 0.2 version, with a slight difference:
-
-**0.2.x**
-
-```java
-
-InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-StreamingReader reader = StreamingReader.builder()
-        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
-        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
-        .sheetIndex(0)        // index of sheet to use (defaults to 0)
-        .sheetName("sheet1")  // name of sheet to use (overrides sheetIndex)
-        .read(is);            // InputStream or File for XLSX file (required)
-
-```
-
-**1.x**
-
-```java
-InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-Workbook workbook = StreamingReader.builder()
-        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
-        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
-        .open(is);            // InputStream or File for XLSX file (required)
-```
-
-In the interests of easing the transition from the old API, the 0.2.x method will still work, however it is marked deprecated and will be removed in a future
- release. If it's at all possible, please update your code to use the 1.x API.
+A 2.0.0-SNAPSHOT is published to https://oss.sonatype.org/content/repositories/snapshots/com/github/pjfanning/excel-streaming-reader/
 
 # Include
-
-This library is available from from Maven Central, and you can optionally install it yourself. The Maven installation instructions can be found on the [release](https://github.com/monitorjbl/excel-streaming-reader/releases) page.
 
 To use it, add this to your POM:
 
 ```
 <dependencies>
   <dependency>
-    <groupId>com.monitorjbl</groupId>
-    <artifactId>xlsx-streamer</artifactId>
-    <version>1.2.0</version>
+    <groupId>com.github.pjfanning</groupId>
+    <artifactId>excel-streaming-reader</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
   </dependency>
 </dependencies>  
 ```
 
 # Usage
 
-This library is very specific in how it is meant to be used. You should initialize it like so:
+The package name is different from the *monitorjbl/excel-streaming-reader* jar. The code is very similar.
 
 ```java
-import com.monitorjbl.xlsx.StreamingReader;
+import com.github.pjfanning.xlsx.StreamingReader;
 
 InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
 Workbook workbook = StreamingReader.builder()
@@ -93,7 +55,7 @@ Or open a sheet by name or index:
 Sheet sheet = workbook.getSheet("My Sheet")
 ```
 
-The StreamingWorkbook is an autoclosable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 7, you can do this:
+The StreamingWorkbook is an autoclosable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 8, you can do this:
 
 ```java
 try (
@@ -129,40 +91,7 @@ This is a brief and very generalized list of things that are not supported for r
 
 # Logging
 
-This library uses SLF4j logging. This is a rare use case, but you can plug in your logging provider and get some potentially useful output. Below is an example of doing this with log4j:
-
-**pom.xml**
-
-```
-<dependencies>
-  <dependency>
-    <groupId>com.monitorjbl</groupId>
-    <artifactId>xlsx-streamer</artifactId>
-    <version>1.2.0</version>
-  </dependency>
-  <dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-log4j12</artifactId>
-    <version>1.7.6</version>
-  </dependency>
-  <dependency>
-    <groupId>log4j</groupId>
-    <artifactId>log4j</artifactId>
-    <version>1.2.17</version>
-  </dependency>
-</dependencies>
-```
-
-**log4j.properties**
-
-```
-log4j.rootLogger=DEBUG, A1
-log4j.appender.A1=org.apache.log4j.ConsoleAppender
-log4j.appender.A1.layout=org.apache.log4j.PatternLayout
-log4j.appender.A1.layout.ConversionPattern=%d{ISO8601} [%c] %p: %m%n
-
-log4j.category.com.monitorjbl=DEBUG
-```
+This library uses SLF4j logging. This is a rare use case, but you can plug in your logging provider and get some potentially useful output. 
 
 # Implementation Details
 
