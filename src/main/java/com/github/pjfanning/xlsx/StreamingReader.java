@@ -94,7 +94,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     private int rowCacheSize = 10;
     private int bufferSize = 1024;
     private int sheetIndex = 0;
-    private int sstCacheSize = -1;
+    private boolean useSstTempFile = false;
     private String sheetName;
     private String password;
 
@@ -130,11 +130,11 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
 
     /**
-     * @return The size of the shared string table cache. If less than 0, no
-     * cache will be used and the entire table will be loaded into memory.
+     * @return Whether to use a temp file for the Shared Strings data. If false, no
+     * temp file will be used and the entire table will be loaded into memory.
      */
-    public int getSstCacheSize() {
-      return sstCacheSize;
+    public boolean useSstTempFile() {
+      return useSstTempFile;
     }
 
     /**
@@ -215,23 +215,20 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     }
 
     /**
-     * <h1>!!! This option is experimental !!!</h1>
-     *
-     * Set the size of the Shared Strings Table cache. This option exists to accommodate
+     * Enables use of Shared Strings Table temp file. This option exists to accommodate
      * extremely large workbooks with millions of unique strings. Normally the SST is entirely
      * loaded into memory, but with large workbooks with high cardinality (i.e., very few
      * duplicate values) the SST may not fit entirely into memory.
      * <p>
-     * By default, the entire SST *will* be loaded into memory. Setting a value greater than
-     * 0 for this option will only cache up to this many entries in memory. <strong>However</strong>,
-     * enabling this option at all will have some noticeable performance degredation as you are
+     * By default, the entire SST *will* be loaded into memory. <strong>However</strong>,
+     * enabling this option at all will have some noticeable performance degradation as you are
      * trading memory for disk space.
      *
-     * @param sstCacheSize size of SST cache
+     * @param useSstTempFile whether to use a temp file to store the Shared Strings Table data
      * @return reference to current {@code Builder}
      */
-    public Builder sstCacheSize(int sstCacheSize) {
-      this.sstCacheSize = sstCacheSize;
+    public Builder setUseSstTempFile(boolean useSstTempFile) {
+      this.useSstTempFile = useSstTempFile;
       return this;
     }
 
@@ -324,7 +321,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         XSSFReader reader = new XSSFReader(pkg);
 
         SharedStringsTable sst;
-        if(sstCacheSize > 0) {
+        if(useSstTempFile) {
           log.debug("Created sst cache file");
           sst = new TempFileSharedStringsTable(pkg, true);
         } else {
