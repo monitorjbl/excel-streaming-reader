@@ -8,6 +8,7 @@ import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
 import com.github.pjfanning.xlsx.impl.StreamingSheetReader;
+import com.github.pjfanning.xlsx.impl.TempFileUtil;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -28,10 +29,8 @@ import org.w3c.dom.NodeList;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.Iterator;
 import java.util.Objects;
@@ -84,20 +83,6 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         }
         tmp.delete();
       }
-    }
-  }
-
-  static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
-    try(FileOutputStream fos = new FileOutputStream(f)) {
-      int read;
-      byte[] bytes = new byte[bufferSize];
-      while((read = is.read(bytes)) != -1) {
-        fos.write(bytes, 0, read);
-      }
-      is.close();
-      fos.close();
-      return f;
     }
   }
 
@@ -297,7 +282,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     public StreamingReader read(InputStream is) {
       File f = null;
       try {
-        f = writeInputStreamToFile(is, bufferSize);
+        f = TempFileUtil.writeInputStreamToFile(is, bufferSize);
         log.debug("Created temp file [" + f.getAbsolutePath() + "]");
 
         StreamingReader r = read(f);
