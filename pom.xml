@@ -3,12 +3,12 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.monitorjbl</groupId>
-  <artifactId>xlsx-streamer</artifactId>
-  <version>1.2.2-SNAPSHOT</version>
+  <groupId>com.github.pjfanning</groupId>
+  <artifactId>excel-streaming-reader</artifactId>
+  <version>2.0.0-SNAPSHOT</version>
   <name>Streaming Excel reader</name>
   <description>Streaming Excel reader</description>
-  <url>https://github.com/monitorjbl/excel-streaming-reader</url>
+  <url>https://github.com/pjfanning/excel-streaming-reader</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,6 +19,10 @@
       <id>monitorjbl</id>
       <name>Taylor Jones</name>
       <email>monitorjbl@gmail.com</email>
+    </developer>
+    <developer>
+      <id>pjfanning</id>
+      <name>PJ Fanning</name>
     </developer>
   </developers>
 
@@ -89,34 +93,27 @@
   <licenses>
     <license>
       <name>Apache 2.0</name>
-      <url>https://raw.githubusercontent.com/monitorjbl/excel-streaming-reader/master/LICENSE</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
 
   <scm>
-    <url>https://github.com/monitorjbl/excel-streaming-reader.git</url>
+    <url>https://github.com/pjfanning/excel-streaming-reader.git</url>
   </scm>
 
   <distributionManagement>
     <snapshotRepository>
-      <id>ossrh</id>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
     </snapshotRepository>
     <repository>
-      <id>ossrh</id>
+      <id>sonatype-nexus-staging</id>
+      <name>Nexus Release Repository</name>
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
     </repository>
   </distributionManagement>
-
-
-  <repositories>
-    <repository>
-      <id>apache-releases-repo</id>
-      <name>apache releases repo</name>
-      <url>https://repository.apache.org/content/repositories/releases</url>
-    </repository>
-  </repositories>
 
   <dependencies>
     <dependency>
