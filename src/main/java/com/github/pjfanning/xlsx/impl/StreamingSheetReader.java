@@ -311,7 +311,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
             int idx = Integer.parseInt(lastContents);
-            return new StringSupplier(new XSSFRichTextString(sst.getEntryAt(idx)).toString());
+            return new StringSupplier(sst.getItemAt(idx).toString());
         }
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
@@ -364,7 +364,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
             int idx = Integer.parseInt(lastContents);
-            return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+            return sst.getItemAt(idx).toString();
         }
         return lastContents;
       case "inlineStr":   //inline string (not in sst)
