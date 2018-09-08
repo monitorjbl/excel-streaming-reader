@@ -5,6 +5,7 @@ import com.github.pjfanning.xlsx.StreamingReader.Builder;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
+import org.apache.poi.ooxml.util.DocumentHelper;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -36,7 +38,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.pjfanning.xlsx.XmlUtils.document;
 import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
 import static java.util.Arrays.asList;
 
@@ -116,7 +117,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       StylesTable styles = reader.getStylesTable();
-      NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
+      NodeList workbookPr = searchForNodeList(DocumentHelper.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
       if(workbookPr.getLength() == 1) {
         final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
         if(date1904 != null) {
@@ -125,6 +126,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       loadSheets(reader, sst, styles, builder.getRowCacheSize());
+    } catch(SAXException e) {
+      throw new OpenException("Failed to parse file", e);
     } catch(IOException e) {
       throw new OpenException("Failed to open file", e);
     } catch(OpenXML4JException | XMLStreamException e) {
@@ -158,14 +161,18 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
   void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
     sheetProperties.clear();
-    NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
-    for(int i = 0; i < nl.getLength(); i++) {
-      Map<String, String> props = new HashMap<>();
-      props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
+    try {
+      NodeList nl = searchForNodeList(DocumentHelper.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
+      for(int i = 0; i < nl.getLength(); i++) {
+        Map<String, String> props = new HashMap<>();
+        props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
 
-      Node state = nl.item(i).getAttributes().getNamedItem("state");
-      props.put("state", state == null ? "visible" : state.getTextContent());
-      sheetProperties.add(props);
+        Node state = nl.item(i).getAttributes().getNamedItem("state");
+        props.put("state", state == null ? "visible" : state.getTextContent());
+        sheetProperties.add(props);
+      }
+    } catch (SAXException e) {
+      throw new OpenException("Failed to parse file", e);
     }
   }
 
