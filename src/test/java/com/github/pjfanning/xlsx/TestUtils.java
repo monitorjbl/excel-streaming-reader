@@ -31,11 +31,11 @@ final class TestUtils {
   }
 
   static void expectCachedType(Cell cell, CellType cellType) {
-    assertEquals("Cell " + ref(cell) + " has wrong cached type." + cellType, cellType, cell.getCachedFormulaResultTypeEnum());
+    assertEquals("Cell " + ref(cell) + " has wrong cached type." + cellType, cellType, cell.getCachedFormulaResultType());
   }
 
   static void expectType(Cell cell, CellType cellType) {
-    assertEquals("Cell " + ref(cell) + " has wrong type.", cellType, cell.getCellTypeEnum());
+    assertEquals("Cell " + ref(cell) + " has wrong type.", cellType, cell.getCellType());
   }
 
   static void expectFormula(Cell cell, String formula) {

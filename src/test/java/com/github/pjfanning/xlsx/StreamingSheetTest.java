@@ -51,7 +51,7 @@ public class StreamingSheetTest {
       assertEquals(1, workbook.getNumberOfSheets());
       Sheet sheet = workbook.getSheetAt(0);
       Row row = sheet.iterator().next();
-      assertEquals(CellType.NUMERIC, row.getCell(0).getCellTypeEnum());
+      assertEquals(CellType.NUMERIC, row.getCell(0).getCellType());
       assertNotNull(row.getCell(0).getCellStyle());
     }
   }

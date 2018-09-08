@@ -388,7 +388,7 @@ public class StreamingCell implements Cell {
    */
   @Override
   public XSSFRichTextString getRichStringCellValue() {
-    CellType cellType = getCellTypeEnum();
+    CellType cellType = getCellType();
     XSSFRichTextString rt;
     switch (cellType) {
       case BLANK:

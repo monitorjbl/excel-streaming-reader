@@ -121,7 +121,7 @@ public class StreamingRow implements Row {
     if(policy == MissingCellPolicy.CREATE_NULL_AS_BLANK) {
       if(cell == null) { return new StreamingCell(cellnum, rowIndex, false); }
     } else if(policy == MissingCellPolicy.RETURN_BLANK_AS_NULL) {
-      if(cell == null || cell.getCellTypeEnum() == CellType.BLANK) { return null; }
+      if(cell == null || cell.getCellType() == CellType.BLANK) { return null; }
     }
     return cell;
   }
