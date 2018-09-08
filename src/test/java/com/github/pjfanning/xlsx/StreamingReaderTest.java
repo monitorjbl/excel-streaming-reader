@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -691,6 +692,40 @@ public class StreamingReaderTest {
       }
       assertNotNull(cell);
       assertThat(cell.getCellTypeEnum(), is(CellType.NUMERIC));
+    }
+  }
+
+  @Test
+  public void testFormulaWithDifferentTypes() throws Exception {
+    try(
+      InputStream is = new FileInputStream(new File("src/test/resources/formula_test.xlsx"));
+      Workbook wb = StreamingReader.builder().open(is)
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Row next = rowIterator.next();
+      Cell cell = next.getCell(0);
+
+      assertThat(cell.getCellTypeEnum(), is(CellType.STRING));
+
+      next = rowIterator.next();
+      cell = next.getCell(0);
+
+      assertThat(cell.getCellTypeEnum(), is(CellType.FORMULA));
+      assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.STRING));
+
+      next = rowIterator.next();
+      cell = next.getCell(0);
+
+      assertThat(cell.getCellTypeEnum(), is(CellType.FORMULA));
+      assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.BOOLEAN));
+
+      next = rowIterator.next();
+      cell = next.getCell(0);
+
+      assertThat(cell.getCellTypeEnum(), is(CellType.FORMULA));
+      assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.NUMERIC));
     }
   }
 }
