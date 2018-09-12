@@ -64,7 +64,7 @@ try {
   Workbook workbook = StreamingReader.builder()
           .rowCacheSize(100)
           .bufferSize(4096)
-          .open(is)) {
+          .open(is) {
   for (Sheet sheet : workbook){
     System.out.println(sheet.getSheetName());
     for (Row r : sheet) {
@@ -90,7 +90,7 @@ You can use the `setUseSstTempFile(true)` option to have this data stored in a t
           .bufferSize(4096)
           .setUseSstTempFile(true)
           .setEncryptSstTempFile(true)
-          .open(is))
+          .open(is)
 ```
 
 # Supported Methods
