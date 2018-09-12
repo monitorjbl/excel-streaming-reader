@@ -18,7 +18,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
 </dependencies>  
 ```
@@ -59,7 +59,7 @@ Sheet sheet = workbook.getSheet("My Sheet")
 The StreamingWorkbook is an autocloseable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 8, you can do this:
 
 ```java
-try (
+try {
   InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
   Workbook workbook = StreamingReader.builder()
           .rowCacheSize(100)
@@ -77,6 +77,21 @@ try (
 ```
 
 You may access cells randomly within a row, as the entire row is cached. **However**, there is no way to randomly access rows. As this is a streaming implementation, only a small number of rows are kept in memory at any given time.
+
+## Temp File Shared Strings
+
+By default, the `/xl/sharedStrings.xml` data for your xlsx is stored in memory and this might cause memory problems.
+
+You can use the `setUseSstTempFile(true)` option to have this data stored in a temp file (a [H2 MVStore](http://www.h2database.com/html/mvstore.html)). There is also a `setEncryptSstTempFile(true)` option if you are concerned about having the raw data in a cleartext temp file.
+
+```java
+  Workbook workbook = StreamingReader.builder()
+          .rowCacheSize(100)
+          .bufferSize(4096)
+          .setUseSstTempFile(true)
+          .setEncryptSstTempFile(true)
+          .open(is))
+```
 
 # Supported Methods
 
