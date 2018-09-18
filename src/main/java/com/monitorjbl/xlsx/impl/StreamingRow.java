@@ -140,14 +140,6 @@ public class StreamingRow implements Row {
    * Not supported
    */
   @Override
-  public Cell createCell(int column, int type) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
   public Cell createCell(int i, CellType cellType) {
     throw new NotSupportedException();
   }
@@ -248,4 +240,19 @@ public class StreamingRow implements Row {
     throw new NotSupportedException();
   }
 
+  /**
+   * Not supported
+   */
+  @Override
+  public void shiftCellsLeft(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void shiftCellsRight(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
+    throw new NotSupportedException();
+  }
 }
