@@ -175,7 +175,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Get the value of the cell as a string. For numeric cells we throw an exception.
+   * Get the value of the cell as a string.
    * For blank cells we return an empty string.
    *
    * @return the value of the cell as a string
@@ -184,7 +184,7 @@ public class StreamingCell implements Cell {
   public String getStringCellValue() {
     Object c = contentsSupplier.getContent();
 
-    return c == null ? "" : (String) c;
+    return c == null ? "" : c.toString();
   }
 
   /**
