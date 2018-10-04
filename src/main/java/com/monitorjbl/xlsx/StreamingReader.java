@@ -73,12 +73,14 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
    * @throws com.monitorjbl.xlsx.exceptions.CloseException if there is an issue closing the stream
    */
   @Override
-  public void close() {
+  public void close() throws IOException {
     try {
       workbook.close();
     } finally {
       if(tmp != null) {
-        log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+        if (log.isDebugEnabled()) {
+          log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+        }
         tmp.delete();
       }
     }
