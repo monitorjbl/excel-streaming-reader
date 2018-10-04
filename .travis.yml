@@ -3,6 +3,7 @@ language: java
 jdk:
    - openjdk8
    - openjdk10
+   - openjdk11
 
 script:
-   - mvn clean package -B
+   - ./mvnw clean package -B
