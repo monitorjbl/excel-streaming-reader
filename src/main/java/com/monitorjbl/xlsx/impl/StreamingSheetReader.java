@@ -190,7 +190,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
       } else if("f".equals(tagLocalName)) {
         if (currentCell != null) {
-          currentCell.setType("str");
+          currentCell.setFormulaType(true);
         }
       }
 
@@ -319,6 +319,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
+      case "str":
         return new StringSupplier(new XSSFRichTextString(lastContents).toString());
       case "e":           //error type
         return new StringSupplier("ERROR:  " + lastContents);
@@ -348,10 +349,6 @@ public class StreamingSheetReader implements Iterable<Row> {
           };
         } else {
           return new StringSupplier(lastContents);
-        }
-      case "str":         //formula type
-        if (currentCell.supportsSupplierOverride()) {
-          return getFormatterForType(currentCell.getRawCachedFormulaResultType());
         }
       default:
         return new StringSupplier(lastContents);
