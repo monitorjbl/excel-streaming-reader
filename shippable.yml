@@ -4,5 +4,6 @@ jdk:
    - oraclejdk7
    - oraclejdk8
    - openjdk11
+
 script:
    - mvn clean package -B
