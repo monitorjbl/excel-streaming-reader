@@ -24,7 +24,6 @@ import org.w3c.dom.NodeList;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -39,6 +38,7 @@ import java.util.Map;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
+import static com.monitorjbl.xlsx.impl.TempFileUtil.writeInputStreamToFile;
 import static java.util.Arrays.asList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
@@ -208,20 +208,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         ((BufferedStringsTable) sst).close();
         sstCache.delete();
       }
-    }
-  }
-
-  static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
-    try(FileOutputStream fos = new FileOutputStream(f)) {
-      int read;
-      byte[] bytes = new byte[bufferSize];
-      while((read = is.read(bytes)) != -1) {
-        fos.write(bytes, 0, read);
-      }
-      is.close();
-      fos.close();
-      return f;
     }
   }
 
