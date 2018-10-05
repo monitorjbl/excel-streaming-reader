@@ -1,11 +1,12 @@
 package com.monitorjbl.xlsx.sst;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 
 import javax.xml.stream.XMLEventReader;
@@ -17,16 +18,16 @@ import java.io.InputStream;
 import java.util.List;
 
 public class BufferedStringsTable extends SharedStringsTable implements AutoCloseable {
-  private final FileBackedList<CTRstImpl> list;
+  private final FileBackedList list;
 
   public static BufferedStringsTable getSharedStringsTable(File tmp, int cacheSize, OPCPackage pkg)
-      throws IOException, InvalidFormatException {
+      throws IOException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
     return parts.size() == 0 ? null : new BufferedStringsTable(parts.get(0), tmp, cacheSize);
   }
 
   private BufferedStringsTable(PackagePart part, File file, int cacheSize) throws IOException {
-    this.list = new FileBackedList<>(CTRstImpl.class, file, cacheSize);
+    this.list = new FileBackedList(file, cacheSize);
     readFrom(part.getInputStream());
   }
 
@@ -52,7 +53,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
    * href="https://msdn.microsoft.com/en-us/library/documentformat.openxml.spreadsheet.sharedstringitem.aspx">xmlschema
    * type {@code CT_Rst}</a>.
    */
-  private CTRstImpl parseCT_Rst(XMLEventReader xmlEventReader) throws XMLStreamException {
+  private String parseCT_Rst(XMLEventReader xmlEventReader) throws XMLStreamException {
     // Precondition: pointing to <si>;  Post condition: pointing to </si>
     StringBuilder buf = new StringBuilder();
     XMLEvent xmlEvent;
@@ -72,7 +73,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
           throw new IllegalArgumentException(xmlEvent.asStartElement().getName().getLocalPart());
       }
     }
-    return buf.length() > 0 ? new CTRstImpl(buf.toString()) : null;
+    return buf.length() > 0 ? buf.toString() : null;
   }
 
   /**
@@ -104,13 +105,19 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
     }
   }
 
-  public CTRst getEntryAt(int idx) {
-    CTRst result = list.getAt(idx);
-    return result != null ? result : CTRstImpl.EMPTY;
+  @Override
+  public RichTextString getItemAt(int idx) {
+    return new XSSFRichTextString(list.getAt(idx));
   }
 
   @Override
-  public void close() {
+  public CTRst getEntryAt(int idx) {
+    return ((XSSFRichTextString)getItemAt(idx)).getCTRst();
+  }
+
+  @Override
+  public void close() throws IOException {
+    super.close();
     list.close();
   }
 }

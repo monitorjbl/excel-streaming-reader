@@ -596,6 +596,14 @@ public class StreamingSheet implements Sheet {
    * Not supported
    */
   @Override
+  public void shiftColumns(int startColumn, int endColumn, final int n) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
   public void createFreezePane(int colSplit, int rowSplit, int leftmostColumn, int topRow) {
     throw new UnsupportedOperationException();
   }
