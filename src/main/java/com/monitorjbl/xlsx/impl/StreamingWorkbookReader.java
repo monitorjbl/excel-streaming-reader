@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -36,10 +37,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
 import static com.monitorjbl.xlsx.impl.TempFileUtil.writeInputStreamToFile;
 import static java.util.Arrays.asList;
+import static org.apache.poi.ooxml.util.DocumentHelper.readDocument;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
@@ -121,7 +122,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       StylesTable styles = reader.getStylesTable();
-      NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
+      NodeList workbookPr = searchForNodeList(readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
       if(workbookPr.getLength() == 1) {
         final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
         if(date1904 != null) {
@@ -132,15 +133,15 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       loadSheets(reader, sst, styles, builder.getRowCacheSize());
     } catch(IOException e) {
       throw new OpenException("Failed to open file", e);
-    } catch(OpenXML4JException | XMLStreamException e) {
+    } catch(OpenXML4JException | SAXException | XMLStreamException e) {
       throw new ReadException("Unable to read workbook", e);
     } catch(GeneralSecurityException e) {
       throw new ReadException("Unable to read workbook - Decryption failed", e);
     }
   }
 
-  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
-      XMLStreamException {
+  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize)
+          throws IOException, InvalidFormatException, SAXException, XMLStreamException {
     lookupSheetNames(reader);
 
     //Some workbooks have multiple references to the same sheet. Need to filter
@@ -161,9 +162,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
   }
 
-  void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
+  void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException, SAXException {
     sheetProperties.clear();
-    NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
+    NodeList nl = searchForNodeList(readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
     for(int i = 0; i < nl.getLength(); i++) {
       Map<String, String> props = new HashMap<>();
       props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
