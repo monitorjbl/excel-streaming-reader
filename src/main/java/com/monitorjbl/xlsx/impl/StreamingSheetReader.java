@@ -24,11 +24,6 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -207,7 +202,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
       } else if("f".equals(tagLocalName)) {
         if (currentCell != null) {
-          currentCell.setType("str");
+          currentCell.setFormulaType(true);
         }
       }
 
@@ -336,6 +331,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
+      case "str":
         return new StringSupplier(new XSSFRichTextString(lastContents).toString());
       case "e":           //error type
         return new StringSupplier("ERROR:  " + lastContents);
@@ -365,10 +361,6 @@ public class StreamingSheetReader implements Iterable<Row> {
           };
         } else {
           return new StringSupplier(lastContents);
-        }
-      case "str":         //formula type
-        if (currentCell.supportsSupplierOverride()) {
-          return getFormatterForType(currentCell.getRawCachedFormulaResultType());
         }
       default:
         return new StringSupplier(lastContents);
@@ -412,20 +404,6 @@ public class StreamingSheetReader implements Iterable<Row> {
       parser.close();
     } catch(XMLStreamException e) {
       throw new CloseException(e);
-    }
-  }
-
-  static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
-    try(FileOutputStream fos = new FileOutputStream(f)) {
-      int read;
-      byte[] bytes = new byte[bufferSize];
-      while((read = is.read(bytes)) != -1) {
-        fos.write(bytes, 0, read);
-      }
-      is.close();
-      fos.close();
-      return f;
     }
   }
 

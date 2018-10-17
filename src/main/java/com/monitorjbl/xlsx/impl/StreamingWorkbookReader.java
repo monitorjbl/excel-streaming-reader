@@ -27,7 +27,6 @@ import org.w3c.dom.NodeList;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -42,6 +41,7 @@ import java.util.Map;
 
 import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
+import static com.monitorjbl.xlsx.impl.TempFileUtil.writeInputStreamToFile;
 import static java.util.Arrays.asList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
@@ -104,7 +104,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     } catch(IOException e) {
       throw new ReadException("Unable to read input stream", e);
     } catch(RuntimeException e) {
-      f.delete();
+      if(f != null) {
+        f.delete();
+      }
       throw e;
     }
   }
@@ -215,7 +217,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   }
 
   @Override
-  public void close() {
+  public void close() throws IOException {
     try {
       for(StreamingSheet sheet : sheets) {
         sheet.getReader().close();
@@ -223,28 +225,18 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       pkg.revert();
     } finally {
       if(tmp != null) {
-        log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+        if(log.isDebugEnabled()) {
+          log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+        }
         tmp.delete();
       }
       if(sst instanceof BufferedStringsTable) {
-        log.debug("Deleting sst cache file [" + this.sstCache.getAbsolutePath() + "]");
+        if(log.isDebugEnabled()) {
+          log.debug("Deleting sst cache file [" + this.sstCache.getAbsolutePath() + "]");
+        }
         ((BufferedStringsTable) sst).close();
         sstCache.delete();
       }
-    }
-  }
-
-  static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
-    try(FileOutputStream fos = new FileOutputStream(f)) {
-      int read;
-      byte[] bytes = new byte[bufferSize];
-      while((read = is.read(bytes)) != -1) {
-        fos.write(bytes, 0, read);
-      }
-      is.close();
-      fos.close();
-      return f;
     }
   }
 

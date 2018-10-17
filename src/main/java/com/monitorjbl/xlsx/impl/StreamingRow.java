@@ -229,14 +229,6 @@ public class StreamingRow implements Row {
    * Not supported
    */
   @Override
-  public void setHeightInPoints(float height) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
   public void setRowStyle(CellStyle style) {
     throw new NotSupportedException();
   }
@@ -254,6 +246,22 @@ public class StreamingRow implements Row {
    */
   @Override
   public int getOutlineLevel() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void shiftCellsRight(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void shiftCellsLeft(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
     throw new NotSupportedException();
   }
 

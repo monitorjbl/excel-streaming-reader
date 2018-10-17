@@ -130,7 +130,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    * {@inheritDoc}
    */
   @Override
-  public void close() {
+  public void close() throws IOException {
     reader.close();
   }
 
@@ -252,6 +252,12 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    * Not supported
    */
   @Override
+  public int getNumberOfFontsAsInt() { throw new UnsupportedOperationException(); }
+
+  /**
+   * Not supported
+   */
+  @Override
   public Font getFontAt(short idx) {
     StylesTable styles = reader.getStyles();
     if (styles != null) {
@@ -259,6 +265,12 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
     }
     return null;
   }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public Font getFontAt(int i) { throw new UnsupportedOperationException(); }
 
   /**
    * Not supported
@@ -481,14 +493,6 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public void setSheetHidden(int sheetIx, boolean hidden) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setSheetHidden(int sheetIx, int hidden) {
     throw new UnsupportedOperationException();
   }
 
