@@ -314,7 +314,9 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       } catch(IOException e) {
         throw new ReadException("Unable to read input stream", e);
       } catch(RuntimeException e) {
-        f.delete();
+        if (f != null) {
+          f.delete();
+        }
         throw e;
       }
     }
