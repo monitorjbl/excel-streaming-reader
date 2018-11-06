@@ -73,7 +73,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
           throw new IllegalArgumentException(xmlEvent.asStartElement().getName().getLocalPart());
       }
     }
-    return buf.length() > 0 ? buf.toString() : null;
+    return buf.length() > 0 ? buf.toString() : "";
   }
 
   /**
