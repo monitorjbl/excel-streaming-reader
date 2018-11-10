@@ -1,5 +1,9 @@
 [![Run Status](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge?branch=master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5)
 
+# !!! Security Alert !!!
+
+Update to the latest version (2.1.0) **as soon as possible** to fix a critical vulnerability. The Xerxes XML parsing library that Excel Streaming Reader uses defaulted to allowing [entity expansion](https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet), which could be exploited by an attacker to read arbitrary data from your system. The latest versions of Excel Streaming Reader do not allow this and will throw a `ParsingException` if a workbook contains an XML document with an entity declaration.
+
 # Excel Streaming Reader
 
 If you've used [Apache POI](http://poi.apache.org) in the past to read in Excel files, you probably noticed that it's not very memory efficient. Reading in an entire workbook will cause a severe memory usage spike, which can wreak havoc on a server. 
@@ -23,7 +27,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
 </dependencies>  
 ```
@@ -106,7 +110,7 @@ This library uses SLF4j logging. This is a rare use case, but you can plug in yo
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.slf4j</groupId>
