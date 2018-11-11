@@ -12,7 +12,7 @@ There are plenty of good reasons for why Apache has to read in the whole workboo
 
 This library serves as a wrapper around that streaming API while preserving the syntax of the standard POI API. Read on to see if it's right for you.
 
-# Important! Read first!
+# Important notice about Java 7 support
 
 The latest versions of this library (2.x) have dropped support for Java 7. This is due to POI 4.0 requiring Java 8; as that is a core dependency of this library, it cannot support older versions of Java. The older 1.x and 0.x versions will no longer be maintained.
 
