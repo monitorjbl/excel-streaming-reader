@@ -1,5 +1,11 @@
 [![Run Status](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge?branch=master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5)
 
+# !!! Security Alert !!!
+
+Update to the latest version (2.1.0) **as soon as possible** to fix a critical vulnerability. The Xerxes XML parsing library that Excel Streaming Reader uses defaulted to allowing [entity expansion](https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet), which could be exploited by an attacker to read arbitrary data from your system. The latest versions of Excel Streaming Reader do not allow this and will throw a `ParsingException` if a workbook contains an XML document with an entity declaration.
+
+Many thanks to [Marc Wickenden](https://www.4armed.com/blog/excel-streaming-reader-vulnerability/) at 4Armed for finding this vulnerability and helping verify the patch!
+
 # Excel Streaming Reader
 
 If you've used [Apache POI](http://poi.apache.org) in the past to read in Excel files, you probably noticed that it's not very memory efficient. Reading in an entire workbook will cause a severe memory usage spike, which can wreak havoc on a server. 
@@ -8,41 +14,9 @@ There are plenty of good reasons for why Apache has to read in the whole workboo
 
 This library serves as a wrapper around that streaming API while preserving the syntax of the standard POI API. Read on to see if it's right for you.
 
-# Important! Read first!
+# Important notice about Java 7 support
 
-This README is for the newly minted 1.0.0 version. You may be looking for the old version's documentation or code, which you can still find in [the 0.2.x
-branch](https://github.com/monitorjbl/excel-streaming-reader/tree/0.2.x). The 0.2.x branch will have important bugfixes backported to it going forward, but
-new features will not be (apart from any exceptional circumstances).
-
-The 1.x versions include a new API that allows users to interact with POI `Workbooks` and `Sheets` in a streaming fashion. The new API is mostly backwards
-compatible with the 0.2 version, with a slight difference:
-
-**0.2.x**
-
-```java
-
-InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-StreamingReader reader = StreamingReader.builder()
-        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
-        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
-        .sheetIndex(0)        // index of sheet to use (defaults to 0)
-        .sheetName("sheet1")  // name of sheet to use (overrides sheetIndex)
-        .read(is);            // InputStream or File for XLSX file (required)
-
-```
-
-**1.x**
-
-```java
-InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-Workbook workbook = StreamingReader.builder()
-        .rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
-        .bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
-        .open(is);            // InputStream or File for XLSX file (required)
-```
-
-In the interests of easing the transition from the old API, the 0.2.x method will still work, however it is marked deprecated and will be removed in a future
- release. If it's at all possible, please update your code to use the 1.x API.
+The latest versions of this library (2.x) have dropped support for Java 7. This is due to POI 4.0 requiring Java 8; as that is a core dependency of this library, it cannot support older versions of Java. The older 1.x and 0.x versions will no longer be maintained.
 
 # Include
 
@@ -55,7 +29,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>1.2.1</version>
+    <version>2.1.0</version>
   </dependency>
 </dependencies>  
 ```
@@ -138,7 +112,7 @@ This library uses SLF4j logging. This is a rare use case, but you can plug in yo
   <dependency>
     <groupId>com.monitorjbl</groupId>
     <artifactId>xlsx-streamer</artifactId>
-    <version>1.2.0</version>
+    <version>2.1.0</version>
   </dependency>
   <dependency>
     <groupId>org.slf4j</groupId>

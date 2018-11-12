@@ -1,14 +1,22 @@
 package com.monitorjbl.xlsx;
 
-import org.apache.poi.ss.usermodel.*;
+import com.monitorjbl.xlsx.exceptions.ParseException;
+import fi.iki.elonen.NanoHTTPD;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import static com.monitorjbl.xlsx.TestUtils.expectCachedType;
 import static com.monitorjbl.xlsx.TestUtils.expectFormula;
@@ -23,6 +31,7 @@ import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class StreamingWorkbookTest {
   @BeforeClass
@@ -90,7 +99,7 @@ public class StreamingWorkbookTest {
 
   @Test
   public void testFormulaCells() throws Exception {
-    try (Workbook workbook = openWorkbook("formula_cell.xlsx")) {
+    try(Workbook workbook = openWorkbook("formula_cell.xlsx")) {
       assertEquals(1, workbook.getNumberOfSheets());
       Sheet sheet = workbook.getSheetAt(0);
 
@@ -111,7 +120,7 @@ public class StreamingWorkbookTest {
 
   @Test
   public void testNumericFormattedFormulaCell() throws Exception {
-    try (Workbook workbook = openWorkbook("formula_cell.xlsx")) {
+    try(Workbook workbook = openWorkbook("formula_cell.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
 
@@ -128,7 +137,7 @@ public class StreamingWorkbookTest {
 
   @Test
   public void testStringFormattedFormulaCell() throws Exception {
-    try (Workbook workbook = openWorkbook("formula_cell.xlsx")) {
+    try(Workbook workbook = openWorkbook("formula_cell.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
 
@@ -146,7 +155,7 @@ public class StreamingWorkbookTest {
 
   @Test
   public void testQuotedStringFormattedFormulaCell() throws Exception {
-    try (Workbook workbook = openWorkbook("formula_cell.xlsx")) {
+    try(Workbook workbook = openWorkbook("formula_cell.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
 
@@ -163,4 +172,48 @@ public class StreamingWorkbookTest {
     }
   }
 
+  @Test
+  public void testEntityExpansion() throws Exception {
+    ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
+      try(Workbook workbook = openWorkbook("entity-expansion-exploit-poc-file.xlsx")) {
+        Sheet sheet = workbook.getSheetAt(0);
+        for(Row row : sheet) {
+          for(Cell cell : row) {
+            System.out.println(cell.getStringCellValue());
+          }
+        }
+      } catch(IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    });
+  }
+
+  private static class ExploitServer extends NanoHTTPD implements AutoCloseable {
+    private final Consumer<IHTTPSession> onRequest;
+
+    public ExploitServer(Consumer<IHTTPSession> onRequest) throws IOException {
+      super(61932);
+      this.onRequest = onRequest;
+    }
+
+    @Override
+    public Response serve(IHTTPSession session) {
+      onRequest.accept(session);
+      return newFixedLengthResponse("<!ENTITY % data SYSTEM \"file://pom.xml\">\n");
+    }
+
+    public static void withServer(Consumer<IHTTPSession> onRequest, Runnable func) {
+      try(ExploitServer server = new ExploitServer(onRequest)) {
+        server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+        func.run();
+      } catch(IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    }
+
+    @Override
+    public void close() {
+      this.stop();
+    }
+  }
 }

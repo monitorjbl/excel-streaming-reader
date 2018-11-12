@@ -94,7 +94,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     } catch(IOException e) {
       throw new ReadException("Unable to read input stream", e);
     } catch(RuntimeException e) {
-      f.delete();
+      if(f != null) {
+        f.delete();
+      }
       throw e;
     }
   }
@@ -197,13 +199,13 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       pkg.revert();
     } finally {
       if(tmp != null) {
-        if (log.isDebugEnabled()) {
+        if(log.isDebugEnabled()) {
           log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
         }
         tmp.delete();
       }
       if(sst instanceof BufferedStringsTable) {
-        if (log.isDebugEnabled()) {
+        if(log.isDebugEnabled()) {
           log.debug("Deleting sst cache file [" + this.sstCache.getAbsolutePath() + "]");
         }
         ((BufferedStringsTable) sst).close();

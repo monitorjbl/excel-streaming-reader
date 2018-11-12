@@ -13,7 +13,6 @@ import javax.xml.xpath.XPathFactory;
 import java.util.*;
 
 public class XmlUtils {
-
   public static NodeList searchForNodeList(Document document, String xpath) {
     try {
       XPath xp = XPathFactory.newInstance().newXPath();
@@ -37,7 +36,7 @@ public class XmlUtils {
       addNamespace(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI);
     }
 
-    public synchronized void addNamespace(String prefix, String namespaceURI) {
+    public void addNamespace(String prefix, String namespaceURI) {
       urisByPrefix.put(prefix, namespaceURI);
       if (prefixesByURI.containsKey(namespaceURI)) {
         (prefixesByURI.get(namespaceURI)).add(prefix);
