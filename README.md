@@ -4,6 +4,8 @@
 
 Update to the latest version (2.1.0) **as soon as possible** to fix a critical vulnerability. The Xerxes XML parsing library that Excel Streaming Reader uses defaulted to allowing [entity expansion](https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet), which could be exploited by an attacker to read arbitrary data from your system. The latest versions of Excel Streaming Reader do not allow this and will throw a `ParsingException` if a workbook contains an XML document with an entity declaration.
 
+Many thanks to [Marc Wickenden](https://www.4armed.com/blog/excel-streaming-reader-vulnerability/) at 4Armed for finding this vulnerability and helping verify the patch!
+
 # Excel Streaming Reader
 
 If you've used [Apache POI](http://poi.apache.org) in the past to read in Excel files, you probably noticed that it's not very memory efficient. Reading in an entire workbook will cause a severe memory usage spike, which can wreak havoc on a server. 
