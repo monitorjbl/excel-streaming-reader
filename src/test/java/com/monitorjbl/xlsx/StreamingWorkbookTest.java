@@ -172,7 +172,7 @@ public class StreamingWorkbookTest {
     }
   }
 
-  @Test
+  @Test(expected = ParseException.class)
   public void testEntityExpansion() throws Exception {
     ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
       try(Workbook workbook = openWorkbook("entity-expansion-exploit-poc-file.xlsx")) {

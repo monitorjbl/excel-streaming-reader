@@ -35,9 +35,9 @@ import java.security.GeneralSecurityException;
 import java.util.Iterator;
 import java.util.Objects;
 
+import static com.monitorjbl.xlsx.XmlUtils.document;
 import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
 import static com.monitorjbl.xlsx.impl.TempFileUtil.writeInputStreamToFile;
-import static org.apache.poi.ooxml.util.DocumentHelper.readDocument;
 
 /**
  * Streaming Excel workbook implementation. Most advanced features of POI are not supported.
@@ -337,7 +337,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         }
 
         StylesTable styles = reader.getStylesTable();
-        NodeList workbookPr = searchForNodeList(readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
+        NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
         if (workbookPr.getLength() == 1) {
           final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
           if (date1904 != null) {
@@ -370,7 +370,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
       if(sheetName != null) {
         index = -1;
         //This file is separate from the worksheet data, and should be fairly small
-        NodeList nl = searchForNodeList(readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
+        NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
         for(int i = 0; i < nl.getLength(); i++) {
           if(Objects.equals(nl.item(i).getAttributes().getNamedItem("name").getTextContent(), sheetName)) {
             index = i;
