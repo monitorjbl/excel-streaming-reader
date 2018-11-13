@@ -114,6 +114,14 @@
     </repository>
   </distributionManagement>
 
+  <repositories>
+    <repository>
+      <id>sonatype-staging</id>
+      <name>sonatype staging</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.poi</groupId>
@@ -133,12 +141,7 @@
     <dependency>
       <groupId>com.github.pjfanning</groupId>
       <artifactId>poi-shared-strings</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.rackspace.apache</groupId>
-      <artifactId>xerces2-xsd11</artifactId>
-      <version>2.11.1</version>
+      <version>1.0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>xml-apis</groupId>
