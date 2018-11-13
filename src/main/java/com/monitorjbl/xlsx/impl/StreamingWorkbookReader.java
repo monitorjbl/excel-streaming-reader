@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -135,7 +134,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       loadSheets(reader, sst, styles, builder.getRowCacheSize());
     } catch(IOException e) {
       throw new OpenException("Failed to open file", e);
-    } catch(OpenXML4JException | SAXException | XMLStreamException e) {
+    } catch(OpenXML4JException | XMLStreamException e) {
       throw new ReadException("Unable to read workbook", e);
     } catch(GeneralSecurityException e) {
       throw new ReadException("Unable to read workbook - Decryption failed", e);
@@ -143,7 +142,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   }
 
   void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize)
-          throws IOException, InvalidFormatException, SAXException, XMLStreamException {
+          throws IOException, InvalidFormatException, XMLStreamException {
     lookupSheetNames(reader);
 
     //Some workbooks have multiple references to the same sheet. Need to filter
@@ -164,7 +163,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
   }
 
-  void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException, SAXException {
+  void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
     sheetProperties.clear();
     NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
     for(int i = 0; i < nl.getLength(); i++) {

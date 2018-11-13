@@ -12,7 +12,6 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -72,7 +71,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       }
       rowCacheIterator = rowCache.iterator();
       return rowCacheIterator.hasNext();
-    } catch(XMLStreamException | SAXException e) {
+    } catch(XMLStreamException e) {
       throw new ParseException("Error reading XML stream", e);
     }
   }
@@ -100,9 +99,8 @@ public class StreamingSheetReader implements Iterable<Row> {
    * Handles a SAX event.
    *
    * @param event
-   * @throws SAXException
    */
-  private void handleEvent(XMLEvent event) throws SAXException {
+  private void handleEvent(XMLEvent event) {
     if(event.getEventType() == XMLStreamConstants.CHARACTERS) {
       Characters c = event.asCharacters();
       lastContents += c.getData();

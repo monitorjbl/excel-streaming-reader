@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -355,7 +354,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
             this));
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
-      } catch(OpenXML4JException | SAXException | XMLStreamException e) {
+      } catch(OpenXML4JException | XMLStreamException e) {
         throw new ReadException("Unable to read workbook", e);
       } catch(GeneralSecurityException e) {
         throw new ReadException("Unable to read workbook - Decryption failed", e);
@@ -365,7 +364,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     /**
      * @deprecated This will be removed when the transition to the 1.x API is complete
      */
-    private InputStream findSheet(XSSFReader reader) throws IOException, InvalidFormatException, SAXException {
+    private InputStream findSheet(XSSFReader reader) throws IOException, InvalidFormatException {
       int index = sheetIndex;
       if(sheetName != null) {
         index = -1;
