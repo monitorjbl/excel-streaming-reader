@@ -6,4 +6,4 @@ jdk:
    - openjdk11
 
 script:
-   - ./mvnw clean package -B
+   - ./mvnw clean test
