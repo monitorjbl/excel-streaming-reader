@@ -133,7 +133,7 @@
     <dependency>
       <groupId>com.github.pjfanning</groupId>
       <artifactId>poi-shared-strings</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
     <dependency>
       <groupId>xml-apis</groupId>
