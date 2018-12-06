@@ -123,7 +123,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       StylesTable styles = reader.getStylesTable();
-      NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/workbook/workbookPr");
+      NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
       if(workbookPr.getLength() == 1) {
         final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
         if(date1904 != null) {
@@ -141,8 +141,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
   }
 
-  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
-      XMLStreamException {
+  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize)
+          throws IOException, InvalidFormatException, XMLStreamException {
     lookupSheetNames(reader);
 
     //Some workbooks have multiple references to the same sheet. Need to filter
@@ -165,7 +165,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
   void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
     sheetProperties.clear();
-    NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/workbook/sheets/sheet");
+    NodeList nl = searchForNodeList(document(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
     for(int i = 0; i < nl.getLength(); i++) {
       Map<String, String> props = new HashMap<>();
       props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
