@@ -1,15 +1,11 @@
 package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
-import com.github.pjfanning.xlsx.exceptions.CloseException;
-import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
+import com.github.pjfanning.xlsx.exceptions.*;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
-import com.github.pjfanning.xlsx.exceptions.OpenException;
-import com.github.pjfanning.xlsx.exceptions.ReadException;
 import com.github.pjfanning.xlsx.impl.StreamingSheetReader;
 import com.github.pjfanning.xlsx.impl.TempFileUtil;
-import org.apache.poi.ooxml.util.DocumentHelper;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -24,11 +20,11 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
@@ -357,7 +353,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         }
 
         StylesTable styles = reader.getStylesTable();
-        NodeList workbookPr = searchForNodeList(DocumentHelper.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
+        NodeList workbookPr = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
         if (workbookPr.getLength() == 1) {
           final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
           if (date1904 != null) {
@@ -373,8 +369,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         return new StreamingReader(new StreamingWorkbookReader(sst, pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize),
             this));
-      } catch(SAXException e) {
-        throw new OpenException("Failed to parse file", e);
+      } catch(SAXException|ParserConfigurationException e) {
+        throw new ParseException("Failed to parse file", e);
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
       } catch(OpenXML4JException | XMLStreamException e) {
@@ -393,14 +389,14 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         index = -1;
         try {
           //This file is separate from the worksheet data, and should be fairly small
-          NodeList nl = searchForNodeList(DocumentHelper.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
+          NodeList nl = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
           for (int i = 0; i < nl.getLength(); i++) {
             if (Objects.equals(nl.item(i).getAttributes().getNamedItem("name").getTextContent(), sheetName)) {
               index = i;
             }
           }
-        } catch (SAXException e) {
-          throw new OpenException("Failed to parse file", e);
+        } catch (SAXException| ParserConfigurationException e) {
+          throw new ParseException("Failed to parse file", e);
         }
         if(index < 0) {
           return null;
