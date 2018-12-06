@@ -1,6 +1,8 @@
 package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -19,16 +21,21 @@ import java.util.*;
 
 public class XmlUtils {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(XmlUtils.class);
+  private static final DocumentBuilderFactory DBF = DocumentBuilderFactory.newInstance();
+
+  static {
+    DBF.setNamespaceAware(true);
+    DBF.setValidating(false);
+    trySetFeature(DBF, "http://apache.org/xml/features/disallow-doctype-decl", true);
+    trySetFeature(DBF, "http://xml.org/sax/features/external-parameter-entities", false);
+    trySetFeature(DBF, "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    DBF.setExpandEntityReferences(false);
+    DBF.setXIncludeAware(false);
+  }
+
   public static Document readDocument(InputStream inp) throws IOException, SAXException, ParserConfigurationException {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    factory.setNamespaceAware(true);
-    factory.setValidating(false);
-    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-    factory.setExpandEntityReferences(false);
-    factory.setXIncludeAware(false);
-    return factory.newDocumentBuilder().parse(inp);
+    return DBF.newDocumentBuilder().parse(inp);
   }
 
   public static NodeList searchForNodeList(Document document, String xpath) {
@@ -86,6 +93,16 @@ public class XmlUtils {
       } else {
         return Collections.EMPTY_SET.iterator();
       }
+    }
+  }
+
+  private static void trySetFeature(DocumentBuilderFactory dbf, String feature, boolean enabled) {
+    try {
+      dbf.setFeature(feature, enabled);
+    } catch (Exception e) {
+      LOGGER.warn("DocumentBuilderFactory Feature unsupported", feature, e);
+    } catch (AbstractMethodError ame) {
+      LOGGER.warn("Cannot set DocumentBuilderFactory feature because outdated XML parser in classpath", feature, ame);
     }
   }
 }
