@@ -737,7 +737,7 @@ public class StreamingReaderTest {
   public void testShouldIncrementColumnNumberIfExplicitCellAddressMissing() throws Exception {
 	// On consecutive columns the <c> element might miss an "r" attribute, which indicate the cell position.
 	// This might be an optimization triggered by file size and specific to a particular excel version.
-	// And excel would read such a file without complaining.
+	// The excel would read such a file without complaining.
     try(
         InputStream is = new FileInputStream(new File("src/test/resources/sparse-columns.xlsx"));
         Workbook wb = StreamingReader.builder().open(is);
