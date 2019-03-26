@@ -29,10 +29,12 @@ import java.util.Map;
  */
 public class FileBackedList implements AutoCloseable {
 
+  private static final String EMPTY_STRING = "";
   private final List<Long> pointers = new ArrayList<>();
   private final RandomAccessFile raf;
   private final FileChannel channel;
   private final Map<Integer, String> cache;
+  private final int cacheSize;
 
   private long filesize;
 
@@ -40,6 +42,7 @@ public class FileBackedList implements AutoCloseable {
     this.raf = new RandomAccessFile(file, "rw");
     this.channel = raf.getChannel();
     this.filesize = raf.length();
+    this.cacheSize = cacheSize;
     this.cache = new LinkedHashMap<Integer, String>(cacheSize, 0.75f, true) {
       public boolean removeEldestEntry(Map.Entry eldest) {
         return size() > cacheSize;
@@ -49,9 +52,10 @@ public class FileBackedList implements AutoCloseable {
 
   public void add(String str) {
     try {
-      if (str!=null && str.length()>0) {
+      if (cacheSize > 0 || (str!=null && str.length()>0)) {
         writeToFile(str);
       }
+
     } catch(IOException e) {
       throw new RuntimeException(e);
     }
@@ -73,6 +77,9 @@ public class FileBackedList implements AutoCloseable {
 
   private void writeToFile(String str) throws IOException {
     synchronized (channel) {
+      if (str == null) {
+        str = EMPTY_STRING;
+      }
       ByteBuffer bytes = ByteBuffer.wrap(str.getBytes(StandardCharsets.UTF_8));
       ByteBuffer length = ByteBuffer.allocate(4).putInt(bytes.array().length);
 
