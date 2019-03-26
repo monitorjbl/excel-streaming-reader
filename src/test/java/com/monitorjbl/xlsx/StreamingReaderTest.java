@@ -501,7 +501,7 @@ public class StreamingReaderTest {
   @Test
   public void testBlankNumerics() throws Exception {
     File f = new File("src/test/resources/blank_cells.xlsx");
-    try(Workbook wb = StreamingReader.builder().sstCacheSize(2).open(f)) {
+    try(Workbook wb = StreamingReader.builder().open(f)) {
       Row row = wb.getSheetAt(0).iterator().next();
       assertThat(row.getCell(1).getStringCellValue(), equalTo(""));
       assertThat(row.getCell(1).getRichStringCellValue().getString(), equalTo(""));
@@ -528,7 +528,7 @@ public class StreamingReaderTest {
   @Test
   public void testFirstRowNumIs0() throws Exception {
     File f = new File("src/test/resources/data_types.xlsx");
-    try(Workbook wb = StreamingReader.builder().sstCacheSize(4).open(f)) {
+    try(Workbook wb = StreamingReader.builder().open(f)) {
       Row row = wb.getSheetAt(0).iterator().next();
       assertThat(row.getRowNum(), equalTo(0));
     }
