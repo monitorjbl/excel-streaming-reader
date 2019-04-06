@@ -44,7 +44,8 @@ public class StreamingCell implements Cell {
   private CellStyle cellStyle;
   private boolean formulaType;
 
-  public StreamingCell(int columnIndex, int rowIndex, boolean use1904Dates) {
+  public StreamingCell(Row row, int columnIndex, int rowIndex, boolean use1904Dates) {
+    this.row = row;
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
     this.use1904Dates = use1904Dates;
@@ -94,10 +95,6 @@ public class StreamingCell implements Cell {
     this.formulaType = formulaType;
   }
 
-  public void setRow(Row row) {
-    this.row = row;
-  }
-
   @Override
   public void setCellStyle(CellStyle cellStyle) {
     this.cellStyle = cellStyle;
@@ -134,6 +131,11 @@ public class StreamingCell implements Cell {
   @Override
   public Row getRow() {
     return row;
+  }
+
+  @Override
+  public Sheet getSheet() {
+    return row == null ? null : row.getSheet();
   }
 
   /**
@@ -280,6 +282,31 @@ public class StreamingCell implements Cell {
   }
 
   /**
+   * Get the value of the cell as a XSSFRichTextString
+   * <p>
+   * For numeric cells we throw an exception. For blank cells we return an empty string.
+   * For formula cells we return the pre-calculated value if a string, otherwise an exception
+   * </p>
+   * @return the value of the cell as a XSSFRichTextString
+   */
+  @Override
+  public XSSFRichTextString getRichStringCellValue() {
+    CellType cellType = getCellType();
+    XSSFRichTextString rt;
+    switch (cellType) {
+      case BLANK:
+        rt = new XSSFRichTextString("");
+        break;
+      case STRING:
+        rt = new XSSFRichTextString(getStringCellValue());
+        break;
+      default:
+        throw new NotSupportedException();
+    }
+    return rt;
+  }
+
+  /**
    * Only valid for formula cells
    * @return one of ({@link CellType#NUMERIC}, {@link CellType#STRING},
    *     {@link CellType#BOOLEAN}, {@link CellType#ERROR}) depending
@@ -326,9 +353,7 @@ public class StreamingCell implements Cell {
    * Not supported
    */
   @Override
-  public Sheet getSheet() {
-    throw new NotSupportedException();
-  }
+  public void setBlank() { throw new NotSupportedException(); }
 
   /**
    * Not supported
@@ -379,28 +404,11 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Get the value of the cell as a XSSFRichTextString
-   * <p>
-   * For numeric cells we throw an exception. For blank cells we return an empty string.
-   * For formula cells we return the pre-calculated value if a string, otherwise an exception
-   * </p>
-   * @return the value of the cell as a XSSFRichTextString
+   * Not supported
    */
   @Override
-  public XSSFRichTextString getRichStringCellValue() {
-    CellType cellType = getCellType();
-    XSSFRichTextString rt;
-    switch (cellType) {
-      case BLANK:
-        rt = new XSSFRichTextString("");
-        break;
-      case STRING:
-        rt = new XSSFRichTextString(getStringCellValue());
-        break;
-      default:
-        throw new NotSupportedException();
-    }
-    return rt;
+  public void removeFormula() throws IllegalStateException {
+    throw new NotSupportedException();
   }
 
   /**
