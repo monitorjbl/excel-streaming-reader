@@ -728,4 +728,26 @@ public class StreamingReaderTest {
       assertThat(cell.getCachedFormulaResultType(), is(CellType.NUMERIC));
     }
   }
+
+  @Test
+  public void testShouldIncrementColumnNumberIfExplicitCellAddressMissing() throws Exception {
+    // On consecutive columns the <c> element might miss an "r" attribute, which indicate the cell position.
+    // This might be an optimization triggered by file size and specific to a particular excel version.
+    // The excel would read such a file without complaining.
+    try(
+            InputStream is = new FileInputStream(new File("src/test/resources/sparse-columns.xlsx"));
+            Workbook wb = StreamingReader.builder().open(is);
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+
+      Iterator<Row> rowIterator = sheet.rowIterator();
+      Row row = rowIterator.next();
+
+      assertThat(row.getCell(0).getStringCellValue(), is("sparse"));
+      assertThat(row.getCell(3).getStringCellValue(), is("columns"));
+      assertThat(row.getCell(4).getNumericCellValue(), is(0.0));
+      assertThat(row.getCell(5).getNumericCellValue(), is(1.0));
+
+    }
+  }
 }
