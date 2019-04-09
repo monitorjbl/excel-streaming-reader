@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.pjfanning</groupId>
   <artifactId>excel-streaming-reader</artifactId>
-  <version>2.2.0-SNAPSHOT</version>
+  <version>2.2.0</version>
   <name>Streaming Excel reader</name>
   <description>Streaming Excel reader</description>
   <url>https://github.com/pjfanning/excel-streaming-reader</url>
@@ -114,14 +114,6 @@
     </repository>
   </distributionManagement>
 
-  <repositories>
-    <repository>
-      <id>apache-staging</id>
-      <name>apache-staging</name>
-      <url>https://repository.apache.org/content/repositories/staging</url>
-    </repository>
-  </repositories>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.poi</groupId>
@@ -141,7 +133,7 @@
     <dependency>
       <groupId>com.github.pjfanning</groupId>
       <artifactId>poi-shared-strings</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2</version>
     </dependency>
     <dependency>
       <groupId>xml-apis</groupId>
