@@ -507,6 +507,21 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testBlankCellWithSstCacheSize() throws Exception {
+    File f = new File("src/test/resources/blank_cell_to_test_sst_size.xlsx");
+    Map<Integer, List<Cell>> contents = new HashMap<>();
+    try(Workbook wb = StreamingReader.builder().open(f)) {
+      for(Row row : wb.getSheetAt(0)) {
+        contents.put(row.getRowNum(), new ArrayList<>());
+        for(Cell c : row) {
+          contents.get(row.getRowNum()).add(c);
+        }
+      }
+    }
+    assertThat(contents.get(1).get(2).getStringCellValue(), equalTo(""));
+  }
+
+  @Test
   public void testFirstRowNumIs0() throws Exception {
     File f = new File("src/test/resources/data_types.xlsx");
     try(Workbook wb = StreamingReader.builder().open(f)) {
