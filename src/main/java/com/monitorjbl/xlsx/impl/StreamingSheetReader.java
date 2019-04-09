@@ -5,6 +5,7 @@ import com.monitorjbl.xlsx.exceptions.ParseException;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -46,11 +47,14 @@ public class StreamingSheetReader implements Iterable<Row> {
   private Iterator<Row> rowCacheIterator;
 
   private String lastContents;
+  private final Sheet sheet;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
   private boolean use1904Dates;
 
-  public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
+  public StreamingSheetReader(Sheet sheet, SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser,
+                              final boolean use1904Dates, int rowCacheSize) {
+    this.sheet = sheet;
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.parser = parser;
@@ -118,7 +122,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
         boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
-        currentRow = new StreamingRow(rowIndex, isHidden);
+        currentRow = new StreamingRow(sheet, rowIndex, isHidden);
         currentColNum = firstColNum;
       } else if("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
@@ -137,9 +141,9 @@ public class StreamingSheetReader implements Iterable<Row> {
         if(ref != null) {
           String[] coord = splitCellRef(ref.getValue());
           currentColNum = CellReference.convertColStringToIndex(coord[0]);
-          currentCell = new StreamingCell(currentColNum, Integer.parseInt(coord[1]) - 1, use1904Dates);
+          currentCell = new StreamingCell(currentRow, currentColNum, Integer.parseInt(coord[1]) - 1, use1904Dates);
         } else {
-          currentCell = new StreamingCell(currentColNum, currentRowNum, use1904Dates);
+          currentCell = new StreamingCell(currentRow, currentColNum, currentRowNum, use1904Dates);
         }
         setFormatString(startElement, currentCell);
 

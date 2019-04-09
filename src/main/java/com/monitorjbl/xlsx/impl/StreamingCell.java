@@ -30,6 +30,7 @@ public class StreamingCell implements Cell {
   private static final String FALSE_AS_STRING = "0";
   private static final String TRUE_AS_STRING  = "1";
 
+  private final Row row;
   private int columnIndex;
   private int rowIndex;
   private final boolean use1904Dates;
@@ -40,11 +41,11 @@ public class StreamingCell implements Cell {
   private String numericFormat;
   private Short numericFormatIndex;
   private String type;
-  private Row row;
   private CellStyle cellStyle;
   private boolean formulaType;
 
-  public StreamingCell(int columnIndex, int rowIndex, boolean use1904Dates) {
+  public StreamingCell(Row row, int columnIndex, int rowIndex, boolean use1904Dates) {
+    this.row = row;
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
     this.use1904Dates = use1904Dates;
@@ -92,10 +93,6 @@ public class StreamingCell implements Cell {
 
   public void setFormulaType(boolean formulaType) {
     this.formulaType = formulaType;
-  }
-
-  public void setRow(Row row) {
-    this.row = row;
   }
 
   @Override
@@ -504,6 +501,22 @@ public class StreamingCell implements Cell {
    */
   @Override
   public boolean isPartOfArrayFormulaGroup() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setBlank() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void removeFormula() throws IllegalStateException {
     throw new NotSupportedException();
   }
 }
