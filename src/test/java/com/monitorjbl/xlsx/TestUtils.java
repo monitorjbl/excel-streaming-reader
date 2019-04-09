@@ -35,7 +35,7 @@ final class TestUtils {
   }
 
   static void expectType(Cell cell, CellType cellType) {
-    assertEquals("Cell " + ref(cell) + " has wrong type.", cellType, cell.getCellTypeEnum());
+    assertEquals("Cell " + ref(cell) + " has wrong type.", cellType, cell.getCellType());
   }
 
   static void expectFormula(Cell cell, String formula) {

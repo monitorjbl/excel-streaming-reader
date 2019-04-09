@@ -75,8 +75,8 @@ public class StreamingReaderTest {
 
       row = obj.get(0);
       assertEquals(2, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(STRING, row.get(1).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(STRING, row.get(1).getCellType());
       assertEquals("Type", row.get(0).getStringCellValue());
       assertEquals("Type", row.get(0).getRichStringCellValue().getString());
       assertEquals("Value", row.get(1).getStringCellValue());
@@ -84,8 +84,8 @@ public class StreamingReaderTest {
 
       row = obj.get(1);
       assertEquals(2, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(STRING, row.get(1).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(STRING, row.get(1).getCellType());
       assertEquals("string", row.get(0).getStringCellValue());
       assertEquals("string", row.get(0).getRichStringCellValue().getString());
       assertEquals("jib-jab", row.get(1).getStringCellValue());
@@ -93,24 +93,24 @@ public class StreamingReaderTest {
 
       row = obj.get(2);
       assertEquals(2, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(NUMERIC, row.get(1).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(NUMERIC, row.get(1).getCellType());
       assertEquals("int", row.get(0).getStringCellValue());
       assertEquals("int", row.get(0).getRichStringCellValue().getString());
       assertEquals(10, row.get(1).getNumericCellValue(), 0);
 
       row = obj.get(3);
       assertEquals(2, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(NUMERIC, row.get(1).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(NUMERIC, row.get(1).getCellType());
       assertEquals("double", row.get(0).getStringCellValue());
       assertEquals("double", row.get(0).getRichStringCellValue().getString());
       assertEquals(3.14, row.get(1).getNumericCellValue(), 0);
 
       row = obj.get(4);
       assertEquals(2, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(NUMERIC, row.get(1).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(NUMERIC, row.get(1).getCellType());
       assertEquals("date", row.get(0).getStringCellValue());
       assertEquals("date", row.get(0).getRichStringCellValue().getString());
       assertEquals(df.parse("1/1/2014"), row.get(1).getDateCellValue());
@@ -118,13 +118,13 @@ public class StreamingReaderTest {
 
       row = obj.get(5);
       assertEquals(7, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(STRING, row.get(1).getCellTypeEnum());
-      assertEquals(STRING, row.get(2).getCellTypeEnum());
-      assertEquals(STRING, row.get(3).getCellTypeEnum());
-      assertEquals(STRING, row.get(4).getCellTypeEnum());
-      assertEquals(STRING, row.get(5).getCellTypeEnum());
-      assertEquals(STRING, row.get(6).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(STRING, row.get(1).getCellType());
+      assertEquals(STRING, row.get(2).getCellType());
+      assertEquals(STRING, row.get(3).getCellType());
+      assertEquals(STRING, row.get(4).getCellType());
+      assertEquals(STRING, row.get(5).getCellType());
+      assertEquals(STRING, row.get(6).getCellType());
       assertEquals("long", row.get(0).getStringCellValue());
       assertEquals("long", row.get(0).getRichStringCellValue().getString());
       assertEquals("ass", row.get(1).getStringCellValue());
@@ -142,9 +142,9 @@ public class StreamingReaderTest {
 
       row = obj.get(6);
       assertEquals(3, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(BOOLEAN, row.get(1).getCellTypeEnum());
-      assertEquals(BOOLEAN, row.get(2).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(BOOLEAN, row.get(1).getCellType());
+      assertEquals(BOOLEAN, row.get(2).getCellType());
       assertEquals("boolean", row.get(0).getStringCellValue());
       assertEquals("boolean", row.get(0).getRichStringCellValue().getString());
       assertEquals(true, row.get(1).getBooleanCellValue());
@@ -256,8 +256,8 @@ public class StreamingReaderTest {
 
       row = obj.get(0);
       assertEquals(2, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(STRING, row.get(1).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(STRING, row.get(1).getCellType());
       assertEquals("Dat", row.get(0).getStringCellValue());
       assertEquals("Dat", row.get(0).getRichStringCellValue().getString());
       assertEquals(0, row.get(0).getColumnIndex());
@@ -269,8 +269,8 @@ public class StreamingReaderTest {
 
       row = obj.get(1);
       assertEquals(2, row.size());
-      assertEquals(STRING, row.get(0).getCellTypeEnum());
-      assertEquals(STRING, row.get(1).getCellTypeEnum());
+      assertEquals(STRING, row.get(0).getCellType());
+      assertEquals(STRING, row.get(1).getCellType());
       assertEquals("guuurrrrrl", row.get(0).getStringCellValue());
       assertEquals("guuurrrrrl", row.get(0).getRichStringCellValue().getString());
       assertEquals(0, row.get(0).getColumnIndex());
@@ -438,13 +438,13 @@ public class StreamingReaderTest {
       Row r1 = iter.next();
       assertEquals(1, r1.getCell(0).getNumericCellValue(), 0);
       assertEquals("1", r1.getCell(0).getStringCellValue());
-      assertEquals(NUMERIC, r1.getCell(0).getCellTypeEnum());
+      assertEquals(NUMERIC, r1.getCell(0).getCellType());
 
       Row r2 = iter.next();
       assertEquals(2, r2.getCell(0).getNumericCellValue(), 0);
       assertEquals("0002", r2.getCell(0).getStringCellValue());
       assertEquals("0002", r2.getCell(0).getRichStringCellValue().getString());
-      assertEquals(STRING, r2.getCell(0).getCellTypeEnum());
+      assertEquals(STRING, r2.getCell(0).getCellType());
     }
   }
 
@@ -572,7 +572,7 @@ public class StreamingReaderTest {
       for(Row r : wb.getSheetAt(0)) {
         for(Cell cell : r) {
           if(r.getRowNum() == 0 && cell.getColumnIndex() == 8) {
-            assertEquals(NUMERIC, cell.getCellTypeEnum());
+            assertEquals(NUMERIC, cell.getCellType());
             assertEquals("8:00:00", cell.getStringCellValue());
           }
         }
@@ -695,7 +695,7 @@ public class StreamingReaderTest {
         }
       }
       assertNotNull(cell);
-      assertThat(cell.getCellTypeEnum(), is(CellType.NUMERIC));
+      assertThat(cell.getCellType(), is(CellType.NUMERIC));
     }
   }
 
@@ -711,24 +711,24 @@ public class StreamingReaderTest {
       Row next = rowIterator.next();
       Cell cell = next.getCell(0);
 
-      assertThat(cell.getCellTypeEnum(), is(CellType.STRING));
+      assertThat(cell.getCellType(), is(CellType.STRING));
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
-      assertThat(cell.getCellTypeEnum(), is(CellType.FORMULA));
+      assertThat(cell.getCellType(), is(CellType.FORMULA));
       assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.STRING));
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
-      assertThat(cell.getCellTypeEnum(), is(CellType.FORMULA));
+      assertThat(cell.getCellType(), is(CellType.FORMULA));
       assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.BOOLEAN));
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
-      assertThat(cell.getCellTypeEnum(), is(CellType.FORMULA));
+      assertThat(cell.getCellType(), is(CellType.FORMULA));
       assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.NUMERIC));
     }
   }
