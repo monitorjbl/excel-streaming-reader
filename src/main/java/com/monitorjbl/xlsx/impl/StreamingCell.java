@@ -233,6 +233,36 @@ public class StreamingCell implements Cell {
     }
   }
 
+  /**
+   * Get the value of the cell as a XSSFRichTextString
+   * <p>
+   * For numeric cells we throw an exception. For blank cells we return an empty string.
+   * For formula cells we return the pre-calculated value if a string, otherwise an exception
+   * </p>
+   * @return the value of the cell as a XSSFRichTextString
+   */
+  @Override
+  public XSSFRichTextString getRichStringCellValue() {
+    CellType cellType = getCellType();
+    XSSFRichTextString rt;
+    switch (cellType) {
+      case BLANK:
+        rt = new XSSFRichTextString("");
+        break;
+      case STRING:
+        rt = new XSSFRichTextString(getStringCellValue());
+        break;
+      default:
+        throw new NotSupportedException();
+    }
+    return rt;
+  }
+
+  @Override
+  public Sheet getSheet() {
+    return row == null ? null : row.getSheet();
+  }
+
   private static RuntimeException typeMismatch(CellType expectedType, CellType actualType, boolean isFormulaCell) {
     String msg = "Cannot get a "
             + getCellTypeName(expectedType) + " value from a "
@@ -323,14 +353,6 @@ public class StreamingCell implements Cell {
    * Not supported
    */
   @Override
-  public Sheet getSheet() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
   public void setCellValue(double value) {
     throw new NotSupportedException();
   }
@@ -373,31 +395,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setCellFormula(String formula) throws FormulaParseException {
     throw new NotSupportedException();
-  }
-
-  /**
-   * Get the value of the cell as a XSSFRichTextString
-   * <p>
-   * For numeric cells we throw an exception. For blank cells we return an empty string.
-   * For formula cells we return the pre-calculated value if a string, otherwise an exception
-   * </p>
-   * @return the value of the cell as a XSSFRichTextString
-   */
-  @Override
-  public XSSFRichTextString getRichStringCellValue() {
-    CellType cellType = getCellType();
-    XSSFRichTextString rt;
-    switch (cellType) {
-      case BLANK:
-        rt = new XSSFRichTextString("");
-        break;
-      case STRING:
-        rt = new XSSFRichTextString(getStringCellValue());
-        break;
-      default:
-        throw new NotSupportedException();
-    }
-    return rt;
   }
 
   /**

@@ -159,8 +159,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     int i = 0;
     for(URI uri : sheetStreams.keySet()) {
       XMLEventReader parser = StaxHelper.newXMLInputFactory().createXMLEventReader(sheetStreams.get(uri));
-      StreamingSheet sheet = new StreamingSheet(sheetProperties.get(i++).get("name"));
-      sheets.add(, new StreamingSheetReader(sheet, sst, stylesTable, parser, use1904Dates, rowCacheSize)));
+      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
     }
   }
 

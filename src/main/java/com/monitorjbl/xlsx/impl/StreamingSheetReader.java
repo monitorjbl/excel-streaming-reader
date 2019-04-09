@@ -47,19 +47,22 @@ public class StreamingSheetReader implements Iterable<Row> {
   private Iterator<Row> rowCacheIterator;
 
   private String lastContents;
-  private final Sheet sheet;
+  private Sheet sheet;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
   private boolean use1904Dates;
 
-  public StreamingSheetReader(Sheet sheet, SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser,
+  public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser,
                               final boolean use1904Dates, int rowCacheSize) {
-    this.sheet = sheet;
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.parser = parser;
     this.use1904Dates = use1904Dates;
     this.rowCacheSize = rowCacheSize;
+  }
+
+  void setSheet(StreamingSheet sheet) {
+    this.sheet = sheet;
   }
 
   /**

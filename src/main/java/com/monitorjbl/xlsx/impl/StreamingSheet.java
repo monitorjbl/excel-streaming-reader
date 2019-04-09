@@ -33,6 +33,7 @@ public class StreamingSheet implements Sheet {
   public StreamingSheet(String name, StreamingSheetReader reader) {
     this.name = name;
     this.reader = reader;
+    reader.setSheet(this);
   }
 
   StreamingSheetReader getReader() {
