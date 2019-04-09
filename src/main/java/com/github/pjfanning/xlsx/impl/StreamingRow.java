@@ -126,7 +126,7 @@ public class StreamingRow implements Row {
   public Cell getCell(int cellnum, MissingCellPolicy policy) {
     StreamingCell cell = (StreamingCell) cellMap.get(cellnum);
     if(policy == MissingCellPolicy.CREATE_NULL_AS_BLANK) {
-      if(cell == null) { return new StreamingCell(this, cellnum, rowIndex, false); }
+      if(cell == null) { return new StreamingCell(sheet, cellnum, rowIndex, false); }
     } else if(policy == MissingCellPolicy.RETURN_BLANK_AS_NULL) {
       if(cell == null || cell.getCellType() == CellType.BLANK) { return null; }
     }

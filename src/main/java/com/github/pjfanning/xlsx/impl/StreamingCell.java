@@ -30,6 +30,7 @@ public class StreamingCell implements Cell {
   private static final String FALSE_AS_STRING = "0";
   private static final String TRUE_AS_STRING  = "1";
 
+  private final Sheet sheet;
   private int columnIndex;
   private int rowIndex;
   private final boolean use1904Dates;
@@ -40,12 +41,12 @@ public class StreamingCell implements Cell {
   private String numericFormat;
   private Short numericFormatIndex;
   private String type;
-  private Row row;
   private CellStyle cellStyle;
+  private Row row;
   private boolean formulaType;
 
-  public StreamingCell(Row row, int columnIndex, int rowIndex, boolean use1904Dates) {
-    this.row = row;
+  public StreamingCell(Sheet sheet, int columnIndex, int rowIndex, boolean use1904Dates) {
+    this.sheet = sheet;
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
     this.use1904Dates = use1904Dates;
@@ -133,9 +134,19 @@ public class StreamingCell implements Cell {
     return row;
   }
 
+  /**
+   * Sets the Row this cell belongs to. Note that keeping references to cell
+   * rows around after the iterator window has passed <b>will</b> preserve them.
+   *
+   * The row is not set automatically.
+   */
+  public void setRow(Row row) {
+    this.row = row;
+  }
+
   @Override
   public Sheet getSheet() {
-    return row == null ? null : row.getSheet();
+    return sheet;
   }
 
   /**
