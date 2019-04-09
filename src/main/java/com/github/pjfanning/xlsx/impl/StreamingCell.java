@@ -42,7 +42,6 @@ public class StreamingCell implements Cell {
   private Short numericFormatIndex;
   private String type;
   private CellStyle cellStyle;
-  private Row row;
   private boolean formulaType;
 
   public StreamingCell(Sheet sheet, int columnIndex, int rowIndex, boolean use1904Dates) {
@@ -124,24 +123,11 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Returns the Row this cell belongs to. Note that keeping references to cell
-   * rows around after the iterator window has passed <b>will</b> preserve them.
-   *
-   * @return the Row that owns this cell
+   * Not Supported
    */
   @Override
   public Row getRow() {
-    return row;
-  }
-
-  /**
-   * Sets the Row this cell belongs to. Note that keeping references to cell
-   * rows around after the iterator window has passed <b>will</b> preserve them.
-   *
-   * The row is not set automatically.
-   */
-  public void setRow(Row row) {
-    this.row = row;
+    throw new NotSupportedException();
   }
 
   @Override
