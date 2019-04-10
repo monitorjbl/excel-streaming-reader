@@ -508,9 +508,15 @@ public class StreamingReaderTest {
 
   @Test
   public void testBlankCellWithSstCacheSize() throws Exception {
+    testBlankCellWithSstCacheSize(StreamingReader.builder());
+    testBlankCellWithSstCacheSize(StreamingReader.builder().setUseSstTempFile(true));
+    testBlankCellWithSstCacheSize(StreamingReader.builder().setUseSstTempFile(true).setEncryptSstTempFile(true));
+  }
+
+  private void testBlankCellWithSstCacheSize(StreamingReader.Builder rb) throws Exception {
     File f = new File("src/test/resources/blank_cell_to_test_sst_size.xlsx");
     Map<Integer, List<Cell>> contents = new HashMap<>();
-    try(Workbook wb = StreamingReader.builder().open(f)) {
+    try(Workbook wb = StreamingReader.builder().setUseSstTempFile(true).open(f)) {
       for(Row row : wb.getSheetAt(0)) {
         contents.put(row.getRowNum(), new ArrayList<>());
         for(Cell c : row) {
@@ -692,7 +698,7 @@ public class StreamingReaderTest {
   // The last cell on this sheet should be a NUMERIC but there is a lingering "f"
   // tag that was getting attached to the last cell causing it to be a FORUMLA.
   @Test
-  public void testForumulaOutsideCellIgnored() throws Exception {
+  public void testFormulaOutsideCellIgnored() throws Exception {
     try(
         InputStream is = new FileInputStream(new File("src/test/resources/formula_outside_cell.xlsx"));
         Workbook wb = StreamingReader.builder().open(is);
