@@ -5,7 +5,7 @@
 
 This is a fork of [monitorjbl/excel-streaming-reader](https://github.com/monitorjbl/excel-streaming-reader).
 
-This implementation supports [Apache POI](http://poi.apache.org) 4.0.x and only supports Java 8 and above.
+This implementation supports [Apache POI](http://poi.apache.org) 4.x and only supports Java 8 and above.
 
 [Sample](https://github.com/pjfanning/excel-streaming-reader-sample)
 
