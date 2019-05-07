@@ -30,6 +30,7 @@ public class StreamingCell implements Cell {
   private static final String FALSE_AS_STRING = "0";
   private static final String TRUE_AS_STRING  = "1";
 
+  private final Sheet sheet;
   private int columnIndex;
   private int rowIndex;
   private final boolean use1904Dates;
@@ -40,11 +41,12 @@ public class StreamingCell implements Cell {
   private String numericFormat;
   private Short numericFormatIndex;
   private String type;
-  private Row row;
   private CellStyle cellStyle;
+  private Row row;
   private boolean formulaType;
 
-  public StreamingCell(int columnIndex, int rowIndex, boolean use1904Dates) {
+  public StreamingCell(Sheet sheet, int columnIndex, int rowIndex, boolean use1904Dates) {
+    this.sheet = sheet;
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
     this.use1904Dates = use1904Dates;
@@ -94,10 +96,6 @@ public class StreamingCell implements Cell {
     this.formulaType = formulaType;
   }
 
-  public void setRow(Row row) {
-    this.row = row;
-  }
-
   @Override
   public void setCellStyle(CellStyle cellStyle) {
     this.cellStyle = cellStyle;
@@ -135,6 +133,17 @@ public class StreamingCell implements Cell {
   public Row getRow() {
     return row;
   }
+
+  /**
+   * Sets the Row this cell belongs to. Note that keeping references to cell
+   * rows around after the iterator window has passed <b>will</b> preserve them.
+   *
+   * The row is not automatically set.
+   */
+  public void setRow(Row row) {
+    this.row = row;
+  }
+
 
   /**
    * Return the cell type.
@@ -236,6 +245,36 @@ public class StreamingCell implements Cell {
     }
   }
 
+  /**
+   * Get the value of the cell as a XSSFRichTextString
+   * <p>
+   * For numeric cells we throw an exception. For blank cells we return an empty string.
+   * For formula cells we return the pre-calculated value if a string, otherwise an exception
+   * </p>
+   * @return the value of the cell as a XSSFRichTextString
+   */
+  @Override
+  public XSSFRichTextString getRichStringCellValue() {
+    CellType cellType = getCellType();
+    XSSFRichTextString rt;
+    switch (cellType) {
+      case BLANK:
+        rt = new XSSFRichTextString("");
+        break;
+      case STRING:
+        rt = new XSSFRichTextString(getStringCellValue());
+        break;
+      default:
+        throw new NotSupportedException();
+    }
+    return rt;
+  }
+
+  @Override
+  public Sheet getSheet() {
+    return sheet;
+  }
+
   private static RuntimeException typeMismatch(CellType expectedType, CellType actualType, boolean isFormulaCell) {
     String msg = "Cannot get a "
             + getCellTypeName(expectedType) + " value from a "
@@ -326,14 +365,6 @@ public class StreamingCell implements Cell {
    * Not supported
    */
   @Override
-  public Sheet getSheet() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
   public void setCellValue(double value) {
     throw new NotSupportedException();
   }
@@ -376,31 +407,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setCellFormula(String formula) throws FormulaParseException {
     throw new NotSupportedException();
-  }
-
-  /**
-   * Get the value of the cell as a XSSFRichTextString
-   * <p>
-   * For numeric cells we throw an exception. For blank cells we return an empty string.
-   * For formula cells we return the pre-calculated value if a string, otherwise an exception
-   * </p>
-   * @return the value of the cell as a XSSFRichTextString
-   */
-  @Override
-  public XSSFRichTextString getRichStringCellValue() {
-    CellType cellType = getCellType();
-    XSSFRichTextString rt;
-    switch (cellType) {
-      case BLANK:
-        rt = new XSSFRichTextString("");
-        break;
-      case STRING:
-        rt = new XSSFRichTextString(getStringCellValue());
-        break;
-      default:
-        throw new NotSupportedException();
-    }
-    return rt;
   }
 
   /**
@@ -504,6 +510,22 @@ public class StreamingCell implements Cell {
    */
   @Override
   public boolean isPartOfArrayFormulaGroup() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setBlank() {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void removeFormula() throws IllegalStateException {
     throw new NotSupportedException();
   }
 }

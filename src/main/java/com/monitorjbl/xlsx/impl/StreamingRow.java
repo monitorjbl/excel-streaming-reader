@@ -12,13 +12,20 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class StreamingRow implements Row {
+  private final Sheet sheet;
   private int rowIndex;
   private boolean isHidden;
   private TreeMap<Integer, Cell> cellMap = new TreeMap<>();
 
-  public StreamingRow(int rowIndex, boolean isHidden) {
+  public StreamingRow(Sheet sheet, int rowIndex, boolean isHidden) {
+    this.sheet = sheet;
     this.rowIndex = rowIndex;
     this.isHidden = isHidden;
+  }
+
+  @Override
+  public Sheet getSheet() {
+    return sheet;
   }
 
   public Map<Integer, Cell> getCellMap() {
@@ -119,9 +126,9 @@ public class StreamingRow implements Row {
   public Cell getCell(int cellnum, MissingCellPolicy policy) {
     StreamingCell cell = (StreamingCell) cellMap.get(cellnum);
     if(policy == MissingCellPolicy.CREATE_NULL_AS_BLANK) {
-      if(cell == null) { return new StreamingCell(cellnum, rowIndex, false); }
+      if(cell == null) { return new StreamingCell(sheet, cellnum, rowIndex, false); }
     } else if(policy == MissingCellPolicy.RETURN_BLANK_AS_NULL) {
-      if(cell == null || cell.getCellTypeEnum() == CellType.BLANK) { return null; }
+      if(cell == null || cell.getCellType() == CellType.BLANK) { return null; }
     }
     return cell;
   }
@@ -221,14 +228,6 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setRowStyle(CellStyle style) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Sheet getSheet() {
     throw new NotSupportedException();
   }
 
