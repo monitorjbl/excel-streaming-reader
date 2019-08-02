@@ -1,4 +1,6 @@
-[![Run Status](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge?branch=master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5)
+[![Run Status](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge?branch=master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5) 
+
+Profiled with [![Yourkit](https://www.yourkit.com/images/yklogo.png)]
 
 # !!! Security Alert !!!
 
