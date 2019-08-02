@@ -1,7 +1,5 @@
 [![Run Status](https://api.shippable.com/projects/55cfbb00edd7f2c052a980a5/badge?branch=master)](https://app.shippable.com/projects/55cfbb00edd7f2c052a980a5) 
 
-Profiled with [![Yourkit](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/java/profiler/)
-
 # !!! Security Alert !!!
 
 Update to the [latest version (2.1.0)](https://search.maven.org/artifact/com.monitorjbl/xlsx-streamer/2.1.0/jar) **as soon as possible** to fix a critical vulnerability. The Xerxes XML parsing library that Excel Streaming Reader uses defaulted to allowing [entity expansion](https://www.owasp.org/index.php/XML_External_Entity_(XXE)_Prevention_Cheat_Sheet), which could be exploited by an attacker to read arbitrary data from your system. The latest versions of Excel Streaming Reader do not allow this and will throw a `ParsingException` if a workbook contains an XML document with an entity declaration.
