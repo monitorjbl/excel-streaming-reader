@@ -1,6 +1,20 @@
 package com.monitorjbl.xlsx;
 
-import com.monitorjbl.xlsx.exceptions.MissingSheetException;
+import static org.apache.poi.ss.usermodel.CellType.BOOLEAN;
+import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
+import static org.apache.poi.ss.usermodel.CellType.STRING;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.RETURN_BLANK_AS_NULL;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Cell;
@@ -29,22 +43,6 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-
-import static org.apache.poi.ss.usermodel.CellType.BOOLEAN;
-import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
-import static org.apache.poi.ss.usermodel.CellType.STRING;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.RETURN_BLANK_AS_NULL;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 public class StreamingReaderTest {
   @BeforeClass
@@ -388,14 +386,26 @@ public class StreamingReaderTest {
     }
   }
 
-  @Test(expected = MissingSheetException.class)
+  @Test
+  public void testSheetName_ignoreCase() throws Exception {
+    try (
+        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        Workbook wb = StreamingReader.builder().open(is)
+    )
+    {
+      Sheet sheet = wb.getSheet("sheetalpha");
+      assertThat(sheet, is(notNullValue()));
+    }
+  }
+
+  @Test
   public void testSheetName_missingInStream() throws Exception {
     try(
         InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
-        Workbook wb = StreamingReader.builder().open(is);
+        Workbook wb = StreamingReader.builder().open(is)
     ) {
-      wb.getSheet("asdfasdfasdf");
-      fail("Should have failed");
+      Sheet sheet = wb.getSheet("asdfasdfasdf");
+      assertThat(sheet, is(nullValue()));
     }
   }
 
@@ -403,10 +413,9 @@ public class StreamingReaderTest {
   public void testSheetName_missingInFile() throws Exception {
     File f = new File("src/test/resources/sheets.xlsx");
     try(Workbook wb = StreamingReader.builder().open(f)) {
-      wb.getSheet("asdfasdfasdf");
-      fail("Should have failed");
-    } catch(MissingSheetException e) {
       assertTrue(f.exists());
+      Sheet sheet = wb.getSheet("asdfasdfasdf");
+      assertThat(sheet, is(nullValue()));
     }
   }
 
