@@ -32,39 +32,33 @@ public class FileBackedList implements AutoCloseable {
   private final List<Long> pointers = new ArrayList<>();
   private final RandomAccessFile raf;
   private final FileChannel channel;
-  private final Map<Integer, String> cache;
+  private final LRUCache cache;
 
   private long filesize;
 
-  public FileBackedList(File file, final int cacheSize) throws IOException {
+  public FileBackedList(File file, final int cacheSizeBytes) throws IOException {
     this.raf = new RandomAccessFile(file, "rw");
     this.channel = raf.getChannel();
     this.filesize = raf.length();
-    this.cache = new LinkedHashMap<Integer, String>(cacheSize, 0.75f, true) {
-      public boolean removeEldestEntry(Map.Entry eldest) {
-        return size() > cacheSize;
-      }
-    };
+    this.cache = new LRUCache(cacheSizeBytes);
   }
 
   public void add(String str) {
     try {
-      if (str!=null && str.length()>0) {
         writeToFile(str);
-      }
     } catch(IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   public String getAt(int index) {
-    if(cache.containsKey(index)) {
-      return cache.get(index);
-    }
+    String s = cache.getIfPresent(index);
+    if (s != null)
+      return s;
 
     try {
       String val = readFromFile(pointers.get(index));
-      cache.put(index, val);
+      cache.store(index, val);
       return val;
     } catch(IOException e) {
       throw new RuntimeException(e);

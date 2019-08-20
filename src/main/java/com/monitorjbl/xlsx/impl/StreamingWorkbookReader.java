@@ -114,10 +114,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       XSSFReader reader = new XSSFReader(pkg);
-      if(builder.getSstCacheSize() > 0) {
+      if(builder.getSstCacheSizeBytes() > 0) {
         sstCache = Files.createTempFile("", "").toFile();
         log.debug("Created sst cache file [" + sstCache.getAbsolutePath() + "]");
-        sst = BufferedStringsTable.getSharedStringsTable(sstCache, builder.getSstCacheSize(), pkg);
+        sst = BufferedStringsTable.getSharedStringsTable(sstCache, builder.getSstCacheSizeBytes(), pkg);
       } else {
         sst = reader.getSharedStringsTable();
       }

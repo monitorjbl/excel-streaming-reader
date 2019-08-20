@@ -20,14 +20,14 @@ import java.util.List;
 public class BufferedStringsTable extends SharedStringsTable implements AutoCloseable {
   private final FileBackedList list;
 
-  public static BufferedStringsTable getSharedStringsTable(File tmp, int cacheSize, OPCPackage pkg)
+  public static BufferedStringsTable getSharedStringsTable(File tmp, int cacheSizeBytes, OPCPackage pkg)
       throws IOException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
-    return parts.size() == 0 ? null : new BufferedStringsTable(parts.get(0), tmp, cacheSize);
+    return parts.size() == 0 ? null : new BufferedStringsTable(parts.get(0), tmp, cacheSizeBytes);
   }
 
-  private BufferedStringsTable(PackagePart part, File file, int cacheSize) throws IOException {
-    this.list = new FileBackedList(file, cacheSize);
+  private BufferedStringsTable(PackagePart part, File file, int cacheSizeBytes) throws IOException {
+    this.list = new FileBackedList(file, cacheSizeBytes);
     readFrom(part.getInputStream());
   }
 
@@ -73,7 +73,7 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
           throw new IllegalArgumentException(xmlEvent.asStartElement().getName().getLocalPart());
       }
     }
-    return buf.length() > 0 ? buf.toString() : null;
+    return buf.toString();
   }
 
   /**
