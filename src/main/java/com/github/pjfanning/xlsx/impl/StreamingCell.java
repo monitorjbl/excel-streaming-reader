@@ -3,18 +3,13 @@ package com.github.pjfanning.xlsx.impl;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Comment;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -328,6 +323,24 @@ public class StreamingCell implements Cell {
     } else  {
       throw new IllegalStateException("Only formula cells have cached results");
     }
+  }
+
+  @Override
+  public void setCellValue(LocalDateTime value) {
+    this.setCellValue(DateUtil.getExcelDate(value, use1904Dates));
+  }
+
+  @Override
+  public LocalDateTime getLocalDateTimeCellValue() {
+    if(getCellType() == CellType.STRING){
+      throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
+    }
+    return rawContents == null ? null : DateUtil.getLocalDateTime(getNumericCellValue(), use1904Dates);
+  }
+
+  @Override
+  public void setCellValue(LocalDate value) {
+    this.setCellValue(DateUtil.getExcelDate(value, use1904Dates));
   }
 
   @Deprecated
