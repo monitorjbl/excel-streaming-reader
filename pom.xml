@@ -101,6 +101,14 @@
     <connection>scm:git:http://github.com/pjfanning/excel-streaming-reader.git</connection>
   </scm>
 
+  <repositories>
+    <repository>
+      <id>apache-staging</id>
+      <name>apache staging</name>
+      <url>https://repository.apache.org/content/repositories/staging</url>
+    </repository>
+  </repositories>
+
   <distributionManagement>
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
@@ -118,17 +126,17 @@
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
-      <version>4.1.0</version>
+      <version>4.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
-      <version>4.1.0</version>
+      <version>4.1.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml-schemas</artifactId>
-      <version>4.1.0</version>
+      <version>4.1.1</version>
     </dependency>
     <dependency>
       <groupId>com.github.pjfanning</groupId>
