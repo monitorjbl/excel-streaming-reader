@@ -101,14 +101,6 @@
     <connection>scm:git:http://github.com/pjfanning/excel-streaming-reader.git</connection>
   </scm>
 
-  <repositories>
-    <repository>
-      <id>apache-staging</id>
-      <name>apache staging</name>
-      <url>https://repository.apache.org/content/repositories/staging</url>
-    </repository>
-  </repositories>
-
   <distributionManagement>
     <snapshotRepository>
       <id>sonatype-nexus-snapshots</id>
