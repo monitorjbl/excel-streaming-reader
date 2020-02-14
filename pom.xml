@@ -133,7 +133,7 @@
     <dependency>
       <groupId>com.github.pjfanning</groupId>
       <artifactId>poi-shared-strings</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>xml-apis</groupId>
@@ -161,7 +161,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>4.13</version>
       <scope>test</scope>
     </dependency>
     <dependency>
