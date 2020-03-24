@@ -24,6 +24,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
 
   public StreamingWorkbook(StreamingWorkbookReader reader) {
     this.reader = reader;
+    reader.setWorkbook(this);
   }
 
   int findSheetByName(String name) {

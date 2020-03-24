@@ -29,8 +29,15 @@ public class StreamingSheet implements Sheet {
 
   private final String name;
   private final StreamingSheetReader reader;
+  private final StreamingWorkbook workbook;
 
+  @Deprecated
   public StreamingSheet(String name, StreamingSheetReader reader) {
+    this(null, name, reader);
+  }
+
+  public StreamingSheet(StreamingWorkbook workbook, String name, StreamingSheetReader reader) {
+    this.workbook = workbook;
     this.name = name;
     this.reader = reader;
     reader.setSheet(this);
@@ -41,6 +48,14 @@ public class StreamingSheet implements Sheet {
   }
 
   /* Supported */
+
+  /**
+   * Workbook is only set under certain usage flows.
+   */
+  @Override
+  public Workbook getWorkbook() {
+    return workbook;
+  }
 
   /**
    * {@inheritDoc}
@@ -846,14 +861,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public Drawing createDrawingPatriarch() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Workbook getWorkbook() {
     throw new UnsupportedOperationException();
   }
 

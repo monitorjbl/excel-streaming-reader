@@ -8,6 +8,7 @@ import java.nio.file.Files;
 
 public class TempFileUtil {
  public static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
+   if (is == null) throw new NullPointerException("InputStream is null");
    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
    try(FileOutputStream fos = new FileOutputStream(f)) {
      int read;

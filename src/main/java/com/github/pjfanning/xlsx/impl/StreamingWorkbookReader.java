@@ -53,6 +53,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private OPCPackage pkg;
   private SharedStringsTable sst;
   private boolean use1904Dates = false;
+  private StreamingWorkbook workbook = null;
 
   /**
    * This constructor exists only so the StreamingReader can instantiate
@@ -68,7 +69,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   public StreamingWorkbookReader(SharedStringsTable sst, OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
     this.sst = sst;
     this.pkg = pkg;
-    this.sheets = asList(new StreamingSheet(null, reader));
+    this.sheets = asList(new StreamingSheet(null, null, reader));
     this.builder = builder;
   }
 
@@ -141,6 +142,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
   }
 
+  void setWorkbook(StreamingWorkbook workbook) {
+    this.workbook = workbook;
+  }
+
   void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
       XMLStreamException {
     lookupSheetNames(reader);
@@ -159,7 +164,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     int i = 0;
     for(URI uri : sheetStreams.keySet()) {
       XMLEventReader parser = StaxHelper.newXMLInputFactory().createXMLEventReader(sheetStreams.get(uri));
-      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
+      sheets.add(new StreamingSheet(
+              workbook,
+              sheetProperties.get(i++).get("name"),
+              new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
     }
   }
 

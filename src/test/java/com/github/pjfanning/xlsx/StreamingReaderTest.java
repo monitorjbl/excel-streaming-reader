@@ -3,12 +3,7 @@ package com.github.pjfanning.xlsx;
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -151,7 +146,7 @@ public class StreamingReaderTest {
   @Test
   public void testGetDateCellValue() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
 
@@ -181,7 +176,7 @@ public class StreamingReaderTest {
   @Test
   public void testGetDateCellValue1904() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/1904Dates.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/1904Dates.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
 
@@ -211,7 +206,7 @@ public class StreamingReaderTest {
   @Test
   public void testGetFirstCellNum() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/gaps.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
 
@@ -234,7 +229,7 @@ public class StreamingReaderTest {
   @Test
   public void testGaps() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/gaps.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/gaps.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
@@ -281,7 +276,7 @@ public class StreamingReaderTest {
   @Test
   public void testMultipleSheets_alpha() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
@@ -307,7 +302,7 @@ public class StreamingReaderTest {
   @Test
   public void testMultipleSheets_zulu() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
 
@@ -334,7 +329,7 @@ public class StreamingReaderTest {
   @Test
   public void testSheetName_zulu() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
 
@@ -361,7 +356,7 @@ public class StreamingReaderTest {
   @Test
   public void testSheetName_alpha() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
@@ -387,7 +382,7 @@ public class StreamingReaderTest {
   @Test(expected = MissingSheetException.class)
   public void testSheetName_missingInStream() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
       wb.getSheet("asdfasdfasdf");
@@ -756,7 +751,7 @@ public class StreamingReaderTest {
     // This might be an optimization triggered by file size and specific to a particular excel version.
     // The excel would read such a file without complaining.
     try(
-            InputStream is = new FileInputStream(new File("src/test/resources/sparse-columns.xlsx"));
+            InputStream is = new FileInputStream("src/test/resources/sparse-columns.xlsx");
             Workbook wb = StreamingReader.builder().open(is);
     ) {
       Sheet sheet = wb.getSheetAt(0);
@@ -770,5 +765,64 @@ public class StreamingReaderTest {
       assertThat(row.getCell(5).getNumericCellValue(), is(1.0));
 
     }
+  }
+
+  @Test
+  public void testReadFile() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
+            Workbook wb = StreamingReader.builder().open(inputStream)
+    ) {
+      DataFormatter formatter = new DataFormatter();
+
+      Sheet sheet = wb.getSheet("Sheet0");
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      assertTrue(rowIterator.hasNext());
+      // header
+      Row currentRow = rowIterator.next();
+      assertTrue(rowIterator.hasNext());
+      currentRow = rowIterator.next();
+
+      for (int i = 0; i < currentRow.getLastCellNum(); i++) {
+        Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        String value = formatter.formatCellValue(cell);
+
+        assertEquals(getExpectedValue(i), value);
+      }
+
+    }
+  }
+
+  private String getExpectedValue(int cell) {
+    switch (cell) {
+      case 0:
+        return "10002";
+      case 1:
+        return "John";
+      case 2:
+        return "Doe";
+      case 3:
+        return "06/09/1976";
+      case 4:
+        return "1";
+      case 5:
+      case 6:
+        return "NORMAL";
+      case 7:
+        return "CUSTOMER";
+      case 8:
+        return "Customer";
+      case 9:
+        return "NOT_CONFIRMED";
+      case 10:
+        return "94";
+      case 11:
+        return "2";
+      case 12:
+        return "FALSE()";
+    }
+    return null;
   }
 }
