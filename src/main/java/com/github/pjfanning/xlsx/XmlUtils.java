@@ -61,7 +61,7 @@ public class XmlUtils {
       if (prefix == null)
         throw new IllegalArgumentException("prefix cannot be null");
       if (urisByPrefix.containsKey(prefix))
-        return (String) urisByPrefix.get(prefix);
+        return urisByPrefix.get(prefix);
       else
         return XMLConstants.NULL_NS_URI;
     }
@@ -74,7 +74,7 @@ public class XmlUtils {
       if (namespaceURI == null)
         throw new IllegalArgumentException("namespaceURI cannot be null");
       if (prefixesByURI.containsKey(namespaceURI)) {
-        return ((Set) prefixesByURI.get(namespaceURI)).iterator();
+        return (prefixesByURI.get(namespaceURI)).iterator();
       } else {
         return Collections.EMPTY_SET.iterator();
       }
