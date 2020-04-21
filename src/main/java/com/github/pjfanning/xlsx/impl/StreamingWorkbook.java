@@ -138,6 +138,8 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
 
   /**
    * Returns the Core Properties if this feature is enabled on the <code>StreamingReader.Builder</code>
+   *
+   * @return {@link POIXMLProperties.CoreProperties}
    */
   public POIXMLProperties.CoreProperties getCoreProperties() {
     return coreProperties;
