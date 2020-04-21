@@ -132,6 +132,14 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    * {@inheritDoc}
    */
   @Override
+  public SpreadsheetVersion getSpreadsheetVersion() {
+    return SpreadsheetVersion.EXCEL2007;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public void close() throws IOException {
     reader.close();
   }
@@ -544,14 +552,6 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public boolean getForceFormulaRecalculation() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public SpreadsheetVersion getSpreadsheetVersion() {
     throw new UnsupportedOperationException();
   }
 
