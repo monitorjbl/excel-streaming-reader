@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
+import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
@@ -773,6 +774,8 @@ public class StreamingReaderTest {
             InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
             Workbook wb = StreamingReader.builder().open(inputStream)
     ) {
+      assertNull("CoreProperties should be null", ((StreamingWorkbook)wb).getCoreProperties());
+
       DataFormatter formatter = new DataFormatter();
 
       Sheet sheet = wb.getSheet("Sheet0");
@@ -792,6 +795,20 @@ public class StreamingReaderTest {
         assertEquals(getExpectedValue(i), value);
       }
 
+    }
+  }
+
+  @Test
+  public void testReadCoreProperties() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
+            Workbook wb = StreamingReader.builder()
+                    .setReadCoreProperties(true)
+                    .open(inputStream)
+    ) {
+      StreamingWorkbook swb = (StreamingWorkbook)wb;
+      assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
+      assertEquals("semadmin", swb.getCoreProperties().getCreator());
     }
   }
 

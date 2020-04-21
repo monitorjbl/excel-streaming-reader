@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
+import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -21,6 +22,7 @@ import java.util.List;
 
 public class StreamingWorkbook implements Workbook, AutoCloseable {
   private final StreamingWorkbookReader reader;
+  private POIXMLProperties.CoreProperties coreProperties = null;
 
   public StreamingWorkbook(StreamingWorkbookReader reader) {
     this.reader = reader;
@@ -132,6 +134,17 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
   @Override
   public void close() throws IOException {
     reader.close();
+  }
+
+  /**
+   * Returns the Core Properties if this feature is enabled on the <code>StreamingReader.Builder</code>
+   */
+  public POIXMLProperties.CoreProperties getCoreProperties() {
+    return coreProperties;
+  }
+
+  void setCoreProperties(POIXMLProperties.CoreProperties coreProperties) {
+    this.coreProperties = coreProperties;
   }
 
   /* Not supported */

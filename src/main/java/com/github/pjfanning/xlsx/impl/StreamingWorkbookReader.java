@@ -7,6 +7,7 @@ import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
+import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -54,6 +55,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private SharedStringsTable sst;
   private boolean use1904Dates = false;
   private StreamingWorkbook workbook = null;
+  private POIXMLProperties.CoreProperties coreProperties = null;
 
   /**
    * This constructor exists only so the StreamingReader can instantiate
@@ -121,6 +123,15 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         sst = reader.getSharedStringsTable();
       }
 
+      if (builder.readCoreProperties()) {
+        try {
+          POIXMLProperties xmlProperties = new POIXMLProperties(pkg);
+          coreProperties = xmlProperties.getCoreProperties();
+        } catch (Exception e) {
+          log.warn("Failed to read coreProperties", e);
+        }
+      }
+
       StylesTable styles = reader.getStylesTable();
       NodeList workbookPr = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
       if(workbookPr.getLength() == 1) {
@@ -131,7 +142,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       loadSheets(reader, sst, styles, builder.getRowCacheSize());
-    } catch(SAXException| ParserConfigurationException e) {
+    } catch(SAXException | ParserConfigurationException e) {
       throw new ParseException("Failed to parse file", e);
     } catch(IOException e) {
       throw new OpenException("Failed to open file", e);
@@ -144,6 +155,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
   void setWorkbook(StreamingWorkbook workbook) {
     this.workbook = workbook;
+    workbook.setCoreProperties(coreProperties);
   }
 
   void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,

@@ -94,6 +94,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     private int sheetIndex = 0;
     private boolean useSstTempFile = false;
     private boolean encryptSstTempFile = false;
+    private boolean readCoreProperties = false;
     private String sheetName;
     private String password;
 
@@ -142,6 +143,13 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public boolean encryptSstTempFile() {
       return encryptSstTempFile;
+    }
+
+    /**
+     * @return Whether to read the core document properties.
+     */
+    public boolean readCoreProperties() {
+      return readCoreProperties;
     }
 
     /**
@@ -251,6 +259,17 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public Builder setEncryptSstTempFile(boolean encryptSstTempFile) {
       this.encryptSstTempFile = encryptSstTempFile;
+      return this;
+    }
+
+    /**
+     * Enables the reading of the core document properties.
+     *
+     * @param readCoreProperties whether to read the core document properties
+     * @return reference to current {@code Builder}
+     */
+    public Builder setReadCoreProperties(boolean readCoreProperties) {
+      this.readCoreProperties = readCoreProperties;
       return this;
     }
 
