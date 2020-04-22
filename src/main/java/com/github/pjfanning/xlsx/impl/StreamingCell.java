@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.XmlUtils;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
@@ -21,9 +22,6 @@ public class StreamingCell implements Cell {
       return null;
     }
   };
-
-  private static final String FALSE_AS_STRING = "0";
-  private static final String TRUE_AS_STRING  = "1";
 
   private final Sheet sheet;
   private int columnIndex;
@@ -222,7 +220,7 @@ public class StreamingCell implements Cell {
       case BLANK:
         return false;
       case BOOLEAN:
-        return rawContents != null && TRUE_AS_STRING.equals(rawContents);
+        return rawContents != null && XmlUtils.evaluateBoolean(rawContents.toString());
       case FORMULA:
         throw new NotSupportedException();
       default:

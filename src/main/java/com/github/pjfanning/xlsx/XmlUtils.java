@@ -19,6 +19,9 @@ import java.util.*;
 
 public class XmlUtils {
 
+  public static final String FALSE_AS_STRING = "0";
+  public static final String TRUE_AS_STRING  = "1";
+
   public static Document readDocument(InputStream inp) throws IOException, SAXException, ParserConfigurationException {
     return DocumentHelper.readDocument(inp);
   }
@@ -34,6 +37,10 @@ public class XmlUtils {
     } catch(XPathExpressionException e) {
       throw new ParseException(e);
     }
+  }
+
+  public static boolean evaluateBoolean(String bool) {
+    return bool.equals(TRUE_AS_STRING) || bool.equalsIgnoreCase("true");
   }
 
   private static class NamespaceContextImpl implements NamespaceContext {

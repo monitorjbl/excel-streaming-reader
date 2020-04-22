@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.XmlUtils;
 import com.github.pjfanning.xlsx.exceptions.CloseException;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
@@ -125,12 +126,12 @@ public class StreamingSheetReader implements Iterable<Row> {
           currentRowNum = rowIndex;
         }
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
-        boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
+        boolean isHidden = isHiddenAttr != null && XmlUtils.evaluateBoolean(isHiddenAttr.getValue());
         currentRow = new StreamingRow(sheet, rowIndex, isHidden);
         currentColNum = firstColNum;
       } else if("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
-        boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
+        boolean isHidden = isHiddenAttr != null && XmlUtils.evaluateBoolean(isHiddenAttr.getValue());
         if(isHidden) {
           Attribute minAttr = startElement.getAttributeByName(new QName("min"));
           Attribute maxAttr = startElement.getAttributeByName(new QName("max"));

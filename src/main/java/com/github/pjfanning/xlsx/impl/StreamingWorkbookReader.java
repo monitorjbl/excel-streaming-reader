@@ -137,7 +137,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       if(workbookPr.getLength() == 1) {
         final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
         if(date1904 != null) {
-          use1904Dates = ("1".equals(date1904.getTextContent()));
+          use1904Dates = XmlUtils.evaluateBoolean(date1904.getTextContent());
         }
       }
 
