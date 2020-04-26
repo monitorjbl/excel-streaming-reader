@@ -29,6 +29,7 @@ public class StreamingSheetTest {
     ) {
       assertEquals(1, workbook.getNumberOfSheets());
       Sheet sheet = workbook.getSheetAt(0);
+      assertEquals(0, sheet.getFirstRowNum());
       assertEquals(24, sheet.getLastRowNum());
     }
 
@@ -38,6 +39,7 @@ public class StreamingSheetTest {
     ) {
       assertEquals(1, workbook.getNumberOfSheets());
       Sheet sheet = workbook.getSheetAt(0);
+      assertEquals(0, sheet.getFirstRowNum());
       assertEquals(0, sheet.getLastRowNum());
     }
   }

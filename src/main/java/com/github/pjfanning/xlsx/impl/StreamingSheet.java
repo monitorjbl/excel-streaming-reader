@@ -92,6 +92,26 @@ public class StreamingSheet implements Sheet {
     return reader.isColumnHidden(columnIndex);
   }
 
+  /**
+   * Gets the first row on the sheet
+   *
+   * @return first row contained in this sheet (0-based)
+   */
+  @Override
+  public int getFirstRowNum() {
+    return reader.getFirstRowNum();
+  }
+
+  /**
+   * Gets the last row on the sheet
+   *
+   * @return last row contained in this sheet (0-based)
+   */
+  @Override
+  public int getLastRowNum() {
+    return reader.getLastRowNum();
+  }
+
   /* Unsupported */
 
   /**
@@ -124,24 +144,6 @@ public class StreamingSheet implements Sheet {
   @Override
   public int getPhysicalNumberOfRows() {
     throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public int getFirstRowNum() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Gets the last row on the sheet
-   *
-   * @return last row contained n this sheet (0-based)
-   */
-  @Override
-  public int getLastRowNum() {
-    return reader.getLastRowNum();
   }
 
   /**

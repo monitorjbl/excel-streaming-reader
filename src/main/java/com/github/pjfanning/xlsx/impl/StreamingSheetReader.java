@@ -40,6 +40,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final DataFormatter dataFormatter = new DataFormatter();
   private final Set<Integer> hiddenColumns = new HashSet<>();
 
+  private int firstRowNum = 0;
   private int lastRowNum;
   private int currentRowNum;
   private int firstColNum = 0;
@@ -175,6 +176,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
         String ref = refAttr != null ? refAttr.getValue() : null;
         if(ref != null) {
+          log.error("found dimension ref {}", ref);
           // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
           for(int i = ref.length() - 1; i >= 0; i--) {
             if(!Character.isDigit(ref.charAt(i))) {
@@ -182,6 +184,16 @@ public class StreamingSheetReader implements Iterable<Row> {
                 lastRowNum = Integer.parseInt(ref.substring(i + 1)) - 1;
               } catch(NumberFormatException ignore) { }
               break;
+            }
+          }
+          int colonPos = ref.indexOf(':');
+          if (colonPos > 0) {
+            String firstPart = ref.substring(0, colonPos);
+            try {
+              CellReference cellReference = new CellReference(firstPart);
+              firstRowNum = cellReference.getRow();
+            } catch(Exception e) {
+              log.warn("Failed to parse cell reference {}", firstPart);
             }
           }
           for(int i = 0; i < ref.length(); i++) {
@@ -250,6 +262,18 @@ public class StreamingSheetReader implements Iterable<Row> {
       getRow();
     }
     return hiddenColumns.contains(columnIndex);
+  }
+
+  /**
+   * Gets the last row on the sheet
+   *
+   * @return
+   */
+  int getFirstRowNum() {
+    if(rowCacheIterator == null) {
+      getRow();
+    }
+    return firstRowNum;
   }
 
   /**
