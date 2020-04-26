@@ -176,7 +176,6 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
         String ref = refAttr != null ? refAttr.getValue() : null;
         if(ref != null) {
-          log.error("found dimension ref {}", ref);
           // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
           for(int i = ref.length() - 1; i >= 0; i--) {
             if(!Character.isDigit(ref.charAt(i))) {
