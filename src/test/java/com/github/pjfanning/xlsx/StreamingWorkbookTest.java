@@ -12,8 +12,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 import static com.github.pjfanning.xlsx.TestUtils.*;
-import static org.apache.poi.ss.usermodel.CellType.FORMULA;
-import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
+import static org.apache.poi.ss.usermodel.CellType.*;
 import static org.junit.Assert.*;
 
 public class StreamingWorkbookTest {
@@ -129,7 +128,7 @@ public class StreamingWorkbookTest {
       Cell B3 = getCellFromNextRow(rowIterator, 1);
 
       expectType(B3, FORMULA);
-//      expectCachedType(B3, STRING); // this can't return FUNCTION as cached type as per javadoc ! fix in future work
+      expectCachedType(B3, STRING);
       expectFormula(B3, "B1");
       expectSameStringContent(B1, B3);
       expectStringContent(B3, "a");
