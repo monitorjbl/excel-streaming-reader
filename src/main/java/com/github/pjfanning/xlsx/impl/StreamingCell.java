@@ -143,8 +143,6 @@ public class StreamingCell implements Cell {
       return CellType.NUMERIC;
     } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
       return CellType.STRING;
-    } else if("str".equals(type)) {
-      return CellType.FORMULA;
     } else if("b".equals(type)) {
       return CellType.BOOLEAN;
     } else if("e".equals(type)) {
@@ -282,6 +280,9 @@ public class StreamingCell implements Cell {
   @Override
   public XSSFRichTextString getRichStringCellValue() {
     CellType cellType = getCellType();
+    if (cellType == CellType.FORMULA) {
+      cellType = getCachedFormulaResultType();
+    }
     XSSFRichTextString rt;
     switch (cellType) {
       case BLANK:

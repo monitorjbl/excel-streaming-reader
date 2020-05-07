@@ -11,14 +11,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import static com.github.pjfanning.xlsx.TestUtils.expectCachedType;
-import static com.github.pjfanning.xlsx.TestUtils.expectFormula;
-import static com.github.pjfanning.xlsx.TestUtils.expectSameStringContent;
-import static com.github.pjfanning.xlsx.TestUtils.expectStringContent;
-import static com.github.pjfanning.xlsx.TestUtils.expectType;
-import static com.github.pjfanning.xlsx.TestUtils.getCellFromNextRow;
-import static com.github.pjfanning.xlsx.TestUtils.nextRow;
-import static com.github.pjfanning.xlsx.TestUtils.openWorkbook;
+import static com.github.pjfanning.xlsx.TestUtils.*;
 import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.junit.Assert.*;
@@ -140,6 +133,7 @@ public class StreamingWorkbookTest {
       expectFormula(B3, "B1");
       expectSameStringContent(B1, B3);
       expectStringContent(B3, "a");
+      expectRichStringContent(B3, "a");
     }
   }
 

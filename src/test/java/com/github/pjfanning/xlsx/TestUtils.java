@@ -30,6 +30,11 @@ final class TestUtils {
     assertEquals("Cell " + ref(cell) + " has wrong string content.", value, cell.getStringCellValue());
   }
 
+  static void expectRichStringContent(Cell cell, String value) {
+    assertEquals("Cell " + ref(cell) + " has wrong rich-string content.",
+            value, cell.getRichStringCellValue().getString());
+  }
+
   static void expectCachedType(Cell cell, CellType cellType) {
     assertEquals("Cell " + ref(cell) + " has wrong cached type." + cellType, cellType, cell.getCachedFormulaResultType());
   }
