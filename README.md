@@ -7,7 +7,7 @@ This is a fork of [monitorjbl/excel-streaming-reader](https://github.com/monitor
 
 This implementation supports [Apache POI](http://poi.apache.org) 4.x and only supports Java 8 and above.
 
-[Sample](https://github.com/pjfanning/excel-streaming-reader-sample)
+* [Sample](https://github.com/pjfanning/excel-streaming-reader-sample)
 
 # Include
 
@@ -18,7 +18,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>2.3.3</version>
+    <version>2.3.4</version>
   </dependency>
 </dependencies>  
 ```
