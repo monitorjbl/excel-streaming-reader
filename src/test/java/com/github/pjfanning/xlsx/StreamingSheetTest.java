@@ -6,7 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -55,6 +57,31 @@ public class StreamingSheetTest {
       Row row = sheet.iterator().next();
       assertEquals(CellType.NUMERIC, row.getCell(0).getCellType());
       assertNotNull(row.getCell(0).getCellStyle());
+    }
+  }
+
+  @Test
+  public void testRowIteratorNext() throws Exception {
+    try(
+            InputStream is = new FileInputStream(new File("src/test/resources/large.xlsx"));
+            Workbook workbook = StreamingReader.builder().rowCacheSize(5).open(is);
+    ) {
+      assertEquals(1, workbook.getNumberOfSheets());
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> iter = sheet.rowIterator();
+      int count = 0;
+      while(nextRow(iter) != null) {
+        count++;
+      }
+      assertEquals(25, count);
+    }
+  }
+
+  private Row nextRow(Iterator<Row> iter) {
+    try {
+      return iter.next();
+    } catch (NoSuchElementException nsee) {
+      return null;
     }
   }
 

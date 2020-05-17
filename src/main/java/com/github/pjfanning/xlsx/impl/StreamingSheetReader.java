@@ -25,11 +25,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class StreamingSheetReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingSheetReader.class);
@@ -435,7 +431,15 @@ public class StreamingSheetReader implements Iterable<Row> {
 
     @Override
     public Row next() {
-      return rowCacheIterator.next();
+      try {
+        return rowCacheIterator.next();
+      } catch(NoSuchElementException nsee) {
+        //see https://github.com/monitorjbl/excel-streaming-reader/issues/176
+        if (hasNext()) {
+          return rowCacheIterator.next();
+        }
+        throw nsee;
+      }
     }
 
     @Override
