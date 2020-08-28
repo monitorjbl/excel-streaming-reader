@@ -3,6 +3,7 @@ package com.monitorjbl.xlsx;
 import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import com.monitorjbl.xlsx.exceptions.OpenException;
 import com.monitorjbl.xlsx.exceptions.ReadException;
+import com.monitorjbl.xlsx.impl.WorkbookUtil;
 import com.monitorjbl.xlsx.sst.BufferedStringsTable;
 import com.monitorjbl.xlsx.impl.StreamingSheetReader;
 import com.monitorjbl.xlsx.impl.StreamingWorkbook;
@@ -21,7 +22,6 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.xml.stream.XMLEventReader;
@@ -322,7 +322,6 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
           pkg = OPCPackage.open(f);
         }
 
-        boolean use1904Dates = false;
         XSSFReader reader = new XSSFReader(pkg);
 
         SharedStringsTable sst;
@@ -336,13 +335,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         }
 
         StylesTable styles = reader.getStylesTable();
-        NodeList workbookPr = searchForNodeList(document(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
-        if (workbookPr.getLength() == 1) {
-          final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
-          if (date1904 != null) {
-            use1904Dates = ("1".equals(date1904.getTextContent()));
-          }
-        }
+        boolean use1904Dates = WorkbookUtil.use1904Dates(reader);
         InputStream sheet = findSheet(reader);
         if(sheet == null) {
           throw new MissingSheetException("Unable to find sheet at index [" + sheetIndex + "]");
