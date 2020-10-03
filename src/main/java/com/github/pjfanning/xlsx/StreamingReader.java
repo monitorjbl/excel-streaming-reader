@@ -2,10 +2,7 @@ package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
 import com.github.pjfanning.xlsx.exceptions.*;
-import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
-import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
-import com.github.pjfanning.xlsx.impl.StreamingSheetReader;
-import com.github.pjfanning.xlsx.impl.TempFileUtil;
+import com.github.pjfanning.xlsx.impl.*;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -20,7 +17,6 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -372,13 +368,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         }
 
         StylesTable styles = reader.getStylesTable();
-        NodeList workbookPr = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
-        if (workbookPr.getLength() == 1) {
-          final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
-          if (date1904 != null) {
-            use1904Dates = XmlUtils.evaluateBoolean(date1904.getTextContent());
-          }
-        }
+        use1904Dates = WorkbookUtil.use1904Dates(reader);
         InputStream sheet = findSheet(reader);
         if(sheet == null) {
           throw new MissingSheetException("Unable to find sheet at index [" + sheetIndex + "]");

@@ -133,13 +133,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
 
       StylesTable styles = reader.getStylesTable();
-      NodeList workbookPr = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
-      if(workbookPr.getLength() == 1) {
-        final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
-        if(date1904 != null) {
-          use1904Dates = XmlUtils.evaluateBoolean(date1904.getTextContent());
-        }
-      }
+      use1904Dates = WorkbookUtil.use1904Dates(reader);
 
       loadSheets(reader, sst, styles, builder.getRowCacheSize());
     } catch(SAXException | ParserConfigurationException e) {
