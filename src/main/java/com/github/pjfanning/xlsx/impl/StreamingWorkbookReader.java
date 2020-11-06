@@ -108,13 +108,17 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         Decryptor d = Decryptor.getInstance(info);
         d.verifyPassword(builder.getPassword());
         if (builder.convertFromOoXmlStrict()) {
-          pkg = OPCPackage.open(new OoXmlStrictConverterInputStream(d.getDataStream(poifs)));
+          try(InputStream stream = new OoXmlStrictConverterInputStream(d.getDataStream(poifs))) {
+            pkg = OPCPackage.open(stream);
+          }
         } else {
           pkg = OPCPackage.open(d.getDataStream(poifs));
         }
       } else {
         if (builder.convertFromOoXmlStrict()) {
-          pkg = OPCPackage.open(new OoXmlStrictConverterInputStream(new FileInputStream(f)));
+          try(InputStream stream = new OoXmlStrictConverterInputStream(new FileInputStream(f))) {
+            pkg = OPCPackage.open(stream);
+          }
         } else {
           pkg = OPCPackage.open(f);
         }
