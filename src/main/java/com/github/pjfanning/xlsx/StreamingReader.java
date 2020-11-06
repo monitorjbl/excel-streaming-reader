@@ -93,6 +93,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     private boolean readCoreProperties = false;
     private String sheetName;
     private String password;
+    private boolean convertFromOoXmlStrict;
 
     public int getRowCacheSize() {
       return rowCacheSize;
@@ -146,6 +147,13 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public boolean readCoreProperties() {
       return readCoreProperties;
+    }
+
+    /**
+     * @return Whether to convert the input from Strict OOXML (prevent "Strict OOXML isn't currently supported")
+     */
+    public boolean convertFromOoXmlStrict() {
+      return convertFromOoXmlStrict;
     }
 
     /**
@@ -222,6 +230,18 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      */
     public Builder password(String password) {
       this.password = password;
+      return this;
+    }
+
+    /**
+     * Convert the file from Strict OOXML to regular XLSX.
+     * Strict OOXML is not supported by POI.
+     *
+     * @param convertFromOoXmlStrict whether to convert from OOXML
+     * @return reference to current {@code Builder}
+     */
+    public Builder convertFromOoXmlStrict(boolean convertFromOoXmlStrict) {
+      this.convertFromOoXmlStrict = convertFromOoXmlStrict;
       return this;
     }
 

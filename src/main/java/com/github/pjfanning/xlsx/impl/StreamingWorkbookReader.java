@@ -7,6 +7,8 @@ import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
+import com.github.pjfanning.xlsx.impl.ooxml.OoXmlStrictConverterInputStream;
+import java.io.FileInputStream;
 import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -110,9 +112,17 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         EncryptionInfo info = new EncryptionInfo(poifs);
         Decryptor d = Decryptor.getInstance(info);
         d.verifyPassword(builder.getPassword());
-        pkg = OPCPackage.open(d.getDataStream(poifs));
+        if (builder.convertFromOoXmlStrict()) {
+          pkg = OPCPackage.open(new OoXmlStrictConverterInputStream(d.getDataStream(poifs)));
+        } else {
+          pkg = OPCPackage.open(d.getDataStream(poifs));
+        }
       } else {
-        pkg = OPCPackage.open(f);
+        if (builder.convertFromOoXmlStrict()) {
+          pkg = OPCPackage.open(new OoXmlStrictConverterInputStream(new FileInputStream(f)));
+        } else {
+          pkg = OPCPackage.open(f);
+        }
       }
 
       XSSFReader reader = new XSSFReader(pkg);
