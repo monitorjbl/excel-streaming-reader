@@ -2,7 +2,10 @@ package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.ParseException;
 import fi.iki.elonen.NanoHTTPD;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

@@ -2,7 +2,6 @@ package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.xlsx.XmlUtils;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.formula.FormulaParseException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
@@ -202,7 +201,7 @@ public class StreamingCell implements Cell {
     if(getCellType() == CellType.STRING){
       throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
     }
-    return rawContents == null ? null : HSSFDateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
+    return rawContents == null ? null : DateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
   }
 
   /**

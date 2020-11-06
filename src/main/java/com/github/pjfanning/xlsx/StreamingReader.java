@@ -11,6 +11,7 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.util.Beta;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
@@ -235,11 +236,12 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
     /**
      * Convert the file from Strict OOXML to regular XLSX.
-     * Strict OOXML is not supported by POI.
+     * Strict OOXML is not supported by POI. This is an experimental feature.
      *
      * @param convertFromOoXmlStrict whether to convert from OOXML
      * @return reference to current {@code Builder}
      */
+    @Beta
     public Builder convertFromOoXmlStrict(boolean convertFromOoXmlStrict) {
       this.convertFromOoXmlStrict = convertFromOoXmlStrict;
       return this;

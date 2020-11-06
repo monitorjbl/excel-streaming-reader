@@ -1,13 +1,16 @@
 package com.github.pjfanning.xlsx.impl.ooxml;
 
+import org.apache.poi.util.Beta;
+
+import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-import javax.xml.stream.XMLStreamException;
 
+@Beta
 public class OoXmlStrictConverterInputStream extends InputStream {
     private final ZipInputStream input;
     private final ByteArrayOutputStreamExposed buffer = new ByteArrayOutputStreamExposed();

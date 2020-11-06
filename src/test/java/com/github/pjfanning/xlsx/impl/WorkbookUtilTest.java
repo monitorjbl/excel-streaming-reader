@@ -1,6 +1,5 @@
 package com.github.pjfanning.xlsx.impl;
 
-import com.github.pjfanning.xlsx.impl.WorkbookUtil;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.junit.Test;

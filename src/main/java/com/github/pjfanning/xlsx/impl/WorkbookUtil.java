@@ -9,9 +9,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
-import static com.github.pjfanning.xlsx.XmlUtils.evaluateBoolean;
-import static com.github.pjfanning.xlsx.XmlUtils.readDocument;
-import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
+import static com.github.pjfanning.xlsx.XmlUtils.*;
 
 public class WorkbookUtil {
   public static boolean use1904Dates(XSSFReader reader) throws IOException, InvalidFormatException, ParserConfigurationException, SAXException {

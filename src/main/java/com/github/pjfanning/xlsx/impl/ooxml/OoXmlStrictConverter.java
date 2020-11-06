@@ -1,28 +1,17 @@
 package com.github.pjfanning.xlsx.impl.ooxml;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLEventFactory;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.Namespace;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.util.Beta;
 import org.apache.poi.util.XMLHelper;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.*;
+import javax.xml.stream.events.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.*;
+
+@Beta
 public class OoXmlStrictConverter implements AutoCloseable {
 
     private static final XMLEventFactory XEF = XMLHelper.newXMLEventFactory();
@@ -77,9 +66,9 @@ public class OoXmlStrictConverter implements AutoCloseable {
             return xe;
         }
 
-        Date date = HSSFDateUtil.parseYYYYMMDDDate(xe.asCharacters().getData());
+        Date date = DateUtil.parseYYYYMMDDDate(xe.asCharacters().getData());
 
-        double excelDate = HSSFDateUtil.getExcelDate(date);
+        double excelDate = DateUtil.getExcelDate(date);
 
         return XEF.createCharacters(Double.toString(excelDate));
     }
