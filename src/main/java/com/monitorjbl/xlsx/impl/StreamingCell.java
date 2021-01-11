@@ -52,6 +52,12 @@ public class StreamingCell implements Cell {
     this.use1904Dates = use1904Dates;
   }
 
+    public Object getRawContents() {
+        return rawContents;
+    }
+    
+    
+
   public void setContentSupplier(Supplier contentsSupplier) {
     this.contentsSupplier = contentsSupplier;
   }
