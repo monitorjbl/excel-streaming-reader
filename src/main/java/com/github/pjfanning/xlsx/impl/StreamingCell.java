@@ -15,12 +15,7 @@ import java.util.Date;
 
 public class StreamingCell implements Cell {
 
-  private static final Supplier NULL_SUPPLIER = new Supplier() {
-    @Override
-    public Object getContent() {
-      return null;
-    }
-  };
+  private static final Supplier NULL_SUPPLIER = () -> null;
 
   private final Sheet sheet;
   private int columnIndex;
@@ -149,18 +144,6 @@ public class StreamingCell implements Cell {
     } else {
       throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
     }
-  }
-
-  /**
-   * Return the cell type.
-   *
-   * @return the cell type
-   * Will be renamed to <code>getCellType()</code> when we make the CellType enum transition in POI 4.0. See bug 59791.
-   */
-  @Override
-  @Deprecated
-  public CellType getCellTypeEnum() {
-    return getCellType();
   }
 
   /**
@@ -330,7 +313,7 @@ public class StreamingCell implements Cell {
 
   @Override
   public LocalDateTime getLocalDateTimeCellValue() {
-    if(getCellType() == CellType.STRING){
+    if(getCellType() == CellType.STRING) {
       throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
     }
     return rawContents == null ? null : DateUtil.getLocalDateTime(getNumericCellValue(), use1904Dates);
@@ -339,12 +322,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setCellValue(LocalDate value) {
     this.setCellValue(DateUtil.getExcelDate(value, use1904Dates));
-  }
-
-  @Deprecated
-  @Override
-  public CellType getCachedFormulaResultTypeEnum() {
-    return getCachedFormulaResultType();
   }
 
   /* Not supported */
