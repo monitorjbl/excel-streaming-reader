@@ -158,6 +158,21 @@ public class StreamingWorkbookTest {
     }
   }
 
+  @Test
+  public void testInlineString() throws Exception {
+    //https://bz.apache.org/bugzilla/show_bug.cgi?id=65096
+    try(Workbook workbook = openWorkbook("InlineString.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Cell A1 = getCellFromNextRow(rowIterator, 0);
+
+      expectType(A1, STRING);
+      expectStringContent(A1, "\uD83D\uDE1Cmore text");
+      expectRichStringContent(A1, "\uD83D\uDE1Cmore text");
+    }
+  }
+
   @Test(expected = ParseException.class)
   public void testEntityExpansion() throws Exception {
     ExploitServer.withServer(s -> fail("Should not have made request"), () -> {

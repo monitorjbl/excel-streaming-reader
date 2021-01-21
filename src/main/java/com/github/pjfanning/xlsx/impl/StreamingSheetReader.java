@@ -41,11 +41,15 @@ public class StreamingSheetReader implements Iterable<Row> {
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
 
-  private String lastContents;
+  private String lastContents = "";
+  private String lastFormula = "";
   private StreamingSheet sheet;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
   private boolean use1904Dates;
+  private boolean insideCharElement = false;
+  private boolean insideFormulaElement = false;
+  private boolean insideIS = false;
 
   public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
     this.sst = sst;
@@ -104,8 +108,14 @@ public class StreamingSheetReader implements Iterable<Row> {
    */
   private void handleEvent(XMLEvent event) throws SAXException {
     if(event.getEventType() == XMLStreamConstants.CHARACTERS) {
-      Characters c = event.asCharacters();
-      lastContents += c.getData();
+      if (insideCharElement) {
+        Characters c = event.asCharacters();
+        lastContents += c.getData();
+      }
+      if (insideFormulaElement) {
+        Characters c = event.asCharacters();
+        lastFormula += c.getData();
+      }
     } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
         && isSpreadsheetTag(event.asStartElement().getName())) {
       StartElement startElement = event.asStartElement();
@@ -136,7 +146,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
-        if(ref != null) {
+        if (ref != null) {
           String[] coord = splitCellRef(ref.getValue());
           currentColNum = CellReference.convertColStringToIndex(coord[0]);
           currentCell = new StreamingCell(sheet, currentColNum, Integer.parseInt(coord[1]) - 1, use1904Dates);
@@ -146,24 +156,28 @@ public class StreamingSheetReader implements Iterable<Row> {
         setFormatString(startElement, currentCell);
 
         Attribute type = startElement.getAttributeByName(new QName("t"));
-        if(type != null) {
+        if (type != null) {
           currentCell.setType(type.getValue());
         } else {
           currentCell.setType("n");
         }
 
         Attribute style = startElement.getAttributeByName(new QName("s"));
-        if(style != null) {
+        if (style != null) {
           String indexStr = style.getValue();
           try {
             int index = Integer.parseInt(indexStr);
             currentCell.setCellStyle(stylesTable.getStyleAt(index));
-          } catch(NumberFormatException nfe) {
+          } catch (NumberFormatException nfe) {
             log.warn("Ignoring invalid style index {}", indexStr);
           }
         } else {
           currentCell.setCellStyle(stylesTable.getStyleAt(0));
         }
+      } else if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
+        insideCharElement = true;
+      } else if("is".equals(tagLocalName)) {
+        insideIS = true;
       } else if("dimension".equals(tagLocalName)) {
         Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
         String ref = refAttr != null ? refAttr.getValue() : null;
@@ -195,19 +209,24 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
         }
       } else if("f".equals(tagLocalName)) {
+        insideFormulaElement = true;
         if (currentCell != null) {
           currentCell.setFormulaType(true);
         }
       }
 
-      // Clear contents cache
-      lastContents = "";
+      if (!insideIS) {
+        // Clear contents cache
+        lastContents = "";
+      }
+      lastFormula = "";
     } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT
         && isSpreadsheetTag(event.asEndElement().getName())) {
       EndElement endElement = event.asEndElement();
       String tagLocalName = endElement.getName().getLocalPart();
 
       if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
+        insideCharElement = false;
         currentCell.setRawContents(unformattedContents());
         currentCell.setContentSupplier(formattedContents());
       } else if("row".equals(tagLocalName) && currentRow != null) {
@@ -217,9 +236,12 @@ public class StreamingSheetReader implements Iterable<Row> {
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
         currentCell = null;
         currentColNum++;
+      } else if("is".equals(tagLocalName)) {
+        insideIS = false;
       } else if("f".equals(tagLocalName)) {
+        insideFormulaElement = true;
         if (currentCell != null) {
-          currentCell.setFormula(lastContents);
+          currentCell.setFormula(lastFormula);
         }
       }
 
