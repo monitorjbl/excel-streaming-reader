@@ -13,13 +13,27 @@ public class WorkbookUtilTest {
 
   @Test
   public void testUse1904Dates() throws Exception {
-    assertTrue(WorkbookUtil.use1904Dates(open("1904Dates.xlsx")));
-    assertTrue(WorkbookUtil.use1904Dates(open("1904Dates_true.xlsx")));
-    assertFalse(WorkbookUtil.use1904Dates(open("empty_sheet.xlsx")));
+    File dates1904File = getFile("1904Dates.xlsx");
+    File dates1904TrueFile = getFile("1904Dates_true.xlsx");
+    File emptySheetFile = getFile("empty_sheet.xlsx");
+
+    try (OPCPackage pkg = OPCPackage.open(dates1904File)) {
+      assertTrue(WorkbookUtil.use1904Dates(open(pkg)));
+    }
+    try (OPCPackage pkg = OPCPackage.open(dates1904TrueFile)) {
+      assertTrue(WorkbookUtil.use1904Dates(open(pkg)));
+    }
+    try (OPCPackage pkg = OPCPackage.open(emptySheetFile)) {
+      assertFalse(WorkbookUtil.use1904Dates(open(pkg)));
+    }
   }
 
-  private XSSFReader open(String file) throws Exception {
-    return new XSSFReader(OPCPackage.open(new File("src/test/resources/" + file)));
+  private File getFile(String file) throws Exception {
+    return new File("src/test/resources/" + file);
+  }
+
+  private XSSFReader open(OPCPackage pkg) throws Exception {
+    return new XSSFReader(pkg);
   }
 
 }
