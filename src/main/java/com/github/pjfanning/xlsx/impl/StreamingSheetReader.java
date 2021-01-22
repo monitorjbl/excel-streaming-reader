@@ -41,8 +41,8 @@ public class StreamingSheetReader implements Iterable<Row> {
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
 
-  private String lastContents = "";
-  private StringBuilder lastFormula = new StringBuilder(64);
+  private StringBuilder contentBuilder = new StringBuilder(64);
+  private StringBuilder formulaBuilder = new StringBuilder(64);
   private StreamingSheet sheet;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
@@ -109,11 +109,11 @@ public class StreamingSheetReader implements Iterable<Row> {
   private void handleEvent(XMLEvent event) throws SAXException {
     if(event.getEventType() == XMLStreamConstants.CHARACTERS) {
       if (insideCharElement) {
-        lastContents += event.asCharacters().getData();
+        contentBuilder.append(event.asCharacters().getData());
       }
       if (insideFormulaElement) {
         Characters c = event.asCharacters();
-        lastFormula.append(event.asCharacters().getData());
+        formulaBuilder.append(event.asCharacters().getData());
       }
     } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
         && isSpreadsheetTag(event.asStartElement().getName())) {
@@ -215,10 +215,9 @@ public class StreamingSheetReader implements Iterable<Row> {
       }
 
       if (!insideIS) {
-        // Clear contents cache
-        lastContents = "";
+        contentBuilder.setLength(0);
       }
-      lastFormula.setLength(0);
+      formulaBuilder.setLength(0);
     } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT
         && isSpreadsheetTag(event.asEndElement().getName())) {
       EndElement endElement = event.asEndElement();
@@ -240,7 +239,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("f".equals(tagLocalName)) {
         insideFormulaElement = true;
         if (currentCell != null) {
-          currentCell.setFormula(lastFormula.toString());
+          currentCell.setFormula(formulaBuilder.toString());
         }
       }
 
@@ -254,9 +253,6 @@ public class StreamingSheetReader implements Iterable<Row> {
    * <li>http://purl.oclc.org/ooxml/spreadsheetml/main
    * </ul>
    * As opposed to http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing, etc.
-   *
-   * @param name
-   * @return
    */
   private boolean isSpreadsheetTag(QName name) {
     return (name.getNamespaceURI() != null
@@ -278,8 +274,6 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   /**
    * Gets the last row on the sheet
-   *
-   * @return
    */
   int getFirstRowNum() {
     if(rowCacheIterator == null) {
@@ -290,8 +284,6 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   /**
    * Gets the last row on the sheet
-   *
-   * @return
    */
   int getLastRowNum() {
     if(rowCacheIterator == null) {
@@ -336,8 +328,6 @@ public class StreamingSheetReader implements Iterable<Row> {
   /**
    * Tries to format the contents of the last contents appropriately based on
    * the type of cell and the discovered numeric format.
-   *
-   * @return
    */
   Supplier formattedContents() {
     return getFormatterForType(currentCell.getType());
@@ -346,10 +336,9 @@ public class StreamingSheetReader implements Iterable<Row> {
   /**
    * Tries to format the contents of the last contents appropriately based on
    * the provided type and the discovered numeric format.
-   *
-   * @return
    */
   private Supplier getFormatterForType(String type) {
+    final String lastContents = contentBuilder.toString();
     switch(type) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
@@ -396,10 +385,9 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   /**
    * Returns the contents of the cell, with no formatting applied
-   *
-   * @return
    */
   String unformattedContents() {
+    final String lastContents = contentBuilder.toString();
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
