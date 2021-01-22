@@ -42,7 +42,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private Iterator<Row> rowCacheIterator;
 
   private String lastContents = "";
-  private String lastFormula = "";
+  private StringBuilder lastFormula = new StringBuilder(64);
   private StreamingSheet sheet;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
@@ -109,12 +109,11 @@ public class StreamingSheetReader implements Iterable<Row> {
   private void handleEvent(XMLEvent event) throws SAXException {
     if(event.getEventType() == XMLStreamConstants.CHARACTERS) {
       if (insideCharElement) {
-        Characters c = event.asCharacters();
-        lastContents += c.getData();
+        lastContents += event.asCharacters().getData();
       }
       if (insideFormulaElement) {
         Characters c = event.asCharacters();
-        lastFormula += c.getData();
+        lastFormula.append(event.asCharacters().getData());
       }
     } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
         && isSpreadsheetTag(event.asStartElement().getName())) {
@@ -219,7 +218,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         // Clear contents cache
         lastContents = "";
       }
-      lastFormula = "";
+      lastFormula.setLength(0);
     } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT
         && isSpreadsheetTag(event.asEndElement().getName())) {
       EndElement endElement = event.asEndElement();
@@ -241,7 +240,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("f".equals(tagLocalName)) {
         insideFormulaElement = true;
         if (currentCell != null) {
-          currentCell.setFormula(lastFormula);
+          currentCell.setFormula(lastFormula.toString());
         }
       }
 
