@@ -26,7 +26,7 @@ public class StreamingSheetTest {
   @Test
   public void testLastRowNum() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/large.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/large.xlsx");
         Workbook workbook = StreamingReader.builder().open(is);
     ) {
       assertEquals(1, workbook.getNumberOfSheets());
@@ -36,7 +36,7 @@ public class StreamingSheetTest {
     }
 
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/empty_sheet.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/empty_sheet.xlsx");
         Workbook workbook = StreamingReader.builder().open(is);
     ) {
       assertEquals(1, workbook.getNumberOfSheets());
@@ -49,7 +49,7 @@ public class StreamingSheetTest {
   @Test
   public void testEmptyCellShouldHaveGeneralStyle() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/large.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/large.xlsx");
         Workbook workbook = StreamingReader.builder().open(is);
     ) {
       assertEquals(1, workbook.getNumberOfSheets());
@@ -63,7 +63,7 @@ public class StreamingSheetTest {
   @Test
   public void testRowIteratorNext() throws Exception {
     try(
-            InputStream is = new FileInputStream(new File("src/test/resources/large.xlsx"));
+            InputStream is = new FileInputStream("src/test/resources/large.xlsx");
             Workbook workbook = StreamingReader.builder().rowCacheSize(5).open(is);
     ) {
       assertEquals(1, workbook.getNumberOfSheets());

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.pjfanning</groupId>
   <artifactId>excel-streaming-reader</artifactId>
-  <version>2.4.2-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <name>Streaming Excel reader</name>
   <description>Streaming Excel reader</description>
   <url>https://github.com/pjfanning/excel-streaming-reader</url>

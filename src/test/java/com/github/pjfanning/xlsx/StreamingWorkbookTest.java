@@ -27,7 +27,7 @@ public class StreamingWorkbookTest {
   @Test
   public void testIterateSheets() throws Exception {
     try(
-            InputStream is = new FileInputStream(new File("src/test/resources/sheets.xlsx"));
+            InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
             Workbook workbook = StreamingReader.builder().open(is);
     ) {
 
@@ -49,7 +49,7 @@ public class StreamingWorkbookTest {
   @Test
   public void testHiddenCells() throws Exception {
     try(
-            InputStream is = new FileInputStream(new File("src/test/resources/hidden.xlsx"));
+            InputStream is = new FileInputStream("src/test/resources/hidden.xlsx");
             Workbook workbook = StreamingReader.builder().open(is)
     ) {
       assertEquals(3, workbook.getNumberOfSheets());
@@ -68,7 +68,7 @@ public class StreamingWorkbookTest {
   @Test
   public void testHiddenSheets() throws Exception {
     try(
-            InputStream is = new FileInputStream(new File("src/test/resources/hidden.xlsx"));
+            InputStream is = new FileInputStream("src/test/resources/hidden.xlsx");
             Workbook workbook = StreamingReader.builder().open(is)
     ) {
       assertEquals(3, workbook.getNumberOfSheets());
@@ -170,6 +170,28 @@ public class StreamingWorkbookTest {
       expectType(A1, STRING);
       expectStringContent(A1, "\uD83D\uDE1Cmore text");
       expectRichStringContent(A1, "\uD83D\uDE1Cmore text");
+    }
+  }
+
+  @Test
+  public void testMissingRattrs() throws Exception {
+    try(Workbook workbook = openWorkbook("missing-r-attrs.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+      Row row = rowIterator.next();
+      assertEquals(0, row.getRowNum());
+      assertEquals("1", row.getCell(0).getStringCellValue());
+      assertEquals("5", row.getCell(4).getStringCellValue());
+      row = rowIterator.next();
+      assertEquals(1, row.getRowNum());
+      assertEquals("6", row.getCell(0).getStringCellValue());
+      assertEquals("10", row.getCell(4).getStringCellValue());
+      row = rowIterator.next();
+      assertEquals(6, row.getRowNum());
+      assertEquals("11", row.getCell(0).getStringCellValue());
+      assertEquals("15", row.getCell(4).getStringCellValue());
+
+      assertFalse(rowIterator.hasNext());
     }
   }
 
