@@ -39,7 +39,6 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
-import static java.util.Arrays.asList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
