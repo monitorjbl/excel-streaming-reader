@@ -178,7 +178,7 @@ public class OoXmlStrictConverterInputStream extends InputStream {
 
     private static class ByteArrayOutputStreamExposed extends ByteArrayOutputStream {
 
-        public byte[] getBytes() {
+        byte[] getBytes() {
             return buf;
         }
     }
