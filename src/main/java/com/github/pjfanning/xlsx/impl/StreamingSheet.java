@@ -16,11 +16,6 @@ public class StreamingSheet implements Sheet {
   private final StreamingSheetReader reader;
   private final StreamingWorkbook workbook;
 
-  @Deprecated
-  public StreamingSheet(String name, StreamingSheetReader reader) {
-    this(null, name, reader);
-  }
-
   public StreamingSheet(StreamingWorkbook workbook, String name, StreamingSheetReader reader) {
     this.workbook = workbook;
     this.name = name;

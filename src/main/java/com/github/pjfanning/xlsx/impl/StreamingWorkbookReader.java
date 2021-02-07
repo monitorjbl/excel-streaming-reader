@@ -54,24 +54,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private StreamingWorkbook workbook = null;
   private POIXMLProperties.CoreProperties coreProperties = null;
 
-  /**
-   * This constructor exists only so the StreamingReader can instantiate
-   * a StreamingWorkbook using its own reader implementation. Do not use
-   * going forward.
-   *
-   * @param sst      The SST data for this workbook
-   * @param pkg      The POI package that should be closed when this workbook is closed
-   * @param reader   A single streaming reader instance
-   * @param builder  The builder containing all options
-   */
-  @Deprecated
-  public StreamingWorkbookReader(SharedStringsTable sst, OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
-    this.sst = sst;
-    this.pkg = pkg;
-    this.sheets = asList(new StreamingSheet(null, null, reader));
-    this.builder = builder;
-  }
-
   public StreamingWorkbookReader(Builder builder) {
     this.sheets = new ArrayList<>();
     this.builder = builder;
