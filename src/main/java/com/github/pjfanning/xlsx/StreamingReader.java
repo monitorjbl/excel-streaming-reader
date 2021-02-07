@@ -42,6 +42,7 @@ public class StreamingReader implements AutoCloseable {
   public static class Builder {
     private int rowCacheSize = 10;
     private int bufferSize = 1024;
+    private boolean avoidTempFiles = false;
     private boolean useSstTempFile = false;
     private boolean encryptSstTempFile = false;
     private boolean readCoreProperties = false;
@@ -61,6 +62,13 @@ public class StreamingReader implements AutoCloseable {
      */
     public String getPassword() {
       return password;
+    }
+
+    /**
+     * @return Whether to avoid temp files when reading input streams.
+     */
+    public boolean avoidTempFiles() {
+      return avoidTempFiles;
     }
 
     /**
@@ -147,6 +155,20 @@ public class StreamingReader implements AutoCloseable {
     @Beta
     public Builder convertFromOoXmlStrict(boolean convertFromOoXmlStrict) {
       this.convertFromOoXmlStrict = convertFromOoXmlStrict;
+      return this;
+    }
+
+    /**
+     * Enables a mode where the code tries to avoid creating temp files. This is independent of
+     * {@code #setUseSstTempFile}.
+     * <p>
+     * By default, temp files are used to avoid holding onto too much data in memory.
+     *
+     * @param avoidTempFiles whether to avoid using temp files when reading from input streams
+     * @return reference to current {@code Builder}
+     */
+    public Builder setAvoidTempFiles(boolean avoidTempFiles) {
+      this.avoidTempFiles = avoidTempFiles;
       return this;
     }
 

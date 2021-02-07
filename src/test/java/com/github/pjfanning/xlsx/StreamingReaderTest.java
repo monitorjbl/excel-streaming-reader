@@ -662,15 +662,36 @@ public class StreamingReaderTest {
   @Test
   public void testEncryption() throws Exception {
     try(
-        InputStream is = new FileInputStream("src/test/resources/encrypted.xlsx");
-        Workbook wb = StreamingReader.builder().password("test").open(is)) {
-      OUTER:
-      for(Row r : wb.getSheetAt(0)) {
-        for(Cell c : r) {
-          assertEquals("Demo", c.getStringCellValue());
-          assertEquals("Demo", c.getRichStringCellValue().getString());
-          break OUTER;
-        }
+            InputStream is = new FileInputStream("src/test/resources/encrypted.xlsx");
+            Workbook wb = StreamingReader.builder().password("test").open(is)) {
+      iterateEncryptedFile(wb);
+    }
+  }
+
+  @Test
+  public void testEncryptionUsingAvoidTempFiles() throws Exception {
+    try(
+            InputStream is = new FileInputStream("src/test/resources/encrypted.xlsx");
+            Workbook wb = StreamingReader.builder().setAvoidTempFiles(true).password("test").open(is)) {
+      iterateEncryptedFile(wb);
+    }
+  }
+
+  @Test
+  public void testEncryptionUsingFile() throws Exception {
+    try(Workbook wb = StreamingReader.builder().password("test")
+            .open(new File("src/test/resources/encrypted.xlsx"))) {
+      iterateEncryptedFile(wb);
+    }
+  }
+
+  private void iterateEncryptedFile(Workbook wb) {
+    OUTER:
+    for(Row r : wb.getSheetAt(0)) {
+      for(Cell c : r) {
+        assertEquals("Demo", c.getStringCellValue());
+        assertEquals("Demo", c.getRichStringCellValue().getString());
+        break OUTER;
       }
     }
   }

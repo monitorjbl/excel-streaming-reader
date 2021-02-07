@@ -30,20 +30,41 @@ public class StreamingWorkbookTest {
             InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
             Workbook workbook = StreamingReader.builder().open(is);
     ) {
-
-      assertEquals(2, workbook.getNumberOfSheets());
-
-      Sheet alpha = workbook.getSheetAt(0);
-      Sheet zulu = workbook.getSheetAt(1);
-      assertEquals("SheetAlpha", alpha.getSheetName());
-      assertEquals("SheetZulu", zulu.getSheetName());
-
-      Row rowA = alpha.rowIterator().next();
-      Row rowZ = zulu.rowIterator().next();
-
-      assertEquals("stuff", rowA.getCell(0).getStringCellValue());
-      assertEquals("yeah", rowZ.getCell(0).getStringCellValue());
+      testIteration(workbook);
     }
+  }
+
+  @Test
+  public void testIterateSheetsUsingAvoidTempFiles() throws Exception {
+    StreamingReader.Builder builder = StreamingReader.builder().setAvoidTempFiles(true);
+    try(
+            InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
+            Workbook workbook = builder.open(is);
+    ) {
+      testIteration(workbook);
+    }
+  }
+
+  @Test
+  public void testIterateSheetsUsingFile() throws Exception {
+    try(Workbook workbook = StreamingReader.builder().open(new File("src/test/resources/sheets.xlsx"))) {
+      testIteration(workbook);
+    }
+  }
+
+  private void testIteration(Workbook workbook) {
+    assertEquals(2, workbook.getNumberOfSheets());
+
+    Sheet alpha = workbook.getSheetAt(0);
+    Sheet zulu = workbook.getSheetAt(1);
+    assertEquals("SheetAlpha", alpha.getSheetName());
+    assertEquals("SheetZulu", zulu.getSheetName());
+
+    Row rowA = alpha.rowIterator().next();
+    Row rowZ = zulu.rowIterator().next();
+
+    assertEquals("stuff", rowA.getCell(0).getStringCellValue());
+    assertEquals("yeah", rowZ.getCell(0).getStringCellValue());
   }
 
   @Test

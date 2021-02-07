@@ -59,38 +59,53 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   }
 
   public void init(InputStream is) {
-    File f = null;
-    try {
-      f = TempFileUtil.writeInputStreamToFile(is, builder.getBufferSize());
-      log.debug("Created temp file [" + f.getAbsolutePath() + "]");
-
-      init(f);
-      tmp = f;
-    } catch(IOException e) {
-      throw new ReadException("Unable to read input stream", e);
-    } catch(RuntimeException e) {
-      if (f != null) {
-        f.delete();
+    if (builder.avoidTempFiles()) {
+      try {
+        if(builder.getPassword() != null) {
+          POIFSFileSystem poifs = new POIFSFileSystem(is);
+          decryptWorkbook(poifs);
+        } else {
+          if (builder.convertFromOoXmlStrict()) {
+            try(InputStream stream = new OoXmlStrictConverterInputStream(is)) {
+              pkg = OPCPackage.open(stream);
+            }
+          } else {
+            pkg = OPCPackage.open(is);
+          }
+        }
+        loadPackage(pkg);
+      } catch(SAXException | ParserConfigurationException e) {
+        throw new ParseException("Failed to parse stream", e);
+      } catch(IOException e) {
+        throw new OpenException("Failed to open stream", e);
+      } catch(OpenXML4JException | XMLStreamException e) {
+        throw new ReadException("Unable to read workbook", e);
+      } catch(GeneralSecurityException e) {
+        throw new ReadException("Unable to read workbook - Decryption failed", e);
       }
-      throw e;
+    } else {
+      File f = null;
+      try {
+        f = TempFileUtil.writeInputStreamToFile(is, builder.getBufferSize());
+        log.debug("Created temp file [" + f.getAbsolutePath() + "]");
+        init(f);
+        tmp = f;
+      } catch(IOException e) {
+        throw new ReadException("Unable to read input stream", e);
+      } catch(RuntimeException e) {
+        if (f != null) {
+          f.delete();
+        }
+        throw e;
+      }
     }
   }
 
   public void init(File f) {
     try {
       if(builder.getPassword() != null) {
-        // Based on: https://poi.apache.org/encryption.html
         POIFSFileSystem poifs = new POIFSFileSystem(f);
-        EncryptionInfo info = new EncryptionInfo(poifs);
-        Decryptor d = Decryptor.getInstance(info);
-        d.verifyPassword(builder.getPassword());
-        if (builder.convertFromOoXmlStrict()) {
-          try(InputStream stream = new OoXmlStrictConverterInputStream(d.getDataStream(poifs))) {
-            pkg = OPCPackage.open(stream);
-          }
-        } else {
-          pkg = OPCPackage.open(d.getDataStream(poifs));
-        }
+        decryptWorkbook(poifs);
       } else {
         if (builder.convertFromOoXmlStrict()) {
           try(InputStream stream = new OoXmlStrictConverterInputStream(new FileInputStream(f))) {
@@ -100,28 +115,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
           pkg = OPCPackage.open(f);
         }
       }
-
-      XSSFReader reader = new XSSFReader(pkg);
-      if(builder.useSstTempFile()) {
-        log.debug("Created sst cache file");
-        sst = new TempFileSharedStringsTable(pkg, builder.encryptSstTempFile());
-      } else {
-        sst = reader.getSharedStringsTable();
-      }
-
-      if (builder.readCoreProperties()) {
-        try {
-          POIXMLProperties xmlProperties = new POIXMLProperties(pkg);
-          coreProperties = xmlProperties.getCoreProperties();
-        } catch (Exception e) {
-          log.warn("Failed to read coreProperties", e);
-        }
-      }
-
-      StylesTable styles = reader.getStylesTable();
-      use1904Dates = WorkbookUtil.use1904Dates(reader);
-
-      loadSheets(reader, sst, styles, builder.getRowCacheSize());
+      loadPackage(pkg);
     } catch(SAXException | ParserConfigurationException e) {
       throw new ParseException("Failed to parse file", e);
     } catch(IOException e) {
@@ -131,6 +125,44 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     } catch(GeneralSecurityException e) {
       throw new ReadException("Unable to read workbook - Decryption failed", e);
     }
+  }
+
+  private void decryptWorkbook(POIFSFileSystem poifs) throws IOException, GeneralSecurityException, InvalidFormatException {
+    // Based on: https://poi.apache.org/encryption.html
+    EncryptionInfo info = new EncryptionInfo(poifs);
+    Decryptor d = Decryptor.getInstance(info);
+    d.verifyPassword(builder.getPassword());
+    if (builder.convertFromOoXmlStrict()) {
+      try(InputStream stream = new OoXmlStrictConverterInputStream(d.getDataStream(poifs))) {
+        pkg = OPCPackage.open(stream);
+      }
+    } else {
+      pkg = OPCPackage.open(d.getDataStream(poifs));
+    }
+  }
+
+  private void loadPackage(OPCPackage pkg) throws IOException, OpenXML4JException, ParserConfigurationException, SAXException, XMLStreamException {
+    XSSFReader reader = new XSSFReader(pkg);
+    if(builder.useSstTempFile()) {
+      log.debug("Created sst cache file");
+      sst = new TempFileSharedStringsTable(pkg, builder.encryptSstTempFile());
+    } else {
+      sst = reader.getSharedStringsTable();
+    }
+
+    if (builder.readCoreProperties()) {
+      try {
+        POIXMLProperties xmlProperties = new POIXMLProperties(pkg);
+        coreProperties = xmlProperties.getCoreProperties();
+      } catch (Exception e) {
+        log.warn("Failed to read coreProperties", e);
+      }
+    }
+
+    StylesTable styles = reader.getStylesTable();
+    use1904Dates = WorkbookUtil.use1904Dates(reader);
+
+    loadSheets(reader, sst, styles, builder.getRowCacheSize());
   }
 
   void setWorkbook(StreamingWorkbook workbook) {
