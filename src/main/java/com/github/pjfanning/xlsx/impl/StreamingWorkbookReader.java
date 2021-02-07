@@ -58,10 +58,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     this.builder = builder;
   }
 
-  public StreamingSheetReader first() {
-    return sheets.get(0).getReader();
-  }
-
   public void init(InputStream is) {
     File f = null;
     try {
