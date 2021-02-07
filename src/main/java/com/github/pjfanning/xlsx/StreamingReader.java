@@ -2,7 +2,6 @@ package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.*;
 import com.github.pjfanning.xlsx.impl.*;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.Beta;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import java.io.InputStream;
 public class StreamingReader implements AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingReader.class);
 
-  private File tmp;
   private final StreamingWorkbookReader workbook;
 
   public StreamingReader(StreamingWorkbookReader workbook) {
@@ -34,16 +32,7 @@ public class StreamingReader implements AutoCloseable {
    */
   @Override
   public void close() throws IOException {
-    try {
-      workbook.close();
-    } finally {
-      if(tmp != null) {
-        if (log.isDebugEnabled()) {
-          log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
-        }
-        tmp.delete();
-      }
-    }
+    workbook.close();
   }
 
   public static Builder builder() {
