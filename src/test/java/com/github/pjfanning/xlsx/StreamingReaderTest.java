@@ -899,12 +899,16 @@ public class StreamingReaderTest {
       assertTrue(rowIterator.hasNext());
       currentRow = rowIterator.next();
 
+      List<String> expected = Arrays.asList(new String[] {
+              "10002", "John", "Doe", "06/09/1976", "1", "NORMAL", "NORMAL", "CUSTOMER", "Customer",
+              "NOT_CONFIRMED", "94", "2", "FALSE()" });
+
       for (int i = 0; i < currentRow.getLastCellNum(); i++) {
         Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
         String value = formatter.formatCellValue(cell);
 
-        assertEquals(getExpectedValue(i), value);
+        assertEquals(expected.get(i), value);
       }
 
     }
@@ -922,36 +926,5 @@ public class StreamingReaderTest {
       assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
       assertEquals("semadmin", swb.getCoreProperties().getCreator());
     }
-  }
-
-  private String getExpectedValue(int cell) {
-    switch (cell) {
-      case 0:
-        return "10002";
-      case 1:
-        return "John";
-      case 2:
-        return "Doe";
-      case 3:
-        return "06/09/1976";
-      case 4:
-        return "1";
-      case 5:
-      case 6:
-        return "NORMAL";
-      case 7:
-        return "CUSTOMER";
-      case 8:
-        return "Customer";
-      case 9:
-        return "NOT_CONFIRMED";
-      case 10:
-        return "94";
-      case 11:
-        return "2";
-      case 12:
-        return "FALSE()";
-    }
-    return null;
   }
 }

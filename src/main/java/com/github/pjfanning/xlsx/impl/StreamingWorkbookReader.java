@@ -159,7 +159,14 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       }
     }
 
-    StylesTable styles = reader.getStylesTable();
+    StylesTable styles;
+    try {
+      styles = reader.getStylesTable();
+    } catch (Exception e) {
+      log.warn("Failed to read styles table {}", e.toString());
+      styles = null;
+    }
+
     use1904Dates = WorkbookUtil.use1904Dates(reader);
 
     loadSheets(reader, sst, styles, builder.getRowCacheSize());
