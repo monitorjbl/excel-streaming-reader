@@ -396,6 +396,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
             int idx = Integer.parseInt(lastContents);
+            if (sst == null) throw new NullPointerException("sst is null");
             return sst.getItemAt(idx).toString();
         }
         return lastContents;
