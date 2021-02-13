@@ -165,8 +165,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       styles = reader.getStylesTable();
     } catch (Exception e) {
       try {
-        ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(pkg);
-        StylesTable stylesTable = OoxmlStrictHelper.getStylesTable(pkg);
+        ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
+        StylesTable stylesTable = OoxmlStrictHelper.getStylesTable(builder, pkg);
         stylesTable.setTheme(themesTable);
         styles = stylesTable;
       } catch (Exception e2) {
