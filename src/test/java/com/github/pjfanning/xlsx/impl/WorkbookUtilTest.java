@@ -1,8 +1,8 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.impl.ooxml.XSSFReader;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.junit.Test;
 
 import java.io.File;

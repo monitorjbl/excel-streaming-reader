@@ -1,7 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.impl.ooxml.XSSFReader;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;

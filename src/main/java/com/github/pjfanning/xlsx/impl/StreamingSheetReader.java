@@ -161,17 +161,19 @@ public class StreamingSheetReader implements Iterable<Row> {
           currentCell.setType("n");
         }
 
-        Attribute style = startElement.getAttributeByName(new QName("s"));
-        if (style != null) {
-          String indexStr = style.getValue();
-          try {
-            int index = Integer.parseInt(indexStr);
-            currentCell.setCellStyle(stylesTable.getStyleAt(index));
-          } catch (NumberFormatException nfe) {
-            log.warn("Ignoring invalid style index {}", indexStr);
+        if (stylesTable != null) {
+          Attribute style = startElement.getAttributeByName(new QName("s"));
+          if (style != null) {
+            String indexStr = style.getValue();
+            try {
+              int index = Integer.parseInt(indexStr);
+              currentCell.setCellStyle(stylesTable.getStyleAt(index));
+            } catch (NumberFormatException nfe) {
+              log.warn("Ignoring invalid style index {}", indexStr);
+            }
+          } else {
+            currentCell.setCellStyle(stylesTable.getStyleAt(0));
           }
-        } else {
-          currentCell.setCellStyle(stylesTable.getStyleAt(0));
         }
       } else if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         insideCharElement = true;
@@ -304,10 +306,12 @@ public class StreamingSheetReader implements Iterable<Row> {
     String cellStyleString = (cellStyle != null) ? cellStyle.getValue() : null;
     XSSFCellStyle style = null;
 
-    if(cellStyleString != null) {
-      style = stylesTable.getStyleAt(Integer.parseInt(cellStyleString));
-    } else if(stylesTable.getNumCellStyles() > 0) {
-      style = stylesTable.getStyleAt(0);
+    if (stylesTable != null) {
+      if(cellStyleString != null) {
+        style = stylesTable.getStyleAt(Integer.parseInt(cellStyleString));
+      } else if(stylesTable.getNumCellStyles() > 0) {
+        style = stylesTable.getStyleAt(0);
+      }
     }
 
     if(style != null) {

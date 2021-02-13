@@ -8,6 +8,8 @@ import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
 import com.github.pjfanning.xlsx.impl.ooxml.OoXmlStrictConverterInputStream;
+import com.github.pjfanning.xlsx.impl.ooxml.OoxmlStrictHelper;
+import com.github.pjfanning.xlsx.impl.ooxml.XSSFReader;
 import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -17,10 +19,9 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.util.XMLHelper;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.model.ThemesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -163,8 +164,15 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     try {
       styles = reader.getStylesTable();
     } catch (Exception e) {
-      log.warn("Failed to read styles table {}", e.toString());
-      styles = null;
+      try {
+        ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(pkg);
+        StylesTable stylesTable = OoxmlStrictHelper.getStylesTable(pkg);
+        stylesTable.setTheme(themesTable);
+        styles = stylesTable;
+      } catch (Exception e2) {
+        log.warn("Failed to read styles table {}", e.toString());
+        styles = null;
+      }
     }
 
     use1904Dates = WorkbookUtil.use1904Dates(reader);
@@ -184,7 +192,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     //Some workbooks have multiple references to the same sheet. Need to filter
     //them out before creating the XMLEventReader by keeping track of their URIs.
     //The sheets are listed in order, so we must keep track of insertion order.
-    SheetIterator iter = (SheetIterator) reader.getSheetsData();
+    XSSFReader.SheetIterator iter = reader.getSheetsData();
     Map<URI, InputStream> sheetStreams = new LinkedHashMap<>();
     while(iter.hasNext()) {
       InputStream is = iter.next();

@@ -9,15 +9,17 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
 public class XmlUtils {
+
+  private static NamespaceContext transitionalFormatNamespaceContext =
+          new NamespaceContextImpl("ss", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+  private static NamespaceContextImpl strictFormatNamespaceContext =
+          new NamespaceContextImpl("ss", "http://purl.oclc.org/ooxml/spreadsheetml/main");
 
   public static final String FALSE_AS_STRING = "0";
   public static final String TRUE_AS_STRING  = "1";
@@ -29,11 +31,13 @@ public class XmlUtils {
   public static NodeList searchForNodeList(Document document, String xpath) {
     try {
       XPath xp = XPathFactory.newInstance().newXPath();
-      NamespaceContextImpl nc = new NamespaceContextImpl();
-      nc.addNamespace("ss", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-      xp.setNamespaceContext(nc);
-      return (NodeList)xp.compile(xpath)
-          .evaluate(document, XPathConstants.NODESET);
+      xp.setNamespaceContext(transitionalFormatNamespaceContext);
+      NodeList nl = (NodeList)xp.compile(xpath).evaluate(document, XPathConstants.NODESET);
+      if (nl.getLength() == 0) {
+        xp.setNamespaceContext(strictFormatNamespaceContext);
+        nl = (NodeList)xp.compile(xpath).evaluate(document, XPathConstants.NODESET);
+      }
+      return nl;
     } catch(XPathExpressionException e) {
       throw new ParseException(e);
     }
@@ -53,7 +57,12 @@ public class XmlUtils {
       addNamespace(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI);
     }
 
-    public synchronized void addNamespace(String prefix, String namespaceURI) {
+    public NamespaceContextImpl(String prefix, String uri) {
+      this();
+      addNamespace(prefix, uri);
+    }
+
+    private void addNamespace(String prefix, String namespaceURI) {
       urisByPrefix.put(prefix, namespaceURI);
       if (prefixesByURI.containsKey(namespaceURI)) {
         (prefixesByURI.get(namespaceURI)).add(prefix);
@@ -64,6 +73,7 @@ public class XmlUtils {
       }
     }
 
+    @Override
     public String getNamespaceURI(String prefix) {
       if (prefix == null)
         throw new IllegalArgumentException("prefix cannot be null");
@@ -73,10 +83,12 @@ public class XmlUtils {
         return XMLConstants.NULL_NS_URI;
     }
 
+    @Override
     public String getPrefix(String namespaceURI) {
       return (String) getPrefixes(namespaceURI).next();
     }
 
+    @Override
     public Iterator getPrefixes(String namespaceURI) {
       if (namespaceURI == null)
         throw new IllegalArgumentException("namespaceURI cannot be null");

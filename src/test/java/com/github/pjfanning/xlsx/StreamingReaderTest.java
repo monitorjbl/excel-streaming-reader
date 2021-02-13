@@ -901,7 +901,8 @@ public class StreamingReaderTest {
 
       List<String> expected = Arrays.asList(new String[] {
               "10002", "John", "Doe", "06/09/1976", "1", "NORMAL", "NORMAL", "CUSTOMER", "Customer",
-              "NOT_CONFIRMED", "94", "2", "FALSE()" });
+              "NOT_CONFIRMED", "94", "2", "FALSE()"
+      });
 
       for (int i = 0; i < currentRow.getLastCellNum(); i++) {
         Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
@@ -910,6 +911,46 @@ public class StreamingReaderTest {
 
         assertEquals(expected.get(i), value);
       }
+
+    }
+  }
+
+  @Test
+  public void testStrictOOMXL() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/sample.strict.xlsx");
+            Workbook wb = StreamingReader.builder().setUseSstTempFile(true).setReadCoreProperties(true)
+                    .open(inputStream)
+    ) {
+      StreamingWorkbook swb = (StreamingWorkbook)wb;
+      assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
+      assertNull(swb.getCoreProperties().getCreator());
+      DataFormatter formatter = new DataFormatter();
+
+      Sheet sheet1 = wb.getSheet("Sheet1");
+      assertEquals(9, sheet1.getLastRowNum());
+      Iterator<Row> rowIterator1 = sheet1.rowIterator();
+
+      assertTrue(rowIterator1.hasNext());
+      Row currentRow1 = rowIterator1.next();
+      assertNotNull(currentRow1);
+
+      List<String> expected1 = Arrays.asList(new String[] {
+              "Lorem", "111"
+      });
+
+      for (int i = 0; i < currentRow1.getLastCellNum(); i++) {
+        Cell cell = currentRow1.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        String value = formatter.formatCellValue(cell);
+
+        assertEquals(expected1.get(i), value);
+      }
+
+      Sheet sheet2 = wb.getSheet("rich test");
+      //these lines fail with shared-string NoSuchElementFound
+      //assertEquals(10, sheet2.getLastRowNum());
+      //Iterator<Row> rowIterator2 = sheet2.rowIterator();
 
     }
   }

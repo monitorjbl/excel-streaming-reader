@@ -4,8 +4,6 @@ import com.github.pjfanning.xlsx.exceptions.*;
 import com.github.pjfanning.xlsx.impl.*;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.Beta;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +15,6 @@ import java.io.InputStream;
  * row.
  */
 public class StreamingReader implements AutoCloseable {
-  private static final Logger log = LoggerFactory.getLogger(StreamingReader.class);
-
   private final StreamingWorkbookReader workbook;
 
   public StreamingReader(StreamingWorkbookReader workbook) {
