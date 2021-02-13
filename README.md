@@ -9,6 +9,10 @@ This implementation supports [Apache POI](http://poi.apache.org) 5.x and only su
 
 * [Sample](https://github.com/pjfanning/excel-streaming-reader-sample)
 
+This implementation has some extra features
+* OOXML Strict format support (see below)
+* Check [Builder](https://github.com/pjfanning/excel-streaming-reader/blob/master/src/main/java/com/github/pjfanning/xlsx/StreamingReader.java#L38) implementation to see what options are available.
+
 # Include
 
 To use it, add this to your POM:
@@ -18,7 +22,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.2</version>
   </dependency>
 </dependencies>  
 ```
@@ -104,6 +108,15 @@ This is a brief and very generalized list of things that are not supported for r
 * Functions
 * Macros
 * Styled cells (the styles are kept at the end of the ZIP file)
+
+# OOXML Strict format
+
+This library focuses on spreadsheets in OOXML Transitional format - despite the name, this format is more widely used. The wikipedia entry on OOXML formats has a good [description](https://en.wikipedia.org/wiki/Office_Open_XML).
+
+* StreamingReader.Builder has `convertFromOoXmlStrict` which attempts to convert input streams from OOXML Strict format (if set to `true`) to the better supported Transitional format. This is all done in memory so this might not be a good option if you have memory limitations. This approach is experimental and liable to be removed if the newer code in version 3.0.2 works out. 
+* From version 3.0.2, the standard streaming code will also try to read OOXML Strict format. Temp files are used in a few places to avoid using too much memory.
+  * currently only works if you `setUseSstTempFile(true)`
+  * `setReadCoreProperties(true)` option is not properly supported for OOXML Strict format files
 
 # Logging
 
