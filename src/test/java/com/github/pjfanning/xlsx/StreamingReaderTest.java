@@ -5,6 +5,7 @@ import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellAddress;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -423,7 +424,8 @@ public class StreamingReaderTest {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(1)) {
+      Sheet sheet = wb.getSheetAt(1);
+      for(Row r : sheet) {
         List<Cell> o = new ArrayList<>();
         for(Cell c : r) {
           o.add(c);
@@ -438,6 +440,9 @@ public class StreamingReaderTest {
       assertEquals(1, row.size());
       assertEquals("yeah", row.get(0).getStringCellValue());
       assertEquals("yeah", row.get(0).getRichStringCellValue().getString());
+
+      assertEquals(0, sheet.getCellComments().size());
+      assertNull("getCellComment not enabled in builder", sheet.getCellComment(new CellAddress(0, 0)));
     }
   }
 
@@ -445,12 +450,13 @@ public class StreamingReaderTest {
   public void testSheetName_zulu() throws Exception {
     try(
         InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+        Workbook wb = StreamingReader.builder().setReadComments(true).open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheet("SheetZulu")) {
+      Sheet sheet = wb.getSheet("SheetZulu");
+      for(Row r : sheet) {
         List<Cell> o = new ArrayList<>();
         for(Cell c : r) {
           o.add(c);
@@ -465,6 +471,9 @@ public class StreamingReaderTest {
       assertEquals(1, row.size());
       assertEquals("yeah", row.get(0).getStringCellValue());
       assertEquals("yeah", row.get(0).getRichStringCellValue().getString());
+
+      assertEquals(0, sheet.getCellComments().size());
+      assertNull("getCellComment should handle missing comments", sheet.getCellComment(new CellAddress(0, 0)));
     }
   }
 
@@ -1004,6 +1013,31 @@ public class StreamingReaderTest {
       StreamingWorkbook swb = (StreamingWorkbook)wb;
       assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
       assertEquals("semadmin", swb.getCoreProperties().getCreator());
+    }
+  }
+
+  @Test
+  public void testReadComments() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
+            Workbook wb = StreamingReader.builder().open(inputStream)
+    ) {
+      assertEquals(0, wb.getSheetAt(0).getCellComments().size());
+    }
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
+            Workbook wb = StreamingReader.builder()
+                    .setReadComments(true)
+                    .open(inputStream)
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+      assertEquals(14, sheet.getCellComments().size());
+      Comment comment00 = sheet.getCellComment(new CellAddress(0, 0));
+      assertEquals("Shaun Kalley:\nComment A1", comment00.getString().getString());
+      assertEquals("Shaun Kalley", comment00.getAuthor());
+      Comment comment31 = sheet.getCellComment(new CellAddress(3, 1));
+      assertEquals("Shaun Kalley:\nComment B4", comment31.getString().getString());
+      assertEquals("Shaun Kalley", comment00.getAuthor());
     }
   }
 }

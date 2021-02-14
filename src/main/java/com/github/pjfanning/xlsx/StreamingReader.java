@@ -41,6 +41,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean avoidTempFiles = false;
     private boolean useSstTempFile = false;
     private boolean encryptSstTempFile = false;
+    private boolean readComments = false;
     private boolean readCoreProperties = false;
     private String password;
     private boolean convertFromOoXmlStrict;
@@ -81,6 +82,13 @@ public class StreamingReader implements AutoCloseable {
      */
     public boolean encryptSstTempFile() {
       return encryptSstTempFile;
+    }
+
+    /**
+     * @return Whether to read the comments associated with sheets and cells.
+     */
+    public boolean readComments() {
+      return readComments;
     }
 
     /**
@@ -198,6 +206,17 @@ public class StreamingReader implements AutoCloseable {
      */
     public Builder setEncryptSstTempFile(boolean encryptSstTempFile) {
       this.encryptSstTempFile = encryptSstTempFile;
+      return this;
+    }
+
+    /**
+     * Enables the reading of the comments.
+     *
+     * @param readComments whether to read the comments associated with sheets and cells
+     * @return reference to current {@code Builder}
+     */
+    public Builder setReadComments(boolean readComments) {
+      this.readComments = readComments;
       return this;
     }
 

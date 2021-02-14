@@ -4,11 +4,11 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.PaneInformation;
+import org.apache.poi.xssf.model.CommentsTable;
+import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTComment;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class StreamingSheet implements Sheet {
 
@@ -90,6 +90,39 @@ public class StreamingSheet implements Sheet {
   @Override
   public int getLastRowNum() {
     return reader.getLastRowNum();
+  }
+
+  @Override
+  public Comment getCellComment(CellAddress cellAddress) {
+    CommentsTable sheetComments = reader.getCellComments();
+    if (sheetComments == null) {
+      return null;
+    }
+
+    final int row = cellAddress.getRow();
+    final int column = cellAddress.getColumn();
+
+    CellAddress ref = new CellAddress(row, column);
+    CTComment ctComment = sheetComments.getCTComment(ref);
+    if(ctComment == null) {
+      return null;
+    }
+
+    return new XSSFComment(sheetComments, ctComment, null);
+  }
+
+  @Override
+  public Map<CellAddress, ? extends Comment> getCellComments() {
+    CommentsTable sheetComments = reader.getCellComments();
+    if (sheetComments == null) {
+      return Collections.emptyMap();
+    }
+    Map<CellAddress, Comment> map = new HashMap<>();
+    for(Iterator<CellAddress> iter = sheetComments.getCellAddresses(); iter.hasNext(); ) {
+      CellAddress address = iter.next();
+      map.put(address, getCellComment(address));
+    }
+    return map;
   }
 
   /* Unsupported */
@@ -811,22 +844,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public void autoSizeColumn(int column, boolean useMergedCells) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Comment getCellComment(CellAddress cellAddress) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Map<CellAddress, ? extends Comment> getCellComments() {
     throw new UnsupportedOperationException();
   }
 

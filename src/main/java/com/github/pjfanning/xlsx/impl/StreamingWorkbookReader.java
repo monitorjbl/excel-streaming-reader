@@ -19,6 +19,7 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.util.XMLHelper;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.model.ThemesTable;
@@ -198,9 +199,14 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     //The sheets are listed in order, so we must keep track of insertion order.
     XSSFReader.SheetIterator iter = reader.getSheetsData();
     Map<URI, InputStream> sheetStreams = new LinkedHashMap<>();
+    Map<URI, CommentsTable> sheetComments = new HashMap<>();
     while(iter.hasNext()) {
       InputStream is = iter.next();
-      sheetStreams.put(iter.getSheetPart().getPartName().getURI(), is);
+      URI uri = iter.getSheetPart().getPartName().getURI();
+      sheetStreams.put(uri, is);
+      if (builder.readComments()) {
+        sheetComments.put(uri, iter.getSheetComments());
+      }
     }
 
     //Iterate over the loaded streams
@@ -210,7 +216,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       sheets.add(new StreamingSheet(
               workbook,
               sheetProperties.get(i++).get("name"),
-              new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
+              new StreamingSheetReader(sst, stylesTable, sheetComments.get(uri), parser, use1904Dates, rowCacheSize)));
     }
   }
 

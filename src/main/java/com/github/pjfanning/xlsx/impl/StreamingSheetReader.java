@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -28,6 +29,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   private final SharedStringsTable sst;
   private final StylesTable stylesTable;
+  private final CommentsTable commentsTable;
   private final XMLEventReader parser;
   private final DataFormatter dataFormatter = new DataFormatter();
   private final Set<Integer> hiddenColumns = new HashSet<>();
@@ -51,9 +53,11 @@ public class StreamingSheetReader implements Iterable<Row> {
   private boolean insideFormulaElement = false;
   private boolean insideIS = false;
 
-  public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
+  StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, CommentsTable commentsTable,
+                       XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
     this.sst = sst;
     this.stylesTable = stylesTable;
+    this.commentsTable = commentsTable;
     this.parser = parser;
     this.use1904Dates = use1904Dates;
     this.rowCacheSize = rowCacheSize;
@@ -418,6 +422,11 @@ public class StreamingSheetReader implements Iterable<Row> {
   public Iterator<Row> iterator() {
     return new StreamingRowIterator();
   }
+
+  /**
+   * @return the comments associated with this sheet (only feature is enabled on the Builder)
+   */
+  CommentsTable getCellComments() { return this.commentsTable; }
 
   public void close() {
     try {
