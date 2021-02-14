@@ -24,14 +24,6 @@
     </developer>
   </developers>
 
-  <repositories>
-    <repository>
-      <id>sonatype-nexus-snapshots</id>
-      <name>Sonatype Nexus Snapshots</name>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-  </repositories>
-
   <build>
     <plugins>
       <plugin>
@@ -136,7 +128,7 @@
     <dependency>
       <groupId>com.github.pjfanning</groupId>
       <artifactId>poi-shared-strings</artifactId>
-      <version>2.0.1-SNAPSHOT</version>
+      <version>2.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
