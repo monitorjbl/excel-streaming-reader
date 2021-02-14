@@ -957,10 +957,24 @@ public class StreamingReaderTest {
       }
 
       Sheet sheet2 = wb.getSheet("rich test");
-      //these lines fail with shared-string NoSuchElementFound
-      //assertEquals(10, sheet2.getLastRowNum());
-      //Iterator<Row> rowIterator2 = sheet2.rowIterator();
+      assertEquals(5, sheet2.getLastRowNum());
+      Iterator<Row> rowIterator2 = sheet2.rowIterator();
 
+      assertTrue(rowIterator2.hasNext());
+      Row currentRow2 = rowIterator2.next();
+      assertNotNull(currentRow2);
+
+      List<String> expected2 = Arrays.asList(new String[] {
+              "The quick brown fox jumps over the lazy dog"
+      });
+
+      for (int i = 0; i < currentRow2.getLastCellNum(); i++) {
+        Cell cell = currentRow2.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        String value = formatter.formatCellValue(cell);
+
+        assertEquals(expected2.get(i), value);
+      }
     }
   }
 
