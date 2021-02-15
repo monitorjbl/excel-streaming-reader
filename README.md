@@ -117,7 +117,7 @@ This library focuses on spreadsheets in OOXML Transitional format - despite the 
 * From version 3.0.2, the standard streaming code will also try to read OOXML Strict format.
   * in v3.0.2, it only works if you `setUseSstTempFile(true)` but this is fixed in v3.0.3
   * in v3.0.2, temp files are used in a few places to avoid using too much memory. From v3.0.3, the `setAvoidTempFiles(true)` option is respected.
-  * `setReadCoreProperties(true)` option is not properly supported for OOXML Strict format files
+  * `setReadCoreProperties(true)` option may not be fully supported for OOXML Strict format files
   * `setReadComments(true)` option is not properly supported for OOXML Strict format files
 
 # Logging
