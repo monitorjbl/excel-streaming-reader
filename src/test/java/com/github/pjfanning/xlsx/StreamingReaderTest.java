@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
 import java.util.*;
 
 import static org.apache.poi.ss.usermodel.CellType.*;
@@ -934,6 +935,8 @@ public class StreamingReaderTest {
       StreamingWorkbook swb = (StreamingWorkbook)wb;
       assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
       assertNull(swb.getCoreProperties().getCreator());
+      assertNotNull("created date set", swb.getCoreProperties().getCreated());
+      assertEquals(2007, swb.getCoreProperties().getCreated().toInstant().atZone(ZoneId.of("UTC")).getYear());
       DataFormatter formatter = new DataFormatter();
 
       Sheet sheet1 = wb.getSheet("Sheet1");
