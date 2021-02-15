@@ -343,13 +343,18 @@ public class XSSFReader {
           PackageRelationship comments = commentsList.getRelationship(0);
           PackagePartName commentsName = PackagingURIHelper.createPartName(comments.getTargetURI());
           PackagePart commentsPart = sheetPkg.getPackage().getPart(commentsName);
-          return new CommentsTable(commentsPart);
+          return parseComments(commentsPart);
         }
       } catch (InvalidFormatException|IOException e) {
         LOGGER.log(POILogger.WARN, e);
         return null;
       }
       return null;
+    }
+
+    //to allow subclassing
+    protected CommentsTable parseComments(PackagePart commentsPart) throws IOException {
+      return new CommentsTable(commentsPart);
     }
 
     /**
