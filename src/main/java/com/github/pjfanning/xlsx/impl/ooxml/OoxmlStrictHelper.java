@@ -4,6 +4,8 @@ import com.github.pjfanning.xlsx.StreamingReader;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
+import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
+import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.internal.MemoryPackagePart;
 import org.apache.poi.util.TempFile;
 import org.apache.poi.xssf.model.SharedStringsTable;
@@ -90,6 +92,13 @@ public class OoxmlStrictHelper {
         return new SharedStringsTable(newPart);
       }
     }
+  }
+
+  //TODO OPCPackage has this method in POI 5.0.1
+  public static boolean isStrictOoxmlFormat(OPCPackage pkg) {
+    PackageRelationshipCollection coreDocRelationships = pkg.getRelationshipsByType(
+            PackageRelationshipTypes.STRICT_CORE_DOCUMENT);
+    return coreDocRelationships.size() > 0;
   }
 
   private static TempDataStore createTempDataStore(StreamingReader.Builder builder) {

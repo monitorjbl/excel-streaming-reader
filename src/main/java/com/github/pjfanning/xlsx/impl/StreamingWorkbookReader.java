@@ -145,15 +145,17 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
   private void loadPackage(OPCPackage pkg) throws IOException, OpenXML4JException, ParserConfigurationException, SAXException, XMLStreamException {
     XSSFReader reader = new XSSFReader(pkg);
+    boolean strictFormat = OoxmlStrictHelper.isStrictOoxmlFormat(pkg);
+    if (strictFormat) {
+      log.info("file is in strict OOXML format");
+    }
     if(builder.useSstTempFile()) {
       log.debug("Created sst cache file");
       sst = new TempFileSharedStringsTable(pkg, builder.encryptSstTempFile());
+    } else if(strictFormat) {
+      sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);
     } else {
-      try {
-        sst = reader.getSharedStringsTable();
-      } catch (Exception e) {
-        sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);
-      }
+      sst = reader.getSharedStringsTable();
     }
 
     if (builder.readCoreProperties()) {
@@ -166,18 +168,13 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
 
     StylesTable styles;
-    try {
+    if(strictFormat) {
+      ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
+      StylesTable stylesTable = OoxmlStrictHelper.getStylesTable(builder, pkg);
+      stylesTable.setTheme(themesTable);
+      styles = stylesTable;
+    } else {
       styles = reader.getStylesTable();
-    } catch (Exception e) {
-      try {
-        ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
-        StylesTable stylesTable = OoxmlStrictHelper.getStylesTable(builder, pkg);
-        stylesTable.setTheme(themesTable);
-        styles = stylesTable;
-      } catch (Exception e2) {
-        log.warn("Failed to read styles table {}", e.toString());
-        styles = null;
-      }
     }
 
     use1904Dates = WorkbookUtil.use1904Dates(reader);

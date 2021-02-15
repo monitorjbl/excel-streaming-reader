@@ -67,6 +67,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * This is a forked copy of the POI XSSFReader class.
  */
+//TODO POI XSSFReader should be extended once POI 5.0.1 is available
 public class XSSFReader {
 
   private static final Set<String> WORKSHEET_RELS =
