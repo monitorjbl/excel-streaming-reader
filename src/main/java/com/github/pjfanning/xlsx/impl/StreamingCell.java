@@ -10,6 +10,8 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -137,6 +139,8 @@ public class StreamingCell implements Cell {
       return CellType.NUMERIC;
     } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
       return CellType.STRING;
+    } else if("d".equals(type)) {
+      return CellType.STRING; //no better type at the moment
     } else if("b".equals(type)) {
       return CellType.BOOLEAN;
     } else if("e".equals(type)) {
@@ -181,10 +185,21 @@ public class StreamingCell implements Cell {
    */
   @Override
   public Date getDateCellValue() {
-    if(getCellType() == CellType.STRING){
-      throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
+    if(getCellType() == CellType.STRING) {
+      LocalDateTime dt = getLocalDateTimeCellValue();
+      return dt == null ? null : Date.from(dt.atZone(ZoneId.systemDefault()).toInstant());
+    } else {
+      return rawContents == null ? null : DateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
     }
-    return rawContents == null ? null : DateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
+  }
+
+  @Override
+  public LocalDateTime getLocalDateTimeCellValue() {
+    if(getCellType() == CellType.STRING) {
+      return rawContents == null ? null : parseDateTime(rawContents.toString());
+    } else {
+      return rawContents == null ? null : DateUtil.getLocalDateTime(getNumericCellValue(), use1904Dates);
+    }
   }
 
   /**
@@ -294,6 +309,8 @@ public class StreamingCell implements Cell {
         return CellType.NUMERIC;
       } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
         return CellType.STRING;
+      } else if("d".equals(type)) {
+        return CellType.STRING; //no better type at the moment
       } else if("b".equals(type)) {
         return CellType.BOOLEAN;
       } else if("e".equals(type)) {
@@ -309,14 +326,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setCellValue(LocalDateTime value) {
     this.setCellValue(DateUtil.getExcelDate(value, use1904Dates));
-  }
-
-  @Override
-  public LocalDateTime getLocalDateTimeCellValue() {
-    if(getCellType() == CellType.STRING) {
-      throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
-    }
-    return rawContents == null ? null : DateUtil.getLocalDateTime(getNumericCellValue(), use1904Dates);
   }
 
   @Override
@@ -498,5 +507,21 @@ public class StreamingCell implements Cell {
   @Override
   public boolean isPartOfArrayFormulaGroup() {
     throw new NotSupportedException();
+  }
+
+  private LocalDateTime parseDateTime(String dt) {
+    try {
+      return LocalDateTime.parse(dt);
+    } catch (Exception e) {
+      try {
+        return LocalDate.parse(dt).atStartOfDay();
+      } catch (Exception e2) {
+        try {
+          return LocalTime.parse(dt).atDate(LocalDate.now());
+        } catch (Exception e3) {
+          throw new IllegalStateException("Failed to parse `" + dt + "` as LocalDateTime");
+        }
+      }
+    }
   }
 }
