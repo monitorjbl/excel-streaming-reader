@@ -10,8 +10,6 @@ import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -25,7 +23,7 @@ public class StreamingCell implements Cell {
   private final boolean use1904Dates;
 
   private Supplier contentsSupplier = NULL_SUPPLIER;
-  private Object rawContents;
+  private String rawContents;
   private String formula;
   private String numericFormat;
   private Short numericFormatIndex;
@@ -44,7 +42,7 @@ public class StreamingCell implements Cell {
     this.contentsSupplier = contentsSupplier;
   }
 
-  public void setRawContents(Object rawContents) {
+  public void setRawContents(String rawContents) {
     this.rawContents = rawContents;
   }
 
@@ -137,10 +135,10 @@ public class StreamingCell implements Cell {
       return CellType.BLANK;
     } else if("n".equals(type)) {
       return CellType.NUMERIC;
+    } else if("d".equals(type)) {
+      return CellType.NUMERIC;
     } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
       return CellType.STRING;
-    } else if("d".equals(type)) {
-      return CellType.STRING; //no better type at the moment
     } else if("b".equals(type)) {
       return CellType.BOOLEAN;
     } else if("e".equals(type)) {
@@ -172,7 +170,19 @@ public class StreamingCell implements Cell {
    */
   @Override
   public double getNumericCellValue() {
-    return rawContents == null ? 0.0 : Double.parseDouble((String) rawContents);
+    if ("d".equals(type)) {
+      try {
+        LocalDateTime dt = DateTimeUtil.parseDateTime(rawContents);
+        return DateUtil.getExcelDate(dt, use1904Dates);
+      } catch (Exception e) {
+        try {
+          return DateUtil.convertTime(rawContents);
+        } catch (Exception e2) {
+          throw new IllegalStateException("cannot parse strict format date/time " + rawContents);
+        }
+      }
+    }
+    return rawContents == null ? 0.0 : Double.parseDouble(rawContents);
   }
 
   /**
@@ -186,20 +196,9 @@ public class StreamingCell implements Cell {
   @Override
   public Date getDateCellValue() {
     if(getCellType() == CellType.STRING) {
-      LocalDateTime dt = getLocalDateTimeCellValue();
-      return dt == null ? null : Date.from(dt.atZone(ZoneId.systemDefault()).toInstant());
-    } else {
-      return rawContents == null ? null : DateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
+      throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
     }
-  }
-
-  @Override
-  public LocalDateTime getLocalDateTimeCellValue() {
-    if(getCellType() == CellType.STRING) {
-      return rawContents == null ? null : parseDateTime(rawContents.toString());
-    } else {
-      return rawContents == null ? null : DateUtil.getLocalDateTime(getNumericCellValue(), use1904Dates);
-    }
+    return rawContents == null ? null : DateUtil.getJavaDate(getNumericCellValue(), use1904Dates);
   }
 
   /**
@@ -215,7 +214,7 @@ public class StreamingCell implements Cell {
       case BLANK:
         return false;
       case BOOLEAN:
-        return rawContents != null && XmlUtils.evaluateBoolean(rawContents.toString());
+        return rawContents != null && XmlUtils.evaluateBoolean(rawContents);
       case FORMULA:
         throw new NotSupportedException();
       default:
@@ -307,10 +306,10 @@ public class StreamingCell implements Cell {
         return CellType.BLANK;
       } else if("n".equals(type)) {
         return CellType.NUMERIC;
+      } else if("d".equals(type)) {
+        return CellType.NUMERIC;
       } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
         return CellType.STRING;
-      } else if("d".equals(type)) {
-        return CellType.STRING; //no better type at the moment
       } else if("b".equals(type)) {
         return CellType.BOOLEAN;
       } else if("e".equals(type)) {
@@ -324,13 +323,11 @@ public class StreamingCell implements Cell {
   }
 
   @Override
-  public void setCellValue(LocalDateTime value) {
-    this.setCellValue(DateUtil.getExcelDate(value, use1904Dates));
-  }
-
-  @Override
-  public void setCellValue(LocalDate value) {
-    this.setCellValue(DateUtil.getExcelDate(value, use1904Dates));
+  public LocalDateTime getLocalDateTimeCellValue() {
+    if(getCellType() == CellType.STRING) {
+      throw new IllegalStateException("Cell type cannot be CELL_TYPE_STRING");
+    }
+    return rawContents == null ? null : DateUtil.getLocalDateTime(getNumericCellValue(), use1904Dates);
   }
 
   /* Not supported */
@@ -370,6 +367,22 @@ public class StreamingCell implements Cell {
    */
   @Override
   public void setCellValue(Calendar value) {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setCellValue(LocalDate value) {
+    throw new NotSupportedException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setCellValue(LocalDateTime value) {
     throw new NotSupportedException();
   }
 
@@ -507,21 +520,5 @@ public class StreamingCell implements Cell {
   @Override
   public boolean isPartOfArrayFormulaGroup() {
     throw new NotSupportedException();
-  }
-
-  private LocalDateTime parseDateTime(String dt) {
-    try {
-      return LocalDateTime.parse(dt);
-    } catch (Exception e) {
-      try {
-        return LocalDate.parse(dt).atStartOfDay();
-      } catch (Exception e2) {
-        try {
-          return LocalTime.parse(dt).atDate(LocalDate.now());
-        } catch (Exception e3) {
-          throw new IllegalStateException("Failed to parse `" + dt + "` as LocalDateTime");
-        }
-      }
-    }
   }
 }

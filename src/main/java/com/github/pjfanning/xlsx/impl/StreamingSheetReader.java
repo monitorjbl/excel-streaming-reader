@@ -6,6 +6,7 @@ import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.model.CommentsTable;
@@ -22,6 +23,9 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 public class StreamingSheetReader implements Iterable<Row> {
@@ -380,6 +384,44 @@ public class StreamingSheetReader implements Iterable<Row> {
                         currentNumericFormat);
               }
 
+              return cachedContent;
+            }
+          };
+        } else {
+          return new StringSupplier(lastContents);
+        }
+      case "d":           //date type (Strict OOXML format)
+        if(currentCell.getNumericFormat() != null && lastContents.length() > 0) {
+          // the formatRawCellContents operation incurs a significant overhead on large sheets,
+          // and we want to defer the execution of this method until the value is actually needed.
+          // it is not needed in all cases..
+          final String currentLastContents = lastContents;
+          final int currentNumericFormatIndex = currentCell.getNumericFormatIndex();
+          final String currentNumericFormat = currentCell.getNumericFormat();
+
+          return new Supplier() {
+            String cachedContent;
+
+            @Override
+            public Object getContent() {
+              if (cachedContent == null) {
+                try {
+                  Double dv;
+                  try {
+                    LocalDateTime dt = DateTimeUtil.parseDateTime(currentLastContents);
+                    dv = DateUtil.getExcelDate(dt, use1904Dates);
+                  } catch (Exception e) {
+                    dv = DateUtil.convertTime(currentLastContents);
+                  }
+                  cachedContent = dataFormatter.formatRawCellContents(
+                          dv,
+                          currentNumericFormatIndex,
+                          currentNumericFormat);
+                } catch (Exception e) {
+                  log.warn("cannot format strict format date/time " + currentLastContents);
+                  cachedContent = currentLastContents;
+                }
+              }
               return cachedContent;
             }
           };
