@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.util.XMLHelper;
 import org.junit.Assert;
@@ -30,6 +31,7 @@ public class StreamingSheetReaderTest {
               firstRow.getCell(0).getDateCellValue());
       Assert.assertEquals(CellType.NUMERIC, firstRow.getCell(1).getCellType());
       Assert.assertEquals("12:00:00.000", firstRow.getCell(1).getStringCellValue());
+      Assert.assertEquals(DateUtil.convertTime("12:00"), firstRow.getCell(1).getNumericCellValue(), 0.001);
     } finally {
       xer.close();
       reader.close();

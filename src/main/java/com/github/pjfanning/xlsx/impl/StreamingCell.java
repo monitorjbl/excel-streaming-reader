@@ -176,7 +176,7 @@ public class StreamingCell implements Cell {
         return DateUtil.getExcelDate(dt, use1904Dates);
       } catch (Exception e) {
         try {
-          return DateUtil.convertTime(rawContents);
+          return DateTimeUtil.convertTime(rawContents);
         } catch (Exception e2) {
           throw new IllegalStateException("cannot parse strict format date/time " + rawContents);
         }

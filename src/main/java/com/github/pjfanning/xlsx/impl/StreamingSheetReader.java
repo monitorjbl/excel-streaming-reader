@@ -411,7 +411,7 @@ public class StreamingSheetReader implements Iterable<Row> {
                     LocalDateTime dt = DateTimeUtil.parseDateTime(currentLastContents);
                     dv = DateUtil.getExcelDate(dt, use1904Dates);
                   } catch (Exception e) {
-                    dv = DateUtil.convertTime(currentLastContents);
+                    dv = DateTimeUtil.convertTime(currentLastContents);
                   }
                   cachedContent = dataFormatter.formatRawCellContents(
                           dv,
