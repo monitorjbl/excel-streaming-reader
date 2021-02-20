@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
@@ -929,6 +930,58 @@ public class StreamingReaderTest {
   public void testStrictOOMXL() throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/sample.strict.xlsx");
+            Workbook wb = StreamingReader.builder().open(inputStream)
+    ) {
+      StreamingWorkbook swb = (StreamingWorkbook)wb;
+      assertNull("CoreProperties should be null", swb.getCoreProperties());
+      DataFormatter formatter = new DataFormatter();
+
+      Sheet sheet1 = wb.getSheet("Sheet1");
+      assertEquals(9, sheet1.getLastRowNum());
+      Iterator<Row> rowIterator1 = sheet1.rowIterator();
+
+      assertTrue(rowIterator1.hasNext());
+      Row currentRow1 = rowIterator1.next();
+      assertNotNull(currentRow1);
+
+      List<String> expected1 = Arrays.asList(new String[] {
+              "Lorem", "111"
+      });
+
+      for (int i = 0; i < currentRow1.getLastCellNum(); i++) {
+        Cell cell = currentRow1.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        String value = formatter.formatCellValue(cell);
+
+        assertEquals(expected1.get(i), value);
+      }
+
+      Sheet sheet2 = wb.getSheet("rich test");
+      assertEquals(5, sheet2.getLastRowNum());
+      Iterator<Row> rowIterator2 = sheet2.rowIterator();
+
+      assertTrue(rowIterator2.hasNext());
+      Row currentRow2 = rowIterator2.next();
+      assertNotNull(currentRow2);
+
+      List<String> expected2 = Arrays.asList(new String[] {
+              "The quick brown fox jumps over the lazy dog"
+      });
+
+      for (int i = 0; i < currentRow2.getLastCellNum(); i++) {
+        Cell cell = currentRow2.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        String value = formatter.formatCellValue(cell);
+
+        assertEquals(expected2.get(i), value);
+      }
+    }
+  }
+
+  @Test
+  public void testStrictOOMXLWithTempFileSST() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/sample.strict.xlsx");
             Workbook wb = StreamingReader.builder().setUseSstTempFile(true).setReadCoreProperties(true)
                     .open(inputStream)
     ) {
@@ -982,25 +1035,29 @@ public class StreamingReaderTest {
   }
 
   @Test
-  public void testStrictOOMXL2() throws Exception {
+  public void testStrictOOMXLDates() throws Exception {
     try (
-            InputStream inputStream = new FileInputStream("src/test/resources/sample.strict.xlsx");
-            Workbook wb = StreamingReader.builder().open(inputStream)
+            InputStream inputStream = new FileInputStream("src/test/resources/numbers.strict.xlsx");
+            Workbook wb = StreamingReader.builder()
+                    .setReadCoreProperties(true)
+                    .setReadComments(true)
+                    .open(inputStream)
     ) {
       StreamingWorkbook swb = (StreamingWorkbook)wb;
-      assertNull("CoreProperties should be null", swb.getCoreProperties());
+      assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
+      assertEquals("PJ Fanning", swb.getCoreProperties().getLastModifiedByUser());
       DataFormatter formatter = new DataFormatter();
 
-      Sheet sheet1 = wb.getSheet("Sheet1");
-      assertEquals(9, sheet1.getLastRowNum());
-      Iterator<Row> rowIterator1 = sheet1.rowIterator();
+      Sheet sheet2 = wb.getSheet("SecondSheet");
+      assertEquals(0, sheet2.getLastRowNum());
+      Iterator<Row> rowIterator1 = sheet2.rowIterator();
 
       assertTrue(rowIterator1.hasNext());
       Row currentRow1 = rowIterator1.next();
       assertNotNull(currentRow1);
 
       List<String> expected1 = Arrays.asList(new String[] {
-              "Lorem", "111"
+              "2/28/21", "12:00:00 PM"
       });
 
       for (int i = 0; i < currentRow1.getLastCellNum(); i++) {
@@ -1011,25 +1068,14 @@ public class StreamingReaderTest {
         assertEquals(expected1.get(i), value);
       }
 
-      Sheet sheet2 = wb.getSheet("rich test");
-      assertEquals(5, sheet2.getLastRowNum());
-      Iterator<Row> rowIterator2 = sheet2.rowIterator();
+      //this shows a bug - there is a comment on this cell - https://github.com/pjfanning/excel-streaming-reader/issues/37
+      assertNull("123", sheet2.getCellComment(new CellAddress("A1")));
 
-      assertTrue(rowIterator2.hasNext());
-      Row currentRow2 = rowIterator2.next();
-      assertNotNull(currentRow2);
-
-      List<String> expected2 = Arrays.asList(new String[] {
-              "The quick brown fox jumps over the lazy dog"
-      });
-
-      for (int i = 0; i < currentRow2.getLastCellNum(); i++) {
-        Cell cell = currentRow2.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-
-        String value = formatter.formatCellValue(cell);
-
-        assertEquals(expected2.get(i), value);
-      }
+      Cell cell1 = currentRow1.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+      assertEquals(LocalDate.parse("2021-02-28").atStartOfDay(), cell1.getLocalDateTimeCellValue());
+      assertEquals("2/28/21", cell1.getStringCellValue());
+      Cell cell2 = currentRow1.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+      assertEquals("12:00:00 PM", cell2.getStringCellValue());
     }
   }
 
