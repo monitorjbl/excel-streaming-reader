@@ -22,7 +22,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>3.0.3</version>
+    <version>3.0.4</version>
   </dependency>
 </dependencies>  
 ```
@@ -115,10 +115,8 @@ This library focuses on spreadsheets in OOXML Transitional format - despite the 
 
 * StreamingReader.Builder has `convertFromOoXmlStrict` which attempts to convert input streams from OOXML Strict format (if set to `true`) to the better supported Transitional format. This is all done in memory so this might not be a good option if you have memory limitations. This approach is experimental and liable to be removed if the newer code in version 3.0.2 works out. 
 * From version 3.0.2, the standard streaming code will also try to read OOXML Strict format.
-  * in v3.0.2, it only works if you `setUseSstTempFile(true)` but this is fixed in v3.0.3
-  * in v3.0.2, temp files are used in a few places to avoid using too much memory. From v3.0.3, the `setAvoidTempFiles(true)` option is respected.
-  * `setReadCoreProperties(true)` option may not be fully supported for OOXML Strict format files
-  * `setReadComments(true)` option is not properly supported for OOXML Strict format files
+  * support is still evolving, it is recommended you use the latest available excel-streaming-reader version if you are interested in supporting OOXML Strict format 
+  * `setReadComments(true)` option is not properly supported for OOXML Strict format files (https://github.com/pjfanning/excel-streaming-reader/issues/37)
 
 # Logging
 
