@@ -155,8 +155,9 @@ public class StreamingReader implements AutoCloseable {
      *
      * @param convertFromOoXmlStrict whether to convert from OOXML
      * @return reference to current {@code Builder}
+     * @deprecated this is no longer needed, OOXML strict format is handled automatically
      */
-    @Beta
+    @Deprecated
     public Builder convertFromOoXmlStrict(boolean convertFromOoXmlStrict) {
       this.convertFromOoXmlStrict = convertFromOoXmlStrict;
       return this;
