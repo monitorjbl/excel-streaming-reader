@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -155,7 +156,7 @@ public class StreamingReaderTest {
   @Test
   public void testGetDateCellValue() throws Exception {
     try(
-        InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
+        InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
         Workbook wb = StreamingReader.builder().open(is);
     ) {
 
@@ -174,6 +175,10 @@ public class StreamingReaderTest {
       final GregorianCalendar cal = new GregorianCalendar();
       cal.setTime(dt);
       assertEquals(cal.get(Calendar.YEAR), 2014);
+
+      // Verify LocalDateTime version is correct as well
+      LocalDateTime localDateTime = obj.get(4).get(1).getLocalDateTimeCellValue();
+      assertEquals(2014, localDateTime.getYear());
 
       try {
         obj.get(0).get(0).getDateCellValue();
