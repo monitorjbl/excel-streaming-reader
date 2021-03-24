@@ -722,19 +722,19 @@ public class StreamingReaderTest {
       cell = next.getCell(0);
 
       assertThat(cell.getCellType(), is(CellType.FORMULA));
-      assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.STRING));
+      assertThat(cell.getCachedFormulaResultType(), is(CellType.STRING));
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
       assertThat(cell.getCellType(), is(CellType.FORMULA));
-      assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.BOOLEAN));
+      assertThat(cell.getCachedFormulaResultType(), is(CellType.BOOLEAN));
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
       assertThat(cell.getCellType(), is(CellType.FORMULA));
-      assertThat(cell.getCachedFormulaResultTypeEnum(), is(CellType.NUMERIC));
+      assertThat(cell.getCachedFormulaResultType(), is(CellType.NUMERIC));
     }
   }
   

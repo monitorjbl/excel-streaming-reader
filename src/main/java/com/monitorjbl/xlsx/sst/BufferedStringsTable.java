@@ -7,7 +7,6 @@ import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamException;
@@ -108,11 +107,6 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
   @Override
   public RichTextString getItemAt(int idx) {
     return new XSSFRichTextString(list.getAt(idx));
-  }
-
-  @Override
-  public CTRst getEntryAt(int idx) {
-    return ((XSSFRichTextString)getItemAt(idx)).getCTRst();
   }
 
   @Override

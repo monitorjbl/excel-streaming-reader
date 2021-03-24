@@ -5,14 +5,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.monitorjbl</groupId>
   <artifactId>xlsx-streamer</artifactId>
-  <version>2.2.0</version>
+  <version>3.0.0</version>
   <name>Streaming Excel reader</name>
   <description>Streaming Excel reader</description>
   <url>https://github.com/monitorjbl/excel-streaming-reader</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <apache.poi.version>4.1.2</apache.poi.version>
+    <apache.poi.version>5.0.0</apache.poi.version>
     <slf4j.version>1.7.30</slf4j.version>
   </properties>
 
@@ -122,11 +122,11 @@
       <artifactId>poi-ooxml</artifactId>
       <version>${apache.poi.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml-schemas</artifactId>
-      <version>${apache.poi.version}</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.apache.poi</groupId>-->
+<!--      <artifactId>poi-ooxml-schemas</artifactId>-->
+<!--      <version>${apache.poi.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>

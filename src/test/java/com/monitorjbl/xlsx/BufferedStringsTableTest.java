@@ -25,7 +25,6 @@ public class BufferedStringsTableTest {
     try (OPCPackage pkg = OPCPackage.open(file, PackageAccess.READ);
          BufferedStringsTable sst = BufferedStringsTable.getSharedStringsTable(sstCache, 1000, pkg)) {
       assertNotNull(sst);
-      assertEquals("B1 is Blank --->", sst.getEntryAt(0).getT());
       assertEquals("B1 is Blank --->", sst.getItemAt(0).getString());
     }
   }

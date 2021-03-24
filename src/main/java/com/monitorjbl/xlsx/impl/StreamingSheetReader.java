@@ -87,18 +87,18 @@ public class StreamingSheetReader implements Iterable<Row> {
     int splitPos = -1;
 
     // start at pos 1, since the first char is expected to always be a letter
-    for(int i=1;i<ref.length();i++) {
+    for(int i = 1; i < ref.length(); i++) {
       char c = ref.charAt(i);
 
-      if (c >= '0' && c <= '9') {
+      if(c >= '0' && c <= '9') {
         splitPos = i;
         break;
       }
     }
 
-    return new String[] {
-            ref.substring(0, splitPos),
-            ref.substring(splitPos)
+    return new String[]{
+        ref.substring(0, splitPos),
+        ref.substring(splitPos)
     };
   }
 
@@ -190,7 +190,7 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
         }
       } else if("f".equals(tagLocalName)) {
-        if (currentCell != null) {
+        if(currentCell != null) {
           currentCell.setFormulaType(true);
         }
       }
@@ -213,7 +213,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         currentCell = null;
         currentColNum++;
       } else if("f".equals(tagLocalName)) {
-        if (currentCell != null) {
+        if(currentCell != null) {
           currentCell.setFormula(lastContents);
         }
       }
@@ -314,9 +314,9 @@ public class StreamingSheetReader implements Iterable<Row> {
   private Supplier getFormatterForType(String type) {
     switch(type) {
       case "s":           //string stored in shared table
-        if (!lastContents.isEmpty()) {
-            int idx = Integer.parseInt(lastContents);
-            return new StringSupplier(new XSSFRichTextString(sst.getEntryAt(idx)).toString());
+        if(!lastContents.isEmpty()) {
+          int idx = Integer.parseInt(lastContents);
+          return new StringSupplier(sst.getItemAt(idx).toString());
         }
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
@@ -338,11 +338,11 @@ public class StreamingSheetReader implements Iterable<Row> {
 
             @Override
             public Object getContent() {
-              if (cachedContent == null) {
+              if(cachedContent == null) {
                 cachedContent = dataFormatter.formatRawCellContents(
-                        Double.parseDouble(currentLastContents),
-                        currentNumericFormatIndex,
-                        currentNumericFormat);
+                    Double.parseDouble(currentLastContents),
+                    currentNumericFormatIndex,
+                    currentNumericFormat);
               }
 
               return cachedContent;
@@ -364,9 +364,9 @@ public class StreamingSheetReader implements Iterable<Row> {
   String unformattedContents() {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
-        if (!lastContents.isEmpty()) {
-            int idx = Integer.parseInt(lastContents);
-            return new XSSFRichTextString(sst.getEntryAt(idx)).toString();
+        if(!lastContents.isEmpty()) {
+          int idx = Integer.parseInt(lastContents);
+          return sst.getItemAt(idx).toString();
         }
         return lastContents;
       case "inlineStr":   //inline string (not in sst)

@@ -31,7 +31,7 @@ final class TestUtils {
   }
 
   static void expectCachedType(Cell cell, CellType cellType) {
-    assertEquals(cellType, cell.getCachedFormulaResultTypeEnum(), "Cell " + ref(cell) + " has wrong cached type." + cellType);
+    assertEquals(cellType, cell.getCachedFormulaResultType(), "Cell " + ref(cell) + " has wrong cached type." + cellType);
   }
 
   static void expectType(Cell cell, CellType cellType) {

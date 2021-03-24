@@ -171,18 +171,6 @@ public class StreamingCell implements Cell {
     }
 
     /**
-     * Return the cell type.
-     *
-     * @return the cell type
-     * Will be renamed to <code>getCellType()</code> when we make the CellType enum transition in POI 4.0. See bug 59791.
-     */
-    @Override
-    @Deprecated
-    public CellType getCellTypeEnum() {
-        return getCellType();
-    }
-
-    /**
      * Get the value of the cell as a string.
      * For blank cells we return an empty string.
      *
@@ -355,12 +343,6 @@ public class StreamingCell implements Cell {
         } else {
             throw new IllegalStateException("Only formula cells have cached results");
         }
-    }
-
-    @Deprecated
-    @Override
-    public CellType getCachedFormulaResultTypeEnum() {
-        return getCachedFormulaResultType();
     }
 
     /* Not supported */
