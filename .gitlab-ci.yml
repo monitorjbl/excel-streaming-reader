@@ -2,6 +2,6 @@ image: maven:3.6.3-openjdk-8-slim
 ci_build:
   stage: build
   before_script:
-    - echo "${MVN_SETTINGS}" > ~/.m2/settings.xml
+    - mkdir -p ~/.m2 && echo "${MVN_SETTINGS}" > ~/.m2/settings.xml
   script:
     - mvn clean package
