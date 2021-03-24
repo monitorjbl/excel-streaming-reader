@@ -10,36 +10,36 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 final class TestUtils {
 
   static Workbook openWorkbook(String fileName) throws IOException {
-      try (InputStream stream = TestUtils.class.getResourceAsStream("/" + fileName)) {
-          return StreamingReader.builder()
-                  .open(stream);
-      }
+    try(InputStream stream = TestUtils.class.getResourceAsStream("/" + fileName)) {
+      return StreamingReader.builder()
+          .open(stream);
+    }
   }
 
   static void expectSameStringContent(Cell cell1, Cell cell2) {
-    assertEquals("Cell " + ref(cell1) + " has should equal cell " + ref(cell2) + " string value.",
-        cell1.getStringCellValue(), cell2.getStringCellValue());
+    assertEquals(cell1.getStringCellValue(), cell2.getStringCellValue(),
+        "Cell " + ref(cell1) + " has should equal cell " + ref(cell2) + " string value.");
   }
 
   static void expectStringContent(Cell cell, String value) {
-    assertEquals("Cell " + ref(cell) + " has wrong string content.", value, cell.getStringCellValue());
+    assertEquals(value, cell.getStringCellValue(), "Cell " + ref(cell) + " has wrong string content.");
   }
 
   static void expectCachedType(Cell cell, CellType cellType) {
-    assertEquals("Cell " + ref(cell) + " has wrong cached type." + cellType, cellType, cell.getCachedFormulaResultTypeEnum());
+    assertEquals(cellType, cell.getCachedFormulaResultTypeEnum(), "Cell " + ref(cell) + " has wrong cached type." + cellType);
   }
 
   static void expectType(Cell cell, CellType cellType) {
-    assertEquals("Cell " + ref(cell) + " has wrong type.", cellType, cell.getCellType());
+    assertEquals(cellType, cell.getCellType(), "Cell " + ref(cell) + " has wrong type.");
   }
 
   static void expectFormula(Cell cell, String formula) {
-    assertEquals("Cell " + ref(cell) + " has wrong formula.", formula, cell.getCellFormula());
+    assertEquals(formula, cell.getCellFormula(), "Cell " + ref(cell) + " has wrong formula.");
   }
 
   private static String ref(Cell cell) {
@@ -48,7 +48,7 @@ final class TestUtils {
 
   static Cell getCellFromNextRow(Iterator<Row> rowIterator, int index) {
     return nextRow(rowIterator)
-            .getCell(index);
+        .getCell(index);
   }
 
   static Row nextRow(Iterator<Row> rowIterator) {

@@ -6,8 +6,9 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,13 +29,14 @@ import static com.monitorjbl.xlsx.TestUtils.nextRow;
 import static com.monitorjbl.xlsx.TestUtils.openWorkbook;
 import static org.apache.poi.ss.usermodel.CellType.FORMULA;
 import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class StreamingWorkbookTest {
-  @BeforeClass
+  @BeforeAll
   public static void init() {
     Locale.setDefault(Locale.ENGLISH);
   }
@@ -70,13 +72,13 @@ public class StreamingWorkbookTest {
       assertEquals(3, workbook.getNumberOfSheets());
       Sheet sheet = workbook.getSheetAt(0);
 
-      assertFalse("Column 0 should not be hidden", sheet.isColumnHidden(0));
-      assertTrue("Column 1 should be hidden", sheet.isColumnHidden(1));
-      assertFalse("Column 2 should not be hidden", sheet.isColumnHidden(2));
+      assertFalse(sheet.isColumnHidden(0), "Column 0 should not be hidden");
+      assertTrue(sheet.isColumnHidden(1), "Column 1 should be hidden");
+      assertFalse(sheet.isColumnHidden(2), "Column 2 should not be hidden");
 
-      assertFalse("Row 0 should not be hidden", sheet.rowIterator().next().getZeroHeight());
-      assertTrue("Row 1 should be hidden", sheet.rowIterator().next().getZeroHeight());
-      assertFalse("Row 2 should not be hidden", sheet.rowIterator().next().getZeroHeight());
+      assertFalse(sheet.rowIterator().next().getZeroHeight(), "Row 0 should not be hidden");
+      assertTrue(sheet.rowIterator().next().getZeroHeight(), "Row 1 should be hidden");
+      assertFalse(sheet.rowIterator().next().getZeroHeight(), "Row 2 should not be hidden");
     }
   }
 
@@ -172,9 +174,9 @@ public class StreamingWorkbookTest {
     }
   }
 
-  @Test(expected = ParseException.class)
-  public void testEntityExpansion() throws Exception {
-    ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
+  @Test
+  public void testEntityExpansion() {
+    assertThrows(ParseException.class, () -> ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
       try(Workbook workbook = openWorkbook("entity-expansion-exploit-poc-file.xlsx")) {
         Sheet sheet = workbook.getSheetAt(0);
         for(Row row : sheet) {
@@ -185,7 +187,7 @@ public class StreamingWorkbookTest {
       } catch(IOException e) {
         throw new UncheckedIOException(e);
       }
-    });
+    }));
   }
 
   private static class ExploitServer extends NanoHTTPD implements AutoCloseable {
