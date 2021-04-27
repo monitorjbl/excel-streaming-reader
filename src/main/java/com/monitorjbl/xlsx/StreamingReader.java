@@ -94,7 +94,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
     private int rowCacheSize = 10;
     private int bufferSize = 1024;
     private int sheetIndex = 0;
-    private int sstCacheSize = -1;
+    private int sstCacheSizeBytes = -1;
     private String sheetName;
     private String password;
 
@@ -133,8 +133,8 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * @return The size of the shared string table cache. If less than 0, no
      * cache will be used and the entire table will be loaded into memory.
      */
-    public int getSstCacheSize() {
-      return sstCacheSize;
+    public int getSstCacheSizeBytes() {
+      return sstCacheSizeBytes;
     }
 
     /**
@@ -227,11 +227,11 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * enabling this option at all will have some noticeable performance degredation as you are
      * trading memory for disk space.
      *
-     * @param sstCacheSize size of SST cache
+     * @param sstCacheSizeBytes size of SST cache
      * @return reference to current {@code Builder}
      */
-    public Builder sstCacheSize(int sstCacheSize) {
-      this.sstCacheSize = sstCacheSize;
+    public Builder sstCacheSizeBytes(int sstCacheSizeBytes) {
+      this.sstCacheSizeBytes = sstCacheSizeBytes;
       return this;
     }
 
@@ -327,10 +327,10 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         SharedStringsTable sst;
         File sstCache = null;
-        if(sstCacheSize > 0) {
+        if(sstCacheSizeBytes > 0) {
           sstCache = Files.createTempFile("", "").toFile();
           log.debug("Created sst cache file [" + sstCache.getAbsolutePath() + "]");
-          sst = BufferedStringsTable.getSharedStringsTable(sstCache, sstCacheSize, pkg);
+          sst = BufferedStringsTable.getSharedStringsTable(sstCache, sstCacheSizeBytes, pkg);
         } else {
           sst = reader.getSharedStringsTable();
         }
