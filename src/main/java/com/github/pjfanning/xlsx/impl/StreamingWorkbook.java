@@ -94,7 +94,11 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
   }
 
   /**
-   * {@inheritDoc}
+   * Get sheet with the given name
+   *
+   * @param name - of the sheet
+   * @return Sheet with the name provided
+   * @throws MissingSheetException if no sheet is found with the provided <code>name</code>
    */
   @Override
   public Sheet getSheet(String name) {
