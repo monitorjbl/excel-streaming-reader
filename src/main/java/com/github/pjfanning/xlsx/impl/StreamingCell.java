@@ -166,7 +166,7 @@ public class StreamingCell implements Cell {
    * blank cells we return a 0.
    *
    * @return the value of the cell as a number
-   * @throws NumberFormatException if the cell value isn't a parsable <code>double</code>.
+   * @throws NumberFormatException if the cell value isn't a parseable <code>double</code>.
    */
   @Override
   public double getNumericCellValue() {
@@ -191,7 +191,7 @@ public class StreamingCell implements Cell {
    *
    * @return the value of the cell as a date
    * @throws IllegalStateException if the cell type returned by {@link #getCellType()} is CELL_TYPE_STRING
-   * @throws NumberFormatException if the cell value isn't a parsable <code>double</code>.
+   * @throws NumberFormatException if the cell value isn't a parseable <code>double</code>.
    */
   @Override
   public Date getDateCellValue() {
