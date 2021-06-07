@@ -157,6 +157,8 @@ public class StreamingSheetReader implements Iterable<Row> {
           String[] coord = splitCellRef(ref.getValue());
           currentColNum = CellReference.convertColStringToIndex(coord[0]);
           currentCell = new StreamingCell(sheet, currentColNum, Integer.parseInt(coord[1]) - 1, use1904Dates);
+        } else if (currentRow != null) {
+          currentCell = new StreamingCell(sheet, currentColNum, currentRow, use1904Dates);
         } else {
           currentCell = new StreamingCell(sheet, currentColNum, currentRowNum, use1904Dates);
         }

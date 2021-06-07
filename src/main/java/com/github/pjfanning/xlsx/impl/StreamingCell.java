@@ -18,8 +18,9 @@ public class StreamingCell implements Cell {
   private static final Supplier NULL_SUPPLIER = () -> null;
 
   private final Sheet sheet;
-  private int columnIndex;
+  private final int columnIndex;
   private int rowIndex;
+  private Row row;
   private final boolean use1904Dates;
 
   private Supplier contentsSupplier = NULL_SUPPLIER;
@@ -35,6 +36,13 @@ public class StreamingCell implements Cell {
     this.sheet = sheet;
     this.columnIndex = columnIndex;
     this.rowIndex = rowIndex;
+    this.use1904Dates = use1904Dates;
+  }
+
+  public StreamingCell(Sheet sheet, int columnIndex, Row row, boolean use1904Dates) {
+    this.sheet = sheet;
+    this.columnIndex = columnIndex;
+    this.row = row;
     this.use1904Dates = use1904Dates;
   }
 
@@ -106,15 +114,15 @@ public class StreamingCell implements Cell {
    */
   @Override
   public int getRowIndex() {
-    return rowIndex;
+    return (row == null) ? rowIndex : row.getRowNum();
   }
 
   /**
-   * Not Supported
+   * Row is not guaranteed to be set. Will return null when row is not set.
    */
   @Override
   public Row getRow() {
-    throw new NotSupportedException();
+    return row;
   }
 
   @Override
