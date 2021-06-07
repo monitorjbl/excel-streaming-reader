@@ -210,15 +210,17 @@ public class StreamingCell implements Cell {
   @Override
   public boolean getBooleanCellValue() {
     CellType cellType = getCellType();
+
+    if (cellType == CellType.FORMULA) {
+      cellType = getCachedFormulaResultType();
+    }
     switch(cellType) {
       case BLANK:
         return false;
       case BOOLEAN:
         return rawContents != null && XmlUtils.evaluateBoolean(rawContents);
-      case FORMULA:
-        throw new NotSupportedException();
       default:
-        throw typeMismatch(CellType.BOOLEAN, cellType, false);
+        throw typeMismatch(CellType.BOOLEAN, cellType, isFormulaType());
     }
   }
 

@@ -142,6 +142,26 @@ public class StreamingWorkbookTest {
   }
 
   @Test
+  public void testBooleanFormattedFormulaCell() throws Exception {
+    try(Workbook workbook = openWorkbook("formula_cell.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Cell D1 = getCellFromNextRow(rowIterator, 3);
+      Cell D2 = getCellFromNextRow(rowIterator, 3);
+
+      expectType(D1, FORMULA);
+      expectCachedType(D1, BOOLEAN);
+      assertTrue(D1.getBooleanCellValue());
+
+      expectType(D2, FORMULA);
+      expectCachedType(D2, BOOLEAN);
+      assertFalse(D2.getBooleanCellValue());
+
+    }
+  }
+
+  @Test
   public void testStringFormattedFormulaCell() throws Exception {
     try(Workbook workbook = openWorkbook("formula_cell.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
