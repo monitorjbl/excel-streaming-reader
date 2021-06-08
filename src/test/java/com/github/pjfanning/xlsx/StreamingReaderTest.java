@@ -640,6 +640,10 @@ public class StreamingReaderTest {
         assertEquals("#" + i, r.getCell(1).getStringCellValue());
         assertEquals("#" + i, r.getCell(1).getRichStringCellValue().getString());
         i++;
+        for(Cell c : r) {
+          assertNotNull("cell row is set", c.getRow());
+          assertEquals(r, c.getRow());
+        }
       }
     }
   }
