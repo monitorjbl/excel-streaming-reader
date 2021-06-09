@@ -267,6 +267,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
   }
 
+  OPCPackage getOPCPackage() {
+    return pkg;
+  }
+
   static class StreamingSheetIterator implements Iterator<Sheet> {
     private final Iterator<StreamingSheet> iterator;
 

@@ -3,7 +3,6 @@ package com.github.pjfanning.xlsx;
 import com.github.pjfanning.xlsx.exceptions.*;
 import com.github.pjfanning.xlsx.impl.*;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.util.Beta;
 
 import java.io.File;
 import java.io.IOException;

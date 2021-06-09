@@ -2,20 +2,26 @@ package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ooxml.POIXMLProperties;
+import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.xssf.usermodel.XSSFPictureData;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class StreamingWorkbook implements Workbook, AutoCloseable {
   private final StreamingWorkbookReader reader;
   private POIXMLProperties.CoreProperties coreProperties = null;
+  private List<XSSFPictureData> pictures;
 
   public StreamingWorkbook(StreamingWorkbookReader reader) {
     this.reader = reader;
@@ -152,6 +158,23 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
 
   void setCoreProperties(POIXMLProperties.CoreProperties coreProperties) {
     this.coreProperties = coreProperties;
+  }
+
+  /**
+   * Gets all pictures from the Workbook. This approach is not stream friendly.
+   *
+   * @return the list of pictures (a list of {@link XSSFPictureData} objects.)
+   */
+  @Override
+  public List<? extends PictureData> getAllPictures() {
+    if(pictures == null){
+      List<PackagePart> mediaParts = reader.getOPCPackage().getPartsByName(Pattern.compile("/xl/media/.*?"));
+      pictures = new ArrayList<>(mediaParts.size());
+      for(PackagePart part : mediaParts){
+        pictures.add(new XlsxPictureData(part));
+      }
+    }
+    return Collections.unmodifiableList(pictures);
   }
 
   /* Not supported */
@@ -429,14 +452,6 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public int addPicture(byte[] pictureData, int format) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public List<? extends PictureData> getAllPictures() {
     throw new UnsupportedOperationException();
   }
 
