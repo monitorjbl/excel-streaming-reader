@@ -27,6 +27,7 @@ import java.util.Map;
 
 public class StreamingSheet implements Sheet {
 
+  private Workbook workbook;
   private final String name;
   private final StreamingSheetReader reader;
 
@@ -34,6 +35,10 @@ public class StreamingSheet implements Sheet {
     this.name = name;
     this.reader = reader;
     reader.setSheet(this);
+  }
+
+  void setWorkbook(Workbook workbook) {
+    this.workbook = workbook;
   }
 
   StreamingSheetReader getReader() {
@@ -75,6 +80,14 @@ public class StreamingSheet implements Sheet {
   @Override
   public boolean isColumnHidden(int columnIndex) {
     return reader.isColumnHidden(columnIndex);
+  }
+
+  @Override
+  public Workbook getWorkbook() {
+    if (workbook == null) {
+      throw new UnsupportedOperationException();
+    }
+    return workbook;
   }
 
   /* Unsupported */
@@ -846,14 +859,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public Drawing createDrawingPatriarch() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Workbook getWorkbook() {
     throw new UnsupportedOperationException();
   }
 
