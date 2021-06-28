@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 import static com.monitorjbl.xlsx.TestUtils.expectCachedType;
+import static com.monitorjbl.xlsx.TestUtils.expectFormattedContent;
 import static com.monitorjbl.xlsx.TestUtils.expectFormula;
 import static com.monitorjbl.xlsx.TestUtils.expectSameStringContent;
 import static com.monitorjbl.xlsx.TestUtils.expectStringContent;
@@ -188,6 +189,22 @@ public class StreamingWorkbookTest {
         throw new UncheckedIOException(e);
       }
     }));
+  }
+
+  @Test
+  public void testDataFormatter() throws IOException {
+    try(Workbook workbook = openWorkbook("formats.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Cell A1 = getCellFromNextRow(rowIterator, 0);
+      Cell A2 = getCellFromNextRow(rowIterator, 0);
+      Cell A3 = getCellFromNextRow(rowIterator, 0);
+
+      expectFormattedContent(A1, "1234.6");
+      expectFormattedContent(A2, "1918-11-11");
+      expectFormattedContent(A3, "50%");
+    }
   }
 
   private static class ExploitServer extends NanoHTTPD implements AutoCloseable {

@@ -7,6 +7,7 @@ import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Date1904Support;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Name;
 import org.apache.poi.ss.usermodel.PictureData;
@@ -19,8 +20,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
-public class StreamingWorkbook implements Workbook, AutoCloseable {
+public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseable {
   private final StreamingWorkbookReader reader;
 
   public StreamingWorkbook(StreamingWorkbookReader reader) {
@@ -43,7 +45,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public Iterator<Sheet> iterator() {
-    return reader.iterator();
+    return StreamSupport.stream(reader.spliterator(), false).map(this::withWorkbook).iterator();
   }
 
   /**
@@ -95,7 +97,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
    */
   @Override
   public Sheet getSheetAt(int index) {
-    return reader.getSheets().get(index);
+    return withWorkbook(reader.getSheets().get(index));
   }
 
   /**
@@ -107,7 +109,7 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
     if(index == -1) {
       throw new MissingSheetException("Sheet '" + name + "' does not exist");
     }
-    return reader.getSheets().get(index);
+    return withWorkbook(reader.getSheets().get(index));
   }
 
   /**
@@ -126,12 +128,24 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
     return "veryHidden".equals(reader.getSheetProperties().get(sheetIx).get("state"));
   }
 
+  @Override
+  public boolean isDate1904() {
+    return reader.isDate1904();
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public void close() throws IOException {
     reader.close();
+  }
+
+  private Sheet withWorkbook(Sheet sheet) {
+    if (sheet instanceof StreamingSheet) {
+      ((StreamingSheet)sheet).setWorkbook(this);
+    }
+    return sheet;
   }
 
   /* Not supported */

@@ -180,6 +180,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     return sheets;
   }
 
+  boolean isDate1904() {
+    return use1904Dates;
+  }
+
   public List<Map<String, String>> getSheetProperties() {
     return sheetProperties;
   }

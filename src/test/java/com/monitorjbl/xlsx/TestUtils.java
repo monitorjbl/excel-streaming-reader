@@ -2,6 +2,7 @@ package com.monitorjbl.xlsx;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
@@ -28,6 +29,10 @@ final class TestUtils {
 
   static void expectStringContent(Cell cell, String value) {
     assertEquals(value, cell.getStringCellValue(), "Cell " + ref(cell) + " has wrong string content.");
+  }
+
+  static void expectFormattedContent(Cell cell, String value) {
+    assertEquals(value, new DataFormatter().formatCellValue(cell), "Cell " + ref(cell) + " has wrong formatted content.");
   }
 
   static void expectCachedType(Cell cell, CellType cellType) {
