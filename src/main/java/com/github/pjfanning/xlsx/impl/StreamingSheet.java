@@ -152,7 +152,8 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Not supported - use {@link #iterator()} or {@link #rowIterator()} to iterate over rows
+   * and count the rows
    */
   @Override
   public int getPhysicalNumberOfRows() {
@@ -288,7 +289,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setVerticallyCenter(boolean value) {
@@ -296,7 +297,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setHorizontallyCenter(boolean value) {
@@ -320,7 +321,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeMergedRegion(int index) {
@@ -328,7 +329,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeMergedRegions(Collection<Integer> collection) {
@@ -352,7 +353,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public List<CellRangeAddress> getMergedRegions() {
@@ -360,7 +361,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setForceFormulaRecalculation(boolean value) {
@@ -376,7 +377,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setAutobreaks(boolean value) {
@@ -384,7 +385,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setDisplayGuts(boolean value) {
@@ -392,7 +393,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setDisplayZeros(boolean value) {
@@ -408,7 +409,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setFitToPage(boolean value) {
@@ -416,7 +417,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRowSumsBelow(boolean value) {
@@ -424,7 +425,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRowSumsRight(boolean value) {
@@ -496,7 +497,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setPrintRowAndColumnHeadings(boolean b) {
@@ -528,7 +529,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setSelected(boolean value) {
@@ -544,7 +545,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setMargin(short margin, double size) {
@@ -576,7 +577,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setZoom(int i) {
@@ -608,7 +609,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void shiftRows(int startRow, int endRow, int n) {
@@ -616,7 +617,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void shiftRows(int startRow, int endRow, int n, boolean copyRowHeight, boolean resetOriginalRowHeight) {
@@ -624,7 +625,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void shiftColumns(int startColumn, int endColumn, final int n) {
@@ -664,7 +665,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setDisplayGridlines(boolean show) {
@@ -680,7 +681,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setDisplayFormulas(boolean show) {
@@ -696,7 +697,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setDisplayRowColHeadings(boolean show) {
@@ -712,7 +713,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRowBreak(int row) {
@@ -728,7 +729,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeRowBreak(int row) {
@@ -752,7 +753,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setColumnBreak(int column) {
@@ -768,7 +769,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeColumnBreak(int column) {
@@ -776,7 +777,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setColumnGroupCollapsed(int columnNumber, boolean collapsed) {
@@ -784,7 +785,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void groupColumn(int fromColumn, int toColumn) {
@@ -792,7 +793,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void ungroupColumn(int fromColumn, int toColumn) {
@@ -800,7 +801,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void groupRow(int fromRow, int toRow) {
@@ -808,7 +809,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void ungroupRow(int fromRow, int toRow) {
@@ -816,7 +817,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRowGroupCollapsed(int row, boolean collapse) {
@@ -824,7 +825,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setDefaultColumnStyle(int column, CellStyle style) {
@@ -832,7 +833,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void autoSizeColumn(int column) {
@@ -840,7 +841,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void autoSizeColumn(int column, boolean useMergedCells) {
@@ -872,7 +873,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public CellRange<? extends Cell> setArrayFormula(String formula, CellRangeAddress range) {
@@ -880,7 +881,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public CellRange<? extends Cell> removeArrayFormula(Cell cell) {
@@ -912,7 +913,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public AutoFilter setAutoFilter(CellRangeAddress range) {
@@ -944,7 +945,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRepeatingRows(CellRangeAddress rowRangeRef) {
@@ -952,7 +953,7 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRepeatingColumns(CellRangeAddress columnRangeRef) {

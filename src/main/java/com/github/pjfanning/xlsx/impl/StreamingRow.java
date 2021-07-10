@@ -153,7 +153,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeCell(Cell cell) {
@@ -161,7 +161,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRowNum(int rowNum) {
@@ -169,7 +169,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setHeight(short height) {
@@ -177,7 +177,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setZeroHeight(boolean zHeight) {
@@ -185,7 +185,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setHeightInPoints(float height) {
@@ -225,7 +225,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setRowStyle(CellStyle style) {
@@ -241,7 +241,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void shiftCellsRight(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
@@ -249,7 +249,7 @@ public class StreamingRow implements Row {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void shiftCellsLeft(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {

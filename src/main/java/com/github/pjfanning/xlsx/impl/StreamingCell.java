@@ -343,7 +343,7 @@ public class StreamingCell implements Cell {
   /* Not supported */
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellType(CellType cellType) {
@@ -351,13 +351,13 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setBlank() { throw new NotSupportedException("update operations are not supported"); }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(double value) {
@@ -365,7 +365,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(Date value) {
@@ -373,7 +373,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(Calendar value) {
@@ -381,7 +381,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(LocalDate value) {
@@ -389,7 +389,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(LocalDateTime value) {
@@ -397,7 +397,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(RichTextString value) {
@@ -405,7 +405,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(String value) {
@@ -413,7 +413,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellFormula(String formula) throws FormulaParseException {
@@ -421,7 +421,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeFormula() throws IllegalStateException {
@@ -429,7 +429,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellValue(boolean value) {
@@ -437,11 +437,11 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellErrorValue(byte value) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -453,7 +453,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setAsActiveCell() {
@@ -469,7 +469,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setCellComment(Comment comment) {
@@ -485,7 +485,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeCellComment() {
@@ -501,7 +501,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void setHyperlink(Hyperlink link) {
@@ -509,7 +509,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Not supported
+   * Update operations are not supported
    */
   @Override
   public void removeHyperlink() {
