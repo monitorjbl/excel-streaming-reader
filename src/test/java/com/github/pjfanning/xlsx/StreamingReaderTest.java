@@ -643,6 +643,8 @@ public class StreamingReaderTest {
         for(Cell c : r) {
           assertNotNull("cell row is set", c.getRow());
           assertEquals(r, c.getRow());
+          assertNotNull("cell address is set", c.getAddress());
+          assertEquals(r.getRowNum(), c.getAddress().getRow());
         }
       }
     }

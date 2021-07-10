@@ -340,6 +340,11 @@ public class StreamingCell implements Cell {
     return rawContents == null ? null : DateUtil.getLocalDateTime(getNumericCellValue(), use1904Dates);
   }
 
+  @Override
+  public CellAddress getAddress() {
+    return new CellAddress(this);
+  }
+
   /* Not supported */
 
   /**
@@ -458,14 +463,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setAsActiveCell() {
     throw new NotSupportedException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public CellAddress getAddress() {
-    throw new NotSupportedException();
   }
 
   /**
