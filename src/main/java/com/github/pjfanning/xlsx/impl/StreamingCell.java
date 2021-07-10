@@ -341,6 +341,23 @@ public class StreamingCell implements Cell {
   }
 
   @Override
+  public byte getErrorCellValue() {
+    CellType cellType = getCellType();
+    if(cellType != CellType.ERROR) {
+      throw typeMismatch(CellType.ERROR, cellType, false);
+    }
+    String code = getStringCellValue();
+    if (code == null) {
+      return 0;
+    }
+    try {
+      return FormulaError.forString(code).getCode();
+    } catch (final IllegalArgumentException e) {
+      throw new IllegalStateException("Unexpected error code", e);
+    }
+  }
+
+  @Override
   public CellAddress getAddress() {
     return new CellAddress(this);
   }
@@ -452,14 +469,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setCellErrorValue(byte value) {
     throw new NotSupportedException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public byte getErrorCellValue() {
-    throw new NotSupportedException();
   }
 
   /**
