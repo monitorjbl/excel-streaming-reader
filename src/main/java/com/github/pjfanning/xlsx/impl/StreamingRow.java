@@ -157,7 +157,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void removeCell(Cell cell) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -165,7 +165,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setRowNum(int rowNum) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -173,7 +173,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setHeight(short height) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -181,7 +181,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setZeroHeight(boolean zHeight) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -189,7 +189,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setHeightInPoints(float height) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -229,7 +229,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void setRowStyle(CellStyle style) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -245,7 +245,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void shiftCellsRight(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
   /**
@@ -253,7 +253,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public void shiftCellsLeft(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
-    throw new NotSupportedException();
+    throw new NotSupportedException("update operations are not supported");
   }
 
 }
