@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class StreamingWorkbook implements Workbook, AutoCloseable {
+public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseable {
   private final StreamingWorkbookReader reader;
   private POIXMLProperties.CoreProperties coreProperties = null;
   private List<XSSFPictureData> pictures;
@@ -175,6 +175,14 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
       }
     }
     return Collections.unmodifiableList(pictures);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isDate1904() {
+    return reader.isDate1904();
   }
 
   /* Not supported */

@@ -1,9 +1,6 @@
 package com.github.pjfanning.xlsx;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
 
 import java.io.IOException;
@@ -33,6 +30,11 @@ final class TestUtils {
   static void expectRichStringContent(Cell cell, String value) {
     assertEquals("Cell " + ref(cell) + " has wrong rich-string content.",
             value, cell.getRichStringCellValue().getString());
+  }
+
+  static void expectFormattedContent(Cell cell, String value) {
+    assertEquals("Cell " + ref(cell) + " has wrong formatted content.",
+            value, new DataFormatter().formatCellValue(cell));
   }
 
   static void expectCachedType(Cell cell, CellType cellType) {

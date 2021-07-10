@@ -17,6 +17,7 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Date1904Support;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.model.CommentsTable;
@@ -42,7 +43,7 @@ import java.util.*;
 
 import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
 
-public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
+public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
 
   private final List<StreamingSheet> sheets;
@@ -245,6 +246,14 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   @Override
   public Iterator<Sheet> iterator() {
     return new StreamingSheetIterator(sheets.iterator());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isDate1904() {
+    return use1904Dates;
   }
 
   @Override
