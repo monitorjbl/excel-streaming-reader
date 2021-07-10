@@ -345,6 +345,11 @@ public class StreamingCell implements Cell {
     return new CellAddress(this);
   }
 
+  @Override
+  public Comment getCellComment() {
+    return (sheet == null) ? null : sheet.getCellComment(getAddress());
+  }
+
   /* Not supported */
 
   /**
@@ -471,14 +476,6 @@ public class StreamingCell implements Cell {
   @Override
   public void setCellComment(Comment comment) {
     throw new NotSupportedException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Comment getCellComment() {
-    throw new NotSupportedException();
   }
 
   /**
