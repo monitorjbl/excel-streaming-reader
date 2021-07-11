@@ -11,6 +11,7 @@ This implementation supports [Apache POI](http://poi.apache.org) 5.x and only su
 
 This implementation has some extra features
 * OOXML Strict format support (see below)
+* More methods are implemented. Some require that features are enabled in the StreamingReader.Builder instance because they might have an additional overhead.
 * Check [Builder](https://github.com/pjfanning/excel-streaming-reader/blob/master/src/main/java/com/github/pjfanning/xlsx/StreamingReader.java#L38) implementation to see what options are available.
 
 # Include
