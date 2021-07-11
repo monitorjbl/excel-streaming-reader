@@ -99,11 +99,7 @@ public class StreamingSheet implements Sheet {
       return null;
     }
 
-    final int row = cellAddress.getRow();
-    final int column = cellAddress.getColumn();
-
-    CellAddress ref = new CellAddress(row, column);
-    CTComment ctComment = sheetComments.getCTComment(ref);
+    CTComment ctComment = sheetComments.getCTComment(cellAddress);
     if(ctComment == null) {
       return null;
     }
