@@ -232,7 +232,7 @@ public class StreamingCell implements Cell {
     }
   }
 
-  private static RuntimeException typeMismatch(CellType expectedType, CellType actualType, boolean isFormulaCell) {
+  private static IllegalStateException typeMismatch(CellType expectedType, CellType actualType, boolean isFormulaCell) {
     String msg = "Cannot get a "
             + getCellTypeName(expectedType) + " value from a "
             + getCellTypeName(actualType) + " " + (isFormulaCell ? "formula " : "") + "cell";

@@ -356,8 +356,8 @@ public class StreamingWorkbookTest {
         Row row0 = sheet.rowIterator().next();
         try {
           row0.getCell(0).getErrorCellValue();
-          fail("expected RuntimeException");
-        } catch (RuntimeException re) {
+          fail("expected IllegalStateException");
+        } catch (IllegalStateException re) {
           //expected
         }
         assertEquals(FormulaError.DIV0.getCode(), row0.getCell(1).getErrorCellValue());
