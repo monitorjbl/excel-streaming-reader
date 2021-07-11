@@ -159,6 +159,17 @@ public class StreamingSheet implements Sheet {
     return mergedCells == null ? 0 : mergedCells.size();
   }
 
+  /**
+   * Return the sheet's existing drawing, or null if there isn't yet one.
+   *
+   * @return a SpreadsheetML drawing
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadShapes is not set to true
+   */
+  @Override
+  public Drawing getDrawingPatriarch() {
+    return reader.getDrawingPatriarch();
+  }
+
   /* Unsupported */
 
   /**
@@ -856,14 +867,6 @@ public class StreamingSheet implements Sheet {
   @Override
   public void autoSizeColumn(int column, boolean useMergedCells) {
     throw new UnsupportedOperationException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Drawing getDrawingPatriarch() {
-    throw new UnsupportedOperationException();
   }
 
   /**

@@ -41,6 +41,7 @@ import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.PackagingURIHelper;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 import org.apache.poi.util.XMLHelper;
@@ -68,7 +69,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * This is a forked copy of the POI XSSFReader class.
  */
 //TODO POI XSSFReader should be extended once POI 5.0.1 is available
-public class XSSFReader {
+@Internal
+public class OoxmlReader {
 
   private static final Set<String> WORKSHEET_RELS =
           Collections.unmodifiableSet(new HashSet<>(
@@ -85,7 +87,7 @@ public class XSSFReader {
   /**
    * Creates a new XSSFReader, for the given package
    */
-  public XSSFReader(OPCPackage pkg) throws IOException, OpenXML4JException {
+  public OoxmlReader(OPCPackage pkg) throws IOException, OpenXML4JException {
     this.pkg = pkg;
 
     PackageRelationship coreDocRelationship = this.pkg.getRelationshipsByType(

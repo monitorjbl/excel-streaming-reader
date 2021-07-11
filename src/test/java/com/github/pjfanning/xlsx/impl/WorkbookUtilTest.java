@@ -1,6 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
-import com.github.pjfanning.xlsx.impl.ooxml.XSSFReader;
+import com.github.pjfanning.xlsx.impl.ooxml.OoxmlReader;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.junit.Test;
@@ -33,8 +33,8 @@ public class WorkbookUtilTest {
     return new File("src/test/resources/" + file);
   }
 
-  private XSSFReader open(OPCPackage pkg) throws Exception {
-    return new XSSFReader(pkg);
+  private OoxmlReader open(OPCPackage pkg) throws Exception {
+    return new OoxmlReader(pkg);
   }
 
 }

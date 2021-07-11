@@ -9,7 +9,7 @@ import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
 import com.github.pjfanning.xlsx.impl.ooxml.OoXmlStrictConverterInputStream;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlStrictHelper;
-import com.github.pjfanning.xlsx.impl.ooxml.XSSFReader;
+import com.github.pjfanning.xlsx.impl.ooxml.OoxmlReader;
 import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -24,6 +24,7 @@ import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.model.ThemesTable;
+import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -48,6 +49,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
   private final List<StreamingSheet> sheets;
   private final List<Map<String, String>> sheetProperties = new ArrayList<>();
+  private final Map<String, List<XSSFShape>> shapeMap = new HashMap<>();
   private final Builder builder;
   private File tmp;
   private OPCPackage pkg;
@@ -145,7 +147,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
   }
 
   private void loadPackage(OPCPackage pkg) throws IOException, OpenXML4JException, ParserConfigurationException, SAXException, XMLStreamException {
-    XSSFReader reader = new XSSFReader(pkg);
+    OoxmlReader reader = new OoxmlReader(pkg);
     boolean strictFormat = OoxmlStrictHelper.isStrictOoxmlFormat(pkg);
     if (strictFormat) {
       log.info("file is in strict OOXML format");
@@ -188,18 +190,21 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     workbook.setCoreProperties(coreProperties);
   }
 
-  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
+  void loadSheets(OoxmlReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
       XMLStreamException {
     lookupSheetNames(reader);
 
     //Some workbooks have multiple references to the same sheet. Need to filter
     //them out before creating the XMLEventReader by keeping track of their URIs.
     //The sheets are listed in order, so we must keep track of insertion order.
-    XSSFReader.SheetIterator iter = reader.getSheetsData();
+    OoxmlReader.SheetIterator iter = reader.getSheetsData();
     Map<URI, InputStream> sheetStreams = new LinkedHashMap<>();
     Map<URI, CommentsTable> sheetComments = new HashMap<>();
     while(iter.hasNext()) {
       InputStream is = iter.next();
+      if (builder.readShapes()) {
+        shapeMap.put(iter.getSheetName(), iter.getShapes());
+      }
       URI uri = iter.getSheetPart().getPartName().getURI();
       sheetStreams.put(uri, is);
       if (builder.readComments()) {
@@ -214,11 +219,11 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       sheets.add(new StreamingSheet(
               workbook,
               sheetProperties.get(i++).get("name"),
-              new StreamingSheetReader(sst, stylesTable, sheetComments.get(uri), parser, use1904Dates, rowCacheSize)));
+              new StreamingSheetReader(this, sst, stylesTable, sheetComments.get(uri), parser, use1904Dates, rowCacheSize)));
     }
   }
 
-  void lookupSheetNames(XSSFReader reader) throws IOException, InvalidFormatException {
+  void lookupSheetNames(OoxmlReader reader) throws IOException, InvalidFormatException {
     sheetProperties.clear();
     try {
       NodeList nl = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
@@ -276,8 +281,16 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     }
   }
 
+  Builder getBuilder() {
+    return builder;
+  }
+
   OPCPackage getOPCPackage() {
     return pkg;
+  }
+
+  List<XSSFShape> getShapes(String sheetName) {
+    return shapeMap.get(sheetName);
   }
 
   static class StreamingSheetIterator implements Iterator<Sheet> {

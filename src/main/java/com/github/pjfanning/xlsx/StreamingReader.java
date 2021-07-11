@@ -42,6 +42,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean encryptSstTempFile = false;
     private boolean readComments = false;
     private boolean readCoreProperties = false;
+    private boolean readShapes = false;
     private String password;
     private boolean convertFromOoXmlStrict;
 
@@ -95,6 +96,13 @@ public class StreamingReader implements AutoCloseable {
      */
     public boolean readCoreProperties() {
       return readCoreProperties;
+    }
+
+    /**
+     * @return Whether to read the shapes (associated with pictures that appear in sheets).
+     */
+    public boolean readShapes() {
+      return readShapes;
     }
 
     /**
@@ -228,6 +236,17 @@ public class StreamingReader implements AutoCloseable {
      */
     public Builder setReadCoreProperties(boolean readCoreProperties) {
       this.readCoreProperties = readCoreProperties;
+      return this;
+    }
+
+    /**
+     * Enables the reading of shape data.
+     *
+     * @param readShapes whether to read shapes (associated with pictures that appear in sheets)
+     * @return reference to current {@code Builder}
+     */
+    public Builder setReadShapes(boolean readShapes) {
+      this.readShapes = readShapes;
       return this;
     }
 

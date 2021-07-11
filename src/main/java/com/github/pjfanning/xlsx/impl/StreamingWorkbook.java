@@ -151,9 +151,14 @@ public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseab
    * Returns the Core Properties if this feature is enabled on the <code>StreamingReader.Builder</code>
    *
    * @return {@link POIXMLProperties.CoreProperties}
+   * @throws IllegalStateException if StreamingReader.Builder setReadCoreProperties is not set to true
    */
   public POIXMLProperties.CoreProperties getCoreProperties() {
-    return coreProperties;
+    if (reader.getBuilder().readCoreProperties()) {
+      return coreProperties;
+    } else {
+      throw new IllegalStateException("getCoreProperties() only works if StreamingWorking.Builder setReadCoreProperties is set to true");
+    }
   }
 
   void setCoreProperties(POIXMLProperties.CoreProperties coreProperties) {

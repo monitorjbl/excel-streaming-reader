@@ -14,7 +14,9 @@ import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -30,6 +32,7 @@ import java.util.*;
 public class StreamingSheetReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingSheetReader.class);
 
+  private final StreamingWorkbookReader streamingWorkbookReader;
   private final SharedStringsTable sst;
   private final StylesTable stylesTable;
   private final CommentsTable commentsTable;
@@ -57,8 +60,10 @@ public class StreamingSheetReader implements Iterable<Row> {
   private boolean insideFormulaElement = false;
   private boolean insideIS = false;
 
-  StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, CommentsTable commentsTable,
+  StreamingSheetReader(StreamingWorkbookReader streamingWorkbookReader,
+                       SharedStringsTable sst, StylesTable stylesTable, CommentsTable commentsTable,
                        XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
+    this.streamingWorkbookReader = streamingWorkbookReader;
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.commentsTable = commentsTable;
@@ -482,6 +487,22 @@ public class StreamingSheetReader implements Iterable<Row> {
   CommentsTable getCellComments() { return this.commentsTable; }
 
   List<CellRangeAddress> getMergedCells() { return this.mergedCells; }
+
+  XSSFDrawing getDrawingPatriarch() {
+    if (!streamingWorkbookReader.getBuilder().readShapes()) {
+      throw new IllegalStateException("getDrawingPatriarch() only works if StreamingWorking.Builder setReadShapes is set to true");
+    }
+    if (sheet != null) {
+      List<XSSFShape> shapes = streamingWorkbookReader.getShapes(sheet.getSheetName());
+      if (shapes != null) {
+        Iterator<XSSFShape> shapesIter = shapes.iterator();
+        while (shapesIter.hasNext()) {
+          return shapesIter.next().getDrawing();
+        }
+      }
+    }
+    return null;
+  }
 
   public void close() {
     try {

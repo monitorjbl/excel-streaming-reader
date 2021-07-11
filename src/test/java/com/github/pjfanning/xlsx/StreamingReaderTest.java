@@ -1003,7 +1003,12 @@ public class StreamingReaderTest {
             InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
             Workbook wb = StreamingReader.builder().open(inputStream)
     ) {
-      assertNull("CoreProperties should be null", ((StreamingWorkbook)wb).getCoreProperties());
+      try {
+        ((StreamingWorkbook)wb).getCoreProperties();
+        fail("expected getCoreProperties to fail with IllegalStateException");
+      } catch (IllegalStateException ise) {
+        //expected
+      }
 
       DataFormatter formatter = new DataFormatter();
 
@@ -1038,8 +1043,13 @@ public class StreamingReaderTest {
             InputStream inputStream = new FileInputStream("src/test/resources/sample.strict.xlsx");
             Workbook wb = StreamingReader.builder().open(inputStream)
     ) {
-      StreamingWorkbook swb = (StreamingWorkbook)wb;
-      assertNull("CoreProperties should be null", swb.getCoreProperties());
+      try {
+        ((StreamingWorkbook)wb).getCoreProperties();
+        fail("expected getCoreProperties to fail with IllegalStateException");
+      } catch (IllegalStateException ise) {
+        //expected
+      }
+
       DataFormatter formatter = new DataFormatter();
 
       Sheet sheet1 = wb.getSheet("Sheet1");

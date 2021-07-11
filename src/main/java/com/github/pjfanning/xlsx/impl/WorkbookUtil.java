@@ -1,6 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
-import com.github.pjfanning.xlsx.impl.ooxml.XSSFReader;
+import com.github.pjfanning.xlsx.impl.ooxml.OoxmlReader;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -12,7 +12,7 @@ import java.io.IOException;
 import static com.github.pjfanning.xlsx.XmlUtils.*;
 
 public class WorkbookUtil {
-  public static boolean use1904Dates(XSSFReader reader) throws IOException, InvalidFormatException, ParserConfigurationException, SAXException {
+  public static boolean use1904Dates(OoxmlReader reader) throws IOException, InvalidFormatException, ParserConfigurationException, SAXException {
     NodeList workbookPr = searchForNodeList(readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
     if (workbookPr.getLength() == 1) {
       final Node date1904 = workbookPr.item(0).getAttributes().getNamedItem("date1904");
