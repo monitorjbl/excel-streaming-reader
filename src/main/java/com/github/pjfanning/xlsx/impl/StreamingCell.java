@@ -282,6 +282,7 @@ public class StreamingCell implements Cell {
    * For formula cells we return the pre-calculated value if a string, otherwise an exception
    * </p>
    * @return the value of the cell as a XSSFRichTextString
+   * @throws NotSupportedException if the cell type is unsupported
    */
   @Override
   public XSSFRichTextString getRichStringCellValue() {
@@ -298,7 +299,7 @@ public class StreamingCell implements Cell {
         rt = new XSSFRichTextString(getStringCellValue());
         break;
       default:
-        throw new NotSupportedException();
+        throw new NotSupportedException("getRichStringCellValue does not support cell type " + cellType.toString());
     }
     return rt;
   }
@@ -308,6 +309,8 @@ public class StreamingCell implements Cell {
    * @return one of ({@link CellType#NUMERIC}, {@link CellType#STRING},
    *     {@link CellType#BOOLEAN}, {@link CellType#ERROR}) depending
    * on the cached value of the formula
+   * @throws IllegalStateException if cell is not formula type
+   * @throws NotSupportedException if cell formula type is unknown
    */
   @Override
   public CellType getCachedFormulaResultType() {
@@ -325,7 +328,7 @@ public class StreamingCell implements Cell {
       } else if("e".equals(type)) {
         return CellType.ERROR;
       } else {
-        throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
+        throw new NotSupportedException("Unsupported cell type '" + type + "'");
       }
     } else  {
       throw new IllegalStateException("Only formula cells have cached results");
