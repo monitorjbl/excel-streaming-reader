@@ -1,14 +1,18 @@
 package com.github.pjfanning.xlsx;
 
+import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Locale;
@@ -57,6 +61,26 @@ public class StreamingSheetTest {
       Row row = sheet.iterator().next();
       assertEquals(CellType.NUMERIC, row.getCell(0).getCellType());
       assertNotNull(row.getCell(0).getCellStyle());
+    }
+  }
+
+  @Test
+  public void testMergedRegion() throws IOException {
+    try (UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()) {
+      try (XSSFWorkbook wb = new XSSFWorkbook()) {
+        XSSFSheet sheet = wb.createSheet();
+        CellRangeAddress region = new CellRangeAddress(1, 1, 1, 2);
+        assertEquals(0, sheet.addMergedRegion(region));
+        wb.write(bos);
+      }
+      try (Workbook workbook = StreamingReader.builder().open(bos.toInputStream())) {
+        Sheet sheet = workbook.getSheetAt(0);
+        for (Row row : sheet) {
+          //need to iterate over all rows before merged region data is read (it is at end of sheet data)
+        }
+        assertEquals(1, sheet.getMergedRegions().size());
+        assertEquals(1, sheet.getNumMergedRegions());
+      }
     }
   }
 

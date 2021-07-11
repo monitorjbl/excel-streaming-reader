@@ -125,6 +125,44 @@ public class StreamingSheet implements Sheet {
     return map;
   }
 
+  /**
+   * Only works after sheet is fully read (because merged regions data is stored
+   * at the end of the sheet XML).
+   *
+   * @{inheritDoc}
+   */
+  @Override
+  public CellRangeAddress getMergedRegion(int index) {
+    List<CellRangeAddress> regions = getMergedRegions();
+    if(index > regions.size()) {
+      throw new NoSuchElementException("index " + index + " is out of range");
+    }
+    return regions.get(index);
+  }
+
+  /**
+   * Only works after sheet is fully read (because merged regions data is stored
+   * at the end of the sheet XML).
+   *
+   * @{inheritDoc}
+   */
+  @Override
+  public List<CellRangeAddress> getMergedRegions() {
+    return reader.getMergedCells();
+  }
+
+  /**
+   * Only works after sheet is fully read (because merged regions data is stored
+   * at the end of the sheet XML).
+   *
+   * @{inheritDoc}
+   */
+  @Override
+  public int getNumMergedRegions() {
+    List<CellRangeAddress> mergedCells = reader.getMergedCells();
+    return mergedCells == null ? 0 : mergedCells.size();
+  }
+
   /* Unsupported */
 
   /**
@@ -334,30 +372,6 @@ public class StreamingSheet implements Sheet {
   @Override
   public void removeMergedRegions(Collection<Integer> collection) {
     throw new UnsupportedOperationException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public int getNumMergedRegions() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public CellRangeAddress getMergedRegion(int index) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Update operations are not supported
-   */
-  @Override
-  public List<CellRangeAddress> getMergedRegions() {
-    throw new UnsupportedOperationException();
   }
 
   /**
