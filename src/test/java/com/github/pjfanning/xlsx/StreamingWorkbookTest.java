@@ -4,7 +4,12 @@ import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.impl.XlsxPictureData;
 import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -286,6 +291,35 @@ public class StreamingWorkbookTest {
       expectFormattedContent(A1, "1234.6");
       expectFormattedContent(A2, "1918-11-11");
       expectFormattedContent(A3, "50%");
+    }
+  }
+
+  @Test
+  public void testGetErrorCellValue() throws IOException {
+    try(UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()) {
+      try(XSSFWorkbook workbook = new XSSFWorkbook()) {
+        XSSFSheet sheet = workbook.createSheet("sheet1");
+        XSSFRow row = sheet.createRow(0);
+        XSSFCell cell0 = row.createCell(0);
+        cell0.setCellValue("");
+        XSSFCell cell1 = row.createCell(1);
+        cell1.setCellErrorValue(FormulaError.DIV0);
+        XSSFCell cell2 = row.createCell(2);
+        cell2.setCellErrorValue(FormulaError.FUNCTION_NOT_IMPLEMENTED);
+        workbook.write(bos);
+      }
+      try(Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        Sheet sheet = wb.getSheet("sheet1");
+        Row row0 = sheet.rowIterator().next();
+        try {
+          row0.getCell(0).getErrorCellValue();
+          fail("expected RuntimeException");
+        } catch (RuntimeException re) {
+          //expected
+        }
+        assertEquals(FormulaError.DIV0.getCode(), row0.getCell(1).getErrorCellValue());
+        assertEquals(FormulaError.FUNCTION_NOT_IMPLEMENTED.getCode(), row0.getCell(2).getErrorCellValue());
+      }
     }
   }
 

@@ -346,7 +346,7 @@ public class StreamingCell implements Cell {
     if(cellType != CellType.ERROR) {
       throw typeMismatch(CellType.ERROR, cellType, false);
     }
-    String code = getStringCellValue();
+    String code = rawContents;
     if (code == null) {
       return 0;
     }
