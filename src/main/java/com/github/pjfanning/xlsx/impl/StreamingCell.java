@@ -362,6 +362,12 @@ public class StreamingCell implements Cell {
     return new CellAddress(this);
   }
 
+  /**
+   * Returns cell comment associated with this cell
+   *
+   * @return the cell comment associated with this cell or {@code null}
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
+   */
   @Override
   public Comment getCellComment() {
     return (sheet == null) ? null : sheet.getCellComment(getAddress());

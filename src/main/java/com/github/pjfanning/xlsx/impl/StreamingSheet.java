@@ -92,6 +92,13 @@ public class StreamingSheet implements Sheet {
     return reader.getLastRowNum();
   }
 
+  /**
+   * Return cell comment at row, column, if one exists. Otherwise returns null.
+   *
+   * @param cellAddress the location of the cell comment
+   * @return the cell comment, if one exists. Otherwise return null.
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
+   */
   @Override
   public Comment getCellComment(CellAddress cellAddress) {
     CommentsTable sheetComments = reader.getCellComments();
@@ -107,6 +114,12 @@ public class StreamingSheet implements Sheet {
     return new XSSFComment(sheetComments, ctComment, null);
   }
 
+  /**
+   * Returns all cell comments on this sheet.
+   * @return A map of each Comment in the sheet, keyed on the cell address where
+   * the comment is located.
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
+   */
   @Override
   public Map<CellAddress, ? extends Comment> getCellComments() {
     CommentsTable sheetComments = reader.getCellComments();

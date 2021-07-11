@@ -483,8 +483,14 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   /**
    * @return the comments associated with this sheet (only feature is enabled on the Builder)
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
    */
-  CommentsTable getCellComments() { return this.commentsTable; }
+  CommentsTable getCellComments() {
+    if (!streamingWorkbookReader.getBuilder().readComments()) {
+      throw new IllegalStateException("getCellComments() only works if StreamingWorking.Builder setReadComments is set to true");
+    }
+    return this.commentsTable;
+  }
 
   List<CellRangeAddress> getMergedCells() { return this.mergedCells; }
 

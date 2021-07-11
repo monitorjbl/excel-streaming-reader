@@ -543,8 +543,18 @@ public class StreamingReaderTest {
       assertEquals("yeah", row.get(0).getStringCellValue());
       assertEquals("yeah", row.get(0).getRichStringCellValue().getString());
 
-      assertEquals(0, sheet.getCellComments().size());
-      assertNull("getCellComment not enabled in builder", sheet.getCellComment(new CellAddress(0, 0)));
+      try {
+        sheet.getCellComments();
+        fail("expected getCellComments to fail with IllegalStateException");
+      } catch(IllegalStateException ise) {
+        //expected
+      }
+      try {
+        sheet.getCellComment(new CellAddress(0, 0));
+        fail("expected getCellComment to fail with IllegalStateException");
+      } catch(IllegalStateException ise) {
+        //expected
+      }
     }
   }
 
@@ -1215,7 +1225,12 @@ public class StreamingReaderTest {
             InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
             Workbook wb = StreamingReader.builder().open(inputStream)
     ) {
-      assertEquals(0, wb.getSheetAt(0).getCellComments().size());
+      try {
+        wb.getSheetAt(0).getCellComments();
+        fail("expected getCellComments to fail with IllegalStateException");
+      } catch(IllegalStateException ise) {
+        //expected
+      }
     }
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
