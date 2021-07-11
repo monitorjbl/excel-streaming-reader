@@ -285,14 +285,20 @@ public class StreamingWorkbookTest {
       sheet0.rowIterator().hasNext();
       Drawing<?> drawingPatriarch = sheet0.getDrawingPatriarch();
       assertNotNull("drawingPatriarch should not be null", drawingPatriarch);
-      Iterator<?> shapeIter = drawingPatriarch.iterator();
-      List<Shape> shapes = new ArrayList<>();
+      List<XSSFPicture> pictures = new ArrayList<>();
       for (Shape shape : drawingPatriarch) {
-        shapes.add(shape);
+        if (shape instanceof XSSFPicture) {
+          pictures.add((XSSFPicture)shape);
+        } else {
+          //there is one text box and 5 pictures on the sheet
+          XSSFSimpleShape textBox = (XSSFSimpleShape)shape;
+          String text = textBox.getText().replace("\r", "").replace("\n", "");
+          assertEquals("Sheet with various pictures(jpeg, png, wmf, emf and pict)", text);
+        }
         assertTrue("shape is an XSSFShape", shape instanceof XSSFShape);
         assertNotNull("shape has anchor", shape.getAnchor());
       }
-      assertEquals(6, shapes.size());
+      assertEquals(5, pictures.size());
       Sheet sheet1 = workbook.getSheetAt(1);
       sheet1.rowIterator().hasNext();
       assertNull("sheet1 should have no drawing patriarch", sheet1.getDrawingPatriarch());
