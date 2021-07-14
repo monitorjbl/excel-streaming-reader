@@ -80,6 +80,11 @@ public class StreamingSheetTest {
         }
         assertEquals(1, sheet.getMergedRegions().size());
         assertEquals(1, sheet.getNumMergedRegions());
+        for (Row row : sheet) {
+          //iterate again to make sure we don't duplicate the merged region data
+        }
+        assertEquals(1, sheet.getMergedRegions().size());
+        assertEquals(1, sheet.getNumMergedRegions());
       }
     }
   }
