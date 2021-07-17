@@ -14,6 +14,11 @@ This implementation has some extra features
 * More methods are implemented. Some require that features are enabled in the StreamingReader.Builder instance because they might have an additional overhead.
 * Check [Builder](https://github.com/pjfanning/excel-streaming-reader/blob/master/src/main/java/com/github/pjfanning/xlsx/StreamingReader.java#L38) implementation to see what options are available.
 
+## Used By
+* [Apache Drill](https://drill.apache.org/)
+* [OpenRefine](https://openrefine.org/)
+* [Spark-Excel](https://github.com/crealytics/spark-excel)
+
 # Include
 
 To use it, add this to your POM:
@@ -23,7 +28,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>3.0.5</version>
+    <version>3.1.0</version>
   </dependency>
 </dependencies>  
 ```
