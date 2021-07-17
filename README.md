@@ -16,7 +16,6 @@ This implementation has some extra features
 
 ## Used By
 * [Apache Drill](https://drill.apache.org/)
-* [OpenRefine](https://openrefine.org/)
 * [Spark-Excel](https://github.com/crealytics/spark-excel)
 
 # Include
