@@ -6,6 +6,7 @@ import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -334,6 +335,28 @@ public class StreamingWorkbookTest {
       expectFormattedContent(A1, "1234.6");
       expectFormattedContent(A2, "1918-11-11");
       expectFormattedContent(A3, "50%");
+    }
+  }
+
+  @Test
+  public void testRightToLeft() throws IOException {
+    try(
+            InputStream stream = getInputStream("right-to-left.xlsx");
+            Workbook workbook = StreamingReader.builder().setReadComments(true).open(stream)
+    ){
+      Sheet sheet = workbook.getSheet("عربى");
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Cell A1 = getCellFromNextRow(rowIterator, 0);
+      Cell A2 = getCellFromNextRow(rowIterator, 0);
+      Cell A3 = getCellFromNextRow(rowIterator, 0);
+
+      expectFormattedContent(A1, "نص");
+      expectFormattedContent(A2, "123"); //this should really be ۱۲۳
+      expectFormattedContent(A3, "text with comment");
+
+      Comment a3Comment = sheet.getCellComment(new CellAddress("A3"));
+      assertTrue(a3Comment.getString().getString().contains("تعليق الاختبا"));
     }
   }
 
