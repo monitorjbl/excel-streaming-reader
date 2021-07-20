@@ -350,10 +350,12 @@ public class StreamingWorkbookTest {
       Cell A1 = getCellFromNextRow(rowIterator, 0);
       Cell A2 = getCellFromNextRow(rowIterator, 0);
       Cell A3 = getCellFromNextRow(rowIterator, 0);
+      Cell A4 = getCellFromNextRow(rowIterator, 0);
 
       expectFormattedContent(A1, "نص");
       expectFormattedContent(A2, "123"); //this should really be ۱۲۳
       expectFormattedContent(A3, "text with comment");
+      expectFormattedContent(A4, " עִבְרִית and اَلْعَرَبِيَّةُ");
 
       Comment a3Comment = sheet.getCellComment(new CellAddress("A3"));
       assertTrue(a3Comment.getString().getString().contains("تعليق الاختبا"));
