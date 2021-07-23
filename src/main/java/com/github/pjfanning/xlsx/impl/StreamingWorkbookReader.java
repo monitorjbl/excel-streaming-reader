@@ -10,6 +10,7 @@ import com.github.pjfanning.xlsx.exceptions.ReadException;
 import com.github.pjfanning.xlsx.impl.ooxml.OoXmlStrictConverterInputStream;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlStrictHelper;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlReader;
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -80,12 +81,16 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
         }
         loadPackage(pkg);
       } catch(SAXException | ParserConfigurationException e) {
+        IOUtils.closeQuietly(pkg);
         throw new ParseException("Failed to parse stream", e);
       } catch(IOException e) {
+        IOUtils.closeQuietly(pkg);
         throw new OpenException("Failed to open stream", e);
       } catch(OpenXML4JException | XMLStreamException e) {
+        IOUtils.closeQuietly(pkg);
         throw new ReadException("Unable to read workbook", e);
       } catch(GeneralSecurityException e) {
+        IOUtils.closeQuietly(pkg);
         throw new ReadException("Unable to read workbook - Decryption failed", e);
       }
     } else {
@@ -96,6 +101,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
         init(f);
         tmp = f;
       } catch(IOException e) {
+        if (f != null) {
+          f.delete();
+        }
         throw new ReadException("Unable to read input stream", e);
       } catch(RuntimeException e) {
         if (f != null) {
@@ -122,12 +130,16 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       }
       loadPackage(pkg);
     } catch(SAXException | ParserConfigurationException e) {
+      IOUtils.closeQuietly(pkg);
       throw new ParseException("Failed to parse file", e);
     } catch(IOException e) {
+      IOUtils.closeQuietly(pkg);
       throw new OpenException("Failed to open file", e);
     } catch(OpenXML4JException | XMLStreamException e) {
+      IOUtils.closeQuietly(pkg);
       throw new ReadException("Unable to read workbook", e);
     } catch(GeneralSecurityException e) {
+      IOUtils.closeQuietly(pkg);
       throw new ReadException("Unable to read workbook - Decryption failed", e);
     }
   }
