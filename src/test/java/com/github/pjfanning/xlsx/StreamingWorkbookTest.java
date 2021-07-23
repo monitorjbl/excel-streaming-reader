@@ -342,7 +342,10 @@ public class StreamingWorkbookTest {
   public void testRightToLeft() throws IOException {
     try(
             InputStream stream = getInputStream("right-to-left.xlsx");
-            Workbook workbook = StreamingReader.builder().setReadComments(true).open(stream)
+            Workbook workbook = StreamingReader.builder()
+                    .setReadComments(true)
+                    .setAdjustLegacyComments(true)
+                    .open(stream)
     ){
       Sheet sheet = workbook.getSheet("عربى");
       Iterator<Row> rowIterator = sheet.rowIterator();
@@ -359,6 +362,22 @@ public class StreamingWorkbookTest {
 
       Comment a3Comment = sheet.getCellComment(new CellAddress("A3"));
       assertEquals("تعليق الاختبار", a3Comment.getString().getString());
+    }
+  }
+
+  @Test
+  public void testAdjustLegacyCommentsDisabled() throws IOException {
+    try(
+            InputStream stream = getInputStream("right-to-left.xlsx");
+            Workbook workbook = StreamingReader.builder().setReadComments(true).open(stream)
+    ){
+      Sheet sheet = workbook.getSheet("عربى");
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Comment a3Comment = sheet.getCellComment(new CellAddress("A3"));
+      String expectedComment = "تعليق الاختبار";
+      assertNotEquals(expectedComment, a3Comment.getString().getString());
+      assertTrue("legacy comment ends with expected comment?", a3Comment.getString().getString().endsWith(expectedComment));
     }
   }
 

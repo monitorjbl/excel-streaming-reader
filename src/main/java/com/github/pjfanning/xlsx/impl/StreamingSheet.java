@@ -5,6 +5,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.PaneInformation;
 import org.apache.poi.xssf.model.CommentsTable;
+import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTComment;
 
 import java.util.*;
@@ -110,7 +111,11 @@ public class StreamingSheet implements Sheet {
       return null;
     }
 
-    return new XlsxComment(sheetComments, ctComment);
+    if (reader.getBuilder().adjustLegacyComments()) {
+      return new XlsxComment(sheetComments, ctComment);
+    } else {
+      return new XSSFComment(sheetComments, ctComment, null);
+    }
   }
 
   /**

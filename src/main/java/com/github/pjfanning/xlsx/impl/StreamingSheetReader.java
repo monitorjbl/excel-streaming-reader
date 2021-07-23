@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.XmlUtils;
 import com.github.pjfanning.xlsx.exceptions.CloseException;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
@@ -516,6 +517,10 @@ public class StreamingSheetReader implements Iterable<Row> {
     } catch(XMLStreamException e) {
       throw new CloseException(e);
     }
+  }
+
+  StreamingReader.Builder getBuilder() {
+    return streamingWorkbookReader.getBuilder();
   }
 
   class StreamingRowIterator implements Iterator<Row> {

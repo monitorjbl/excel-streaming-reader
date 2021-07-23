@@ -40,6 +40,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean avoidTempFiles = false;
     private boolean useSstTempFile = false;
     private boolean encryptSstTempFile = false;
+    private boolean adjustLegacyComments = false;
     private boolean readComments = false;
     private boolean readCoreProperties = false;
     private boolean readShapes = false;
@@ -82,6 +83,14 @@ public class StreamingReader implements AutoCloseable {
      */
     public boolean encryptSstTempFile() {
       return encryptSstTempFile;
+    }
+
+    /**
+     * @return Whether to adjust legacy comments to remove boiler-plate comments.
+     * See https://github.com/pjfanning/excel-streaming-reader/issues/57
+     */
+    public boolean adjustLegacyComments() {
+      return adjustLegacyComments;
     }
 
     /**
@@ -225,6 +234,18 @@ public class StreamingReader implements AutoCloseable {
      */
     public Builder setReadComments(boolean readComments) {
       this.readComments = readComments;
+      return this;
+    }
+
+    /**
+     * Enables adjustments legacy comments to remove boiler-plate comments.
+     * See https://github.com/pjfanning/excel-streaming-reader/issues/57.
+     *
+     * @param adjustLegacyComments whether to adjust legacy comments to remove boiler-plate comments
+     * @return reference to current {@code Builder}
+     */
+    public Builder setAdjustLegacyComments(boolean adjustLegacyComments) {
+      this.adjustLegacyComments = adjustLegacyComments;
       return this;
     }
 
