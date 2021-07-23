@@ -97,7 +97,7 @@ public class StreamingSheet implements Sheet {
    *
    * @param cellAddress the location of the cell comment
    * @return the cell comment, if one exists. Otherwise return null.
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadComments(boolean)} is not set to true
    */
   @Override
   public Comment getCellComment(CellAddress cellAddress) {
@@ -122,7 +122,7 @@ public class StreamingSheet implements Sheet {
    * Returns all cell comments on this sheet.
    * @return A map of each Comment in the sheet, keyed on the cell address where
    * the comment is located.
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadComments(boolean)} is not set to true
    */
   @Override
   public Map<CellAddress, ? extends Comment> getCellComments() {
@@ -141,8 +141,6 @@ public class StreamingSheet implements Sheet {
   /**
    * Only works after sheet is fully read (because merged regions data is stored
    * at the end of the sheet XML).
-   *
-   * @{inheritDoc}
    */
   @Override
   public CellRangeAddress getMergedRegion(int index) {
@@ -156,8 +154,6 @@ public class StreamingSheet implements Sheet {
   /**
    * Only works after sheet is fully read (because merged regions data is stored
    * at the end of the sheet XML).
-   *
-   * @{inheritDoc}
    */
   @Override
   public List<CellRangeAddress> getMergedRegions() {
@@ -167,8 +163,6 @@ public class StreamingSheet implements Sheet {
   /**
    * Only works after sheet is fully read (because merged regions data is stored
    * at the end of the sheet XML).
-   *
-   * @{inheritDoc}
    */
   @Override
   public int getNumMergedRegions() {
@@ -180,7 +174,7 @@ public class StreamingSheet implements Sheet {
    * Return the sheet's existing drawing, or null if there isn't yet one.
    *
    * @return a SpreadsheetML drawing
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadShapes is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadShapes(boolean)} is not set to true
    */
   @Override
   public Drawing getDrawingPatriarch() {
@@ -193,7 +187,7 @@ public class StreamingSheet implements Sheet {
    * @param row The row where the hyperlink is anchored
    * @param column The column where the hyperlink is anchored
    * @return hyperlink if there is a hyperlink anchored at row, column; otherwise returns null
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadHyperlinks(boolean)} is not set to true
    */
   @Override
   public Hyperlink getHyperlink(int row, int column) {
@@ -207,7 +201,7 @@ public class StreamingSheet implements Sheet {
    *
    * @param cellAddress
    * @return the hyperlink associated with this cell (only if feature is enabled on the Builder) - null if not found
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadHyperlinks(boolean)} is not set to true
    */
   @Override
   public Hyperlink getHyperlink(CellAddress cellAddress) {
@@ -229,7 +223,7 @@ public class StreamingSheet implements Sheet {
    * at the end of the sheet.
    *
    * @return the hyperlinks associated with this sheet (only if feature is enabled on the Builder)
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadHyperlinks(boolean)} is not set to true
    */
   @Override
   public List<? extends Hyperlink> getHyperlinkList() {

@@ -369,7 +369,7 @@ public class StreamingCell implements Cell {
    * Returns cell comment associated with this cell
    *
    * @return the cell comment associated with this cell or {@code null}
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadComments(boolean)} is not set to true
    */
   @Override
   public Comment getCellComment() {
@@ -382,7 +382,7 @@ public class StreamingCell implements Cell {
    * until after all the rows have been read.
    *
    * @return the hyperlink associated with this cell or {@code null}
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadHyperlinks(boolean)} is not set to true
    */
   @Override
   public Hyperlink getHyperlink() {

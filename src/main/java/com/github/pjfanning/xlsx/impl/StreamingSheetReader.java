@@ -505,7 +505,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   /**
    * @return the comments associated with this sheet (only if feature is enabled on the Builder)
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadComments is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadComments(boolean)} is not set to true
    */
   CommentsTable getCellComments() {
     if (!streamingWorkbookReader.getBuilder().readComments()) {
@@ -546,7 +546,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   /**
    * @return the hyperlinks associated with this sheet (only if feature is enabled on the Builder)
-   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadHyperlinks(boolean)} is not set to true
    */
   List<XlsxHyperlink> getHyperlinks() {
     if (!getBuilder().readHyperlinks()) {
