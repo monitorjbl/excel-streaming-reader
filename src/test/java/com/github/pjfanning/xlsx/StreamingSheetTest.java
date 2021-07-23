@@ -174,4 +174,16 @@ public class StreamingSheetTest {
       }
     }
   }
+
+  @Test
+  public void testGetActiveCell() throws Exception {
+    try (
+            InputStream is = getInputStream("59775.xlsx");
+            Workbook workbook = StreamingReader.builder().open(is);
+    ) {
+      Sheet sheet = workbook.getSheetAt(0);
+      nextRow(sheet.rowIterator()); //need to force a read of first row before getActiveCell works
+      assertEquals(new CellAddress("A1"), sheet.getActiveCell());
+    }
+  }
 }

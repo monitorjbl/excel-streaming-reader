@@ -12,6 +12,7 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.model.CommentsTable;
@@ -59,6 +60,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private StreamingSheet sheet;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
+  private CellAddress activeCell;
   private boolean use1904Dates;
   private boolean insideCharElement = false;
   private boolean insideFormulaElement = false;
@@ -244,7 +246,17 @@ public class StreamingSheetReader implements Iterable<Row> {
         if(ref != null) {
           mergedCells.add(CellRangeAddress.valueOf(ref.getValue()));
         }
-      } else if("hyperlink".equals(tagLocalName)) {
+      } else if("selection".equals(tagLocalName)) {
+      Attribute activeCell = startElement.getAttributeByName(QName.valueOf("activeCell"));
+      if(activeCell != null) {
+        String activeCellRef = getAttributeValue(activeCell);
+        try {
+          this.activeCell = new CellAddress(activeCellRef);
+        } catch (Throwable t) {
+          log.warn("unable to parse active cell reference {}", activeCellRef);
+        }
+      }
+    } else if("hyperlink".equals(tagLocalName)) {
         String id = null;
         Iterator<Attribute> attributeIterator = startElement.getAttributes();
         while (attributeIterator.hasNext()) {
@@ -373,6 +385,10 @@ public class StreamingSheetReader implements Iterable<Row> {
       cell.setNumericFormatIndex(null);
       cell.setNumericFormat(null);
     }
+  }
+
+  CellAddress getActiveCell() {
+    return activeCell;
   }
 
   /**

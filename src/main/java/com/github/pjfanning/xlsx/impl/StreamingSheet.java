@@ -222,12 +222,17 @@ public class StreamingSheet implements Sheet {
    * This should only be called after all the rows are read because the hyperlink data is
    * at the end of the sheet.
    *
-   * @return the hyperlinks associated with this sheet (only if feature is enabled on the Builder)
+   * @return the hyperlinks associated with this sheet (only if feature is enabled on the Builder) - cast to {@link XlsxHyperlink} to access cell reference
    * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadHyperlinks(boolean)} is not set to true
    */
   @Override
   public List<? extends Hyperlink> getHyperlinkList() {
     return reader.getHyperlinks();
+  }
+
+  @Override
+  public CellAddress getActiveCell() {
+    return reader.getActiveCell();
   }
 
   /* Unsupported */
@@ -1038,14 +1043,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public int getColumnOutlineLevel(int columnIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public CellAddress getActiveCell() {
     throw new UnsupportedOperationException();
   }
 
