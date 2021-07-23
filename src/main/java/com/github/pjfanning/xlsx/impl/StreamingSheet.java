@@ -187,6 +187,55 @@ public class StreamingSheet implements Sheet {
     return reader.getDrawingPatriarch();
   }
 
+  /**
+   * Get a Hyperlink in this sheet anchored at row, column (only if feature is enabled on the Builder).
+   *
+   * @param row The row where the hyperlink is anchored
+   * @param column The column where the hyperlink is anchored
+   * @return hyperlink if there is a hyperlink anchored at row, column; otherwise returns null
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   */
+  @Override
+  public Hyperlink getHyperlink(int row, int column) {
+    return getHyperlink(new CellAddress(row, column));
+  }
+
+  /**
+   * Get hyperlink associated with cell (only if feature is enabled on the Builder).
+   * This should only be called after all the rows are read because the hyperlink data is
+   * at the end of the sheet.
+   *
+   * @param cellAddress
+   * @return the hyperlink associated with this cell (only if feature is enabled on the Builder) - null if not found
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   */
+  @Override
+  public Hyperlink getHyperlink(CellAddress cellAddress) {
+    String cellAddressText = cellAddress.formatAsString();
+    for (Hyperlink hyperlink : getHyperlinkList()) {
+      if (hyperlink instanceof XlsxHyperlink) {
+        XlsxHyperlink xhp = (XlsxHyperlink)hyperlink;
+        if (cellAddressText.equalsIgnoreCase(xhp.getCellRef())) {
+          return hyperlink;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get hyperlinks associated with sheet (only if feature is enabled on the Builder).
+   * This should only be called after all the rows are read because the hyperlink data is
+   * at the end of the sheet.
+   *
+   * @return the hyperlinks associated with this sheet (only if feature is enabled on the Builder)
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   */
+  @Override
+  public List<? extends Hyperlink> getHyperlinkList() {
+    return reader.getHyperlinks();
+  }
+
   /* Unsupported */
 
   /**
@@ -995,30 +1044,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public int getColumnOutlineLevel(int columnIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Hyperlink getHyperlink(int i, int i1) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Hyperlink getHyperlink(CellAddress cellAddress) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public List<? extends Hyperlink> getHyperlinkList() {
     throw new UnsupportedOperationException();
   }
 

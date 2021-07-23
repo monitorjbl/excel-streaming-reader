@@ -14,6 +14,7 @@ import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.poifs.crypt.Decryptor;
 import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
@@ -38,7 +39,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
@@ -198,28 +198,29 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     //them out before creating the XMLEventReader by keeping track of their URIs.
     //The sheets are listed in order, so we must keep track of insertion order.
     OoxmlReader.SheetIterator iter = reader.getSheetsData();
-    Map<URI, InputStream> sheetStreams = new LinkedHashMap<>();
-    Map<URI, CommentsTable> sheetComments = new HashMap<>();
+    Map<PackagePart, InputStream> sheetStreams = new LinkedHashMap<>();
+    Map<PackagePart, CommentsTable> sheetComments = new HashMap<>();
     while(iter.hasNext()) {
       InputStream is = iter.next();
       if (builder.readShapes()) {
         shapeMap.put(iter.getSheetName(), iter.getShapes());
       }
-      URI uri = iter.getSheetPart().getPartName().getURI();
-      sheetStreams.put(uri, is);
+      PackagePart part = iter.getSheetPart();
+      sheetStreams.put(part, is);
       if (builder.readComments()) {
-        sheetComments.put(uri, iter.getSheetComments());
+        sheetComments.put(part, iter.getSheetComments());
       }
     }
 
     //Iterate over the loaded streams
     int i = 0;
-    for(URI uri : sheetStreams.keySet()) {
-      XMLEventReader parser = XMLHelper.newXMLInputFactory().createXMLEventReader(sheetStreams.get(uri));
+    for(PackagePart packagePart : sheetStreams.keySet()) {
+      XMLEventReader parser = XMLHelper.newXMLInputFactory().createXMLEventReader(sheetStreams.get(packagePart));
       sheets.add(new StreamingSheet(
               workbook,
               sheetProperties.get(i++).get("name"),
-              new StreamingSheetReader(this, sst, stylesTable, sheetComments.get(uri), parser, use1904Dates, rowCacheSize)));
+              new StreamingSheetReader(this, packagePart, sst, stylesTable,
+                      sheetComments.get(packagePart), parser, use1904Dates, rowCacheSize)));
     }
   }
 

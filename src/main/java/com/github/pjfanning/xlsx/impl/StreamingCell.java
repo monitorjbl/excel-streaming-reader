@@ -376,6 +376,19 @@ public class StreamingCell implements Cell {
     return (sheet == null) ? null : sheet.getCellComment(getAddress());
   }
 
+  /**
+   * Returns hyperlink associated with this cell. This is not recommended as this data is stored at the end
+   * of the sheet. Use the hyperlink methods on sheet instance instead or keep this cell instance in memory
+   * until after all the rows have been read.
+   *
+   * @return the hyperlink associated with this cell or {@code null}
+   * @throws IllegalStateException if StreamingWorkbook.Builder setReadHyperlinks is not set to true
+   */
+  @Override
+  public Hyperlink getHyperlink() {
+    return (sheet == null) ? null : sheet.getHyperlink(getAddress());
+  }
+
   /* Not supported */
 
   /**
@@ -502,14 +515,6 @@ public class StreamingCell implements Cell {
   @Override
   public void removeCellComment() {
     throw new NotSupportedException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Hyperlink getHyperlink() {
-    throw new NotSupportedException();
   }
 
   /**

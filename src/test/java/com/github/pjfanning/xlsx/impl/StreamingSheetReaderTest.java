@@ -18,7 +18,8 @@ public class StreamingSheetReaderTest {
   public void testStrictDates() throws Exception {
     XMLEventReader xer = XMLHelper.newXMLInputFactory().createXMLEventReader(
             new FileInputStream("src/test/resources/strict.dates.xml"));
-    StreamingSheetReader reader = new StreamingSheetReader(null, null, null, null, xer, true, 100);
+    StreamingSheetReader reader = new StreamingSheetReader(
+            null, null, null, null, null, xer, true, 100);
     try {
       Assert.assertEquals(0, reader.getFirstRowNum());
       Assert.assertEquals(0, reader.getLastRowNum());

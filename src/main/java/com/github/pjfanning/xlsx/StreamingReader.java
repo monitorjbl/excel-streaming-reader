@@ -43,6 +43,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean adjustLegacyComments = false;
     private boolean readComments = false;
     private boolean readCoreProperties = false;
+    private boolean readHyperlinks = false;
     private boolean readShapes = false;
     private String password;
     private boolean convertFromOoXmlStrict;
@@ -86,7 +87,7 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
-     * @return Whether to adjust legacy comments to remove boiler-plate comments.
+     * @return Whether to adjust comments to remove boiler-plate text (related to threaded comments).
      * See https://github.com/pjfanning/excel-streaming-reader/issues/57
      */
     public boolean adjustLegacyComments() {
@@ -105,6 +106,13 @@ public class StreamingReader implements AutoCloseable {
      */
     public boolean readCoreProperties() {
       return readCoreProperties;
+    }
+
+    /**
+     * @return Whether to read the hyperlink data that appear in sheets.
+     */
+    public boolean readHyperlinks() {
+      return readHyperlinks;
     }
 
     /**
@@ -238,7 +246,7 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
-     * Enables adjustments legacy comments to remove boiler-plate comments.
+     * Enables adjustments to comments to remove boiler-plate text (related to threaded comments).
      * See https://github.com/pjfanning/excel-streaming-reader/issues/57.
      *
      * @param adjustLegacyComments whether to adjust legacy comments to remove boiler-plate comments
@@ -257,6 +265,17 @@ public class StreamingReader implements AutoCloseable {
      */
     public Builder setReadCoreProperties(boolean readCoreProperties) {
       this.readCoreProperties = readCoreProperties;
+      return this;
+    }
+
+    /**
+     * Enables the reading of hyperlink data associated wit sheets).
+     *
+     * @param readHyperlinks whether to read hyperlink data (associated with sheets)
+     * @return reference to current {@code Builder}
+     */
+    public Builder setReadHyperlinks(boolean readHyperlinks) {
+      this.readHyperlinks = readHyperlinks;
       return this;
     }
 
