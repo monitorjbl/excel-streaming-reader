@@ -114,10 +114,28 @@ public class StreamingSheetTest {
     ) {
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
+      Cell a2 = null, a3 = null, a4 = null, a7 = null;
       while(rowIterator.hasNext()) {
-        nextRow(rowIterator);
-        //ignore - just need to read through all rows
+        Row row = nextRow(rowIterator);
+        if (row.getRowNum() == 1) {
+          a2 = row.getCell(0);
+        } else if (row.getRowNum() == 2) {
+          a3 = row.getCell(0);
+        } else if (row.getRowNum() == 3) {
+          a4 = row.getCell(0);
+        } else if (row.getRowNum() == 6) {
+          a7 = row.getCell(0);
+        }
       }
+      assertNotNull( "a2 found", a2);
+      assertNotNull( "a3 found", a3);
+      assertNotNull( "a4 found", a4);
+      assertNotNull( "a7 found", a7);
+      assertEquals("http://twitter.com/#!/apacheorg", a2.getStringCellValue());
+      assertEquals("http://www.bailii.org/databases.html#ie", a3.getStringCellValue());
+      assertEquals("https://en.wikipedia.org/wiki/Apache_POI#See_also", a4.getStringCellValue());
+      assertEquals("#Sheet1", a7.getStringCellValue());
+
       List<? extends Hyperlink> hps = sheet.getHyperlinkList();
       assertEquals(4, hps.size());
 
