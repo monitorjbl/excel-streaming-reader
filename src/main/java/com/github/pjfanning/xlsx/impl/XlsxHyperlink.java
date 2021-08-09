@@ -3,7 +3,9 @@ package com.github.pjfanning.xlsx.impl;
 import com.github.pjfanning.xlsx.impl.ooxml.HyperlinkData;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Hyperlink;
+import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellReference;
 
 import java.net.URI;
@@ -111,14 +113,25 @@ public class XlsxHyperlink implements Hyperlink {
     return hyperlinkData.getLocation();
   }
 
-  private CellReference buildCellReference() {
+  private CellReference buildFirstCellReference() {
+    return buildCellReference(false);
+  }
+
+  private CellReference buildLastCellReference() {
+    return buildCellReference(true);
+  }
+
+  private CellReference buildCellReference(boolean lastCell) {
     String ref = hyperlinkData.getRef();
     if (ref == null) {
       ref = "A1";
     }
+    if (ref.contains(":")) {
+      AreaReference area = new AreaReference(ref, SpreadsheetVersion.EXCEL2007);
+      return lastCell ? area.getLastCell() : area.getFirstCell();
+    }
     return new CellReference(ref);
   }
-
 
   /**
    * Return the column of the first cell that contains the hyperlink
@@ -127,7 +140,7 @@ public class XlsxHyperlink implements Hyperlink {
    */
   @Override
   public int getFirstColumn() {
-    return buildCellReference().getCol();
+    return buildFirstCellReference().getCol();
   }
 
 
@@ -138,7 +151,7 @@ public class XlsxHyperlink implements Hyperlink {
    */
   @Override
   public int getLastColumn() {
-    return buildCellReference().getCol();
+    return buildLastCellReference().getCol();
   }
 
   /**
@@ -148,7 +161,7 @@ public class XlsxHyperlink implements Hyperlink {
    */
   @Override
   public int getFirstRow() {
-    return buildCellReference().getRow();
+    return buildFirstCellReference().getRow();
   }
 
 
@@ -159,7 +172,7 @@ public class XlsxHyperlink implements Hyperlink {
    */
   @Override
   public int getLastRow() {
-    return buildCellReference().getRow();
+    return buildLastCellReference().getRow();
   }
 
   /**

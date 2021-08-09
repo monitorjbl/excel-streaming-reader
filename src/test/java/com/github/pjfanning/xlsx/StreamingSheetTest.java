@@ -194,6 +194,28 @@ public class StreamingSheetTest {
   }
 
   @Test
+  public void testSharedHyperlink() throws Exception {
+    try (
+            InputStream is = getInputStream("sharedhyperlink.xlsx");
+            Workbook workbook = StreamingReader.builder().setReadHyperlinks(true).open(is);
+    ) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+      while(rowIterator.hasNext()) {
+        nextRow(rowIterator);
+      }
+
+      Hyperlink hyperlink3 = sheet.getHyperlink(new CellAddress("A3"));
+      Hyperlink hyperlink4 = sheet.getHyperlink(new CellAddress("A4"));
+      Hyperlink hyperlink5 = sheet.getHyperlink(new CellAddress("A5"));
+      assertNotNull("hyperlink found?", hyperlink3);
+      assertEquals(hyperlink3, hyperlink4);
+      assertEquals(hyperlink3, hyperlink5);
+    }
+  }
+
+
+  @Test
   public void testGetActiveCell() throws Exception {
     try (
             InputStream is = getInputStream("59775.xlsx");

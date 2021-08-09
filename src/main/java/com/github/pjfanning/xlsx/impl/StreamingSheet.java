@@ -205,13 +205,10 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public Hyperlink getHyperlink(CellAddress cellAddress) {
-    String cellAddressText = cellAddress.formatAsString();
     for (Hyperlink hyperlink : getHyperlinkList()) {
-      if (hyperlink instanceof XlsxHyperlink) {
-        XlsxHyperlink xhp = (XlsxHyperlink)hyperlink;
-        if (cellAddressText.equalsIgnoreCase(xhp.getCellRef())) {
-          return hyperlink;
-        }
+      if (cellAddress.getRow() >= hyperlink.getFirstRow() && cellAddress.getRow() <= hyperlink.getLastRow()
+        && cellAddress.getColumn() >= hyperlink.getFirstColumn() && cellAddress.getColumn() <= hyperlink.getLastColumn()) {
+        return hyperlink;
       }
     }
     return null;
