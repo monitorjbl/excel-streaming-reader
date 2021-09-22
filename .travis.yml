@@ -1,8 +1,0 @@
-language: java
-
-jdk:
-   - openjdk8
-   - openjdk11
-
-script:
-   - ./mvnw clean test
