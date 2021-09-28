@@ -72,8 +72,9 @@ jobs:
 
       - name: Set up secring.gpg
         run: |
-          echo "${{ secrets.SIGNING_SECRET_KEY_RING_FILE }}" > ~/.gradle/secring.gpg.b64
-          base64 -d ~/.gradle/secring.gpg.b64 > ~/.gradle/secring.gpg
+          echo "${{ secrets.PGP_SECRET }}" > ~/.gradle/private.key
+          gpg --no-default-keyring --keyring ~/.gradle/secring.gpg --import private.key
+          rm -f private.key
 
       - name: Publish with Gradle
         env:
