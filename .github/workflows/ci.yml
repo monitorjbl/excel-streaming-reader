@@ -79,4 +79,4 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
-        run: ./gradlew publish -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} -Psigning.password= -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg)
+        run: ./gradlew publish -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} -Psigning.password=${{ secrets.PGP_PASSPHRASE }} -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg)
