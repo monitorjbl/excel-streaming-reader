@@ -77,8 +77,15 @@ jobs:
           gpg_private_key: ${{ secrets.PGP_SECRET }}
           passphrase: ${{ secrets.PGP_PASSPHRASE }}
 
+      - name: GPG user IDs
+        run: |
+          echo "fingerprint: ${{ steps.import_gpg.outputs.fingerprint }}"
+          echo "keyid:       ${{ steps.import_gpg.outputs.keyid }}"
+          echo "name:        ${{ steps.import_gpg.outputs.name }}"
+          echo "email:       ${{ steps.import_gpg.outputs.email }}"
+
       - name: Publish with Gradle
         env:
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
-        run: ./gradlew publish -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} -Psigning.password=${{ secrets.PGP_PASSPHRASE }} -Psigning.secretKeyRingFile=$(echo ~/.gnupg/secring.gpg)
+        run: ./gradlew publish -Psigning.keyId=${{ steps.import_gpg.outputs.keyid }} -Psigning.password=${{ secrets.PGP_PASSPHRASE }} -Psigning.secretKeyRingFile=$(echo ~/.gnupg/trustdb.gpg)
