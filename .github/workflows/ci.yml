@@ -70,14 +70,15 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
-      - name: Set up secring.gpg
-        run: |
-          echo "${{ secrets.PGP_SECRET }}" > ~/.gradle/private.key
-          gpg --no-default-keyring --keyring ~/.gradle/secring.gpg --import ~/.gradle/private.key
-          rm -f ~/.gradle/private.key
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v4
+        with:
+          gpg_private_key: ${{ secrets.PGP_SECRET }}
+          passphrase: ${{ secrets.PGP_PASSPHRASE }}
 
       - name: Publish with Gradle
         env:
           ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
           ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
-        run: ./gradlew publish -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} -Psigning.password=${{ secrets.PGP_PASSPHRASE }} -Psigning.secretKeyRingFile=$(echo ~/.gradle/secring.gpg)
+        run: ./gradlew publish -Psigning.keyId=${{ secrets.SIGNING_KEY_ID }} -Psigning.password=${{ secrets.PGP_PASSPHRASE }} -Psigning.secretKeyRingFile=$(echo ~/.gnupg/secring.gpg)
