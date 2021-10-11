@@ -144,26 +144,6 @@ public class OoxmlReader {
   }
 
   /**
-   * Returns an InputStream to read the contents of the
-   * specified Sheet.
-   *
-   * @param relId The relationId of the sheet, from a r:id on the workbook
-   */
-  public InputStream getSheet(String relId) throws IOException, InvalidFormatException {
-    PackageRelationship rel = workbookPart.getRelationship(relId);
-    if (rel == null) {
-      throw new IllegalArgumentException("No Sheet found with r:id " + relId);
-    }
-
-    PackagePartName relName = PackagingURIHelper.createPartName(rel.getTargetURI());
-    PackagePart sheet = pkg.getPart(relName);
-    if (sheet == null) {
-      throw new IllegalArgumentException("No data found for Sheet with r:id " + relId);
-    }
-    return sheet.getInputStream();
-  }
-
-  /**
    * Returns an Iterator which will let you get at all the
    * different Sheets in turn.
    * Each sheet's InputStream is only opened when fetched
