@@ -217,7 +217,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       PackagePart part = iter.getSheetPart();
       sheetStreams.put(part, is);
       if (builder.readComments()) {
-        sheetComments.put(part, iter.getSheetComments());
+        sheetComments.put(part, iter.getSheetComments(builder));
       }
     }
 

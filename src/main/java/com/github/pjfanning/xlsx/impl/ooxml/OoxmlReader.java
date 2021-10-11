@@ -31,9 +31,10 @@ import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.github.pjfanning.poi.xssf.streaming.TempFileCommentsTable;
+import com.github.pjfanning.xlsx.StreamingReader;
 import org.apache.poi.ooxml.POIXMLException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackagePartName;
@@ -84,7 +85,7 @@ public class OoxmlReader {
   /**
    * Creates a new XSSFReader, for the given package
    */
-  public OoxmlReader(OPCPackage pkg) throws IOException, OpenXML4JException {
+  public OoxmlReader(OPCPackage pkg) {
     this.pkg = pkg;
 
     PackageRelationship coreDocRelationship = this.pkg.getRelationshipsByType(
@@ -133,7 +134,7 @@ public class OoxmlReader {
     }
     return styles;
   }
-
+  
   /**
    * Returns an InputStream to read the contents of the
    * main Workbook, which contains key overall data for
@@ -286,7 +287,7 @@ public class OoxmlReader {
      * Returns the comments associated with this sheet,
      * or null if there aren't any
      */
-    public Comments getSheetComments() {
+    public Comments getSheetComments(StreamingReader.Builder builder) {
       PackagePart sheetPkg = getSheetPart();
 
       // Do we have a comments relationship? (Only ever one if so)
@@ -297,7 +298,7 @@ public class OoxmlReader {
           PackageRelationship comments = commentsList.getRelationship(0);
           PackagePartName commentsName = PackagingURIHelper.createPartName(comments.getTargetURI());
           PackagePart commentsPart = sheetPkg.getPackage().getPart(commentsName);
-          return parseComments(commentsPart);
+          return parseComments(builder, commentsPart);
         }
       } catch (InvalidFormatException|IOException e) {
         LOGGER.log(POILogger.WARN, e);
@@ -306,9 +307,16 @@ public class OoxmlReader {
       return null;
     }
 
-    //to allow subclassing
-    protected Comments parseComments(PackagePart commentsPart) throws IOException {
-      return new CommentsTable(commentsPart);
+    private Comments parseComments(StreamingReader.Builder builder, PackagePart commentsPart) throws IOException {
+      if (builder.useCommentsTempFile()) {
+        try (InputStream is = commentsPart.getInputStream()) {
+          TempFileCommentsTable ct = new TempFileCommentsTable(builder.encryptCommentsTempFile());
+          ct.readFrom(is);
+          return ct;
+        }
+      } else {
+        return new CommentsTable(commentsPart);
+      }
     }
 
     /**

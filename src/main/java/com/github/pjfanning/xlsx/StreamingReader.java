@@ -40,6 +40,8 @@ public class StreamingReader implements AutoCloseable {
     private boolean avoidTempFiles = false;
     private boolean useSstTempFile = false;
     private boolean encryptSstTempFile = false;
+    private boolean useCommentsTempFile = false;
+    private boolean encryptCommentsTempFile = false;
     private boolean adjustLegacyComments = false;
     private boolean readComments = false;
     private boolean readCoreProperties = false;
@@ -102,6 +104,22 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
+     * @return Whether to use a temp file for the Comments data. If false, no
+     * temp file will be used and the entire table will be loaded into memory.
+     */
+    public boolean useCommentsTempFile() {
+      return useCommentsTempFile;
+    }
+
+    /**
+     * @return Whether to encrypt the temp file for the Comments data. Only applies if <code>useCommentsTempFile()</code>
+     * is true.
+     */
+    public boolean encryptCommentsTempFile() {
+      return encryptCommentsTempFile;
+    }
+
+    /**
      * @return Whether to read the core document properties.
      */
     public boolean readCoreProperties() {
@@ -159,7 +177,7 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
-     * For password protected files specify password to open file.
+     * For password protected files, specify password to open file.
      * If the password is incorrect a {@code ReadException} is thrown on
      * {@code read}.
      * <p>NULL indicates that no password should be used, this is the
@@ -189,7 +207,7 @@ public class StreamingReader implements AutoCloseable {
 
     /**
      * Enables a mode where the code tries to avoid creating temp files. This is independent of
-     * {@code #setUseSstTempFile}.
+     * {@code #setUseSstTempFile} and {@code #setUseCommentsTempFile}.
      * <p>
      * By default, temp files are used to avoid holding onto too much data in memory.
      *
@@ -203,7 +221,7 @@ public class StreamingReader implements AutoCloseable {
 
     /**
      * Enables use of Shared Strings Table temp file. This option exists to accommodate
-     * extremely large workbooks with millions of unique strings. Normally the SST is entirely
+     * extremely large workbooks with millions of unique strings. Normally, the SST is entirely
      * loaded into memory, but with large workbooks with high cardinality (i.e., very few
      * duplicate values) the SST may not fit entirely into memory.
      * <p>
@@ -231,6 +249,42 @@ public class StreamingReader implements AutoCloseable {
      */
     public Builder setEncryptSstTempFile(boolean encryptSstTempFile) {
       this.encryptSstTempFile = encryptSstTempFile;
+      return this;
+    }
+
+    /**
+     * Enables use of Comments temp file. This option exists to accommodate
+     * workbooks with lots of comments. Normally, the Comments are all
+     * loaded into memory.
+     * <p>
+     * By default, all the Comments data *will* be loaded into memory. <strong>However</strong>,
+     * enabling this option at all will have some noticeable performance degradation as you are
+     * trading memory for disk space.
+     *
+     * @param useCommentsTempFile whether to use a temp file to store the Comments data
+     * @return reference to current {@code Builder}
+     * @see #setReadComments(boolean)
+     * @see #setEncryptCommentsTempFile(boolean)
+     */
+    public Builder setUseCommentsTempFile(boolean useCommentsTempFile) {
+      this.useCommentsTempFile = useCommentsTempFile;
+      return this;
+    }
+
+    /**
+     * Enables use of encryption in the Comments temp file. This only applies if <code>setUseCommentsTempFile</code>
+     * is set to true.
+     * <p>
+     * By default, the temp file is not encrypted. <strong>However</strong>,
+     * enabling this option could slow down the processing of Comments data.
+     *
+     * @param encryptCommentsTempFile whether to encrypt the temp file used to store the Comments data
+     * @return reference to current {@code Builder}
+     * @see #setReadComments(boolean)
+     * @see #setUseCommentsTempFile(boolean)
+     */
+    public Builder setEncryptCommentsTempFile(boolean encryptCommentsTempFile) {
+      this.encryptCommentsTempFile = encryptCommentsTempFile;
       return this;
     }
 

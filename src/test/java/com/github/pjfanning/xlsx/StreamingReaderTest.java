@@ -34,16 +34,16 @@ public class StreamingReaderTest {
   @Test
   public void testTypes() throws Exception {
     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    try(
-        InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -134,16 +134,16 @@ public class StreamingReaderTest {
   @Test
   public void testTypesInStrictOoXmlFile() throws Exception {
     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    try(
+    try (
             InputStream is = new FileInputStream("src/test/resources/data_types-strict-ooxml.xlsx");
             Workbook wb = StreamingReader.builder().open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -234,16 +234,16 @@ public class StreamingReaderTest {
   @Test
   public void testTypesInStrictOoXmlFileDeprecated() throws Exception {
     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    try(
+    try (
             InputStream is = new FileInputStream("src/test/resources/data_types-strict-ooxml.xlsx");
             Workbook wb = StreamingReader.builder().convertFromOoXmlStrict(true).open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -333,16 +333,16 @@ public class StreamingReaderTest {
 
   @Test
   public void testGetDateCellValue() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -357,22 +357,23 @@ public class StreamingReaderTest {
       try {
         obj.get(0).get(0).getDateCellValue();
         fail("Should have thrown IllegalStateException");
-      } catch(IllegalStateException e) { }
+      } catch (IllegalStateException e) {
+      }
     }
   }
 
   @Test
   public void testGetDateCellValueWithUnnecessaryOoXmlConversion() throws Exception {
-    try(
+    try (
             InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
             Workbook wb = StreamingReader.builder().convertFromOoXmlStrict(true).open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -387,22 +388,23 @@ public class StreamingReaderTest {
       try {
         obj.get(0).get(0).getDateCellValue();
         fail("Should have thrown IllegalStateException");
-      } catch(IllegalStateException e) { }
+      } catch (IllegalStateException e) {
+      }
     }
   }
 
   @Test
   public void testGetDateCellValue1904() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/1904Dates.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/1904Dates.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -417,23 +419,24 @@ public class StreamingReaderTest {
       try {
         obj.get(0).get(0).getDateCellValue();
         fail("Should have thrown IllegalStateException");
-      } catch(IllegalStateException e) { }
+      } catch (IllegalStateException e) {
+      }
     }
   }
 
   @Test
   public void testGetFirstCellNum() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/gaps.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/gaps.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
       List<Row> rows = new ArrayList<>();
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         rows.add(r);
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -446,15 +449,15 @@ public class StreamingReaderTest {
 
   @Test
   public void testGaps() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/gaps.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/gaps.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -493,15 +496,15 @@ public class StreamingReaderTest {
 
   @Test
   public void testMultipleSheets_alpha() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -519,17 +522,17 @@ public class StreamingReaderTest {
 
   @Test
   public void testMultipleSheets_zulu() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
       Sheet sheet = wb.getSheetAt(1);
-      for(Row r : sheet) {
+      for (Row r : sheet) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -546,13 +549,13 @@ public class StreamingReaderTest {
       try {
         sheet.getCellComments();
         fail("expected getCellComments to fail with IllegalStateException");
-      } catch(IllegalStateException ise) {
+      } catch (IllegalStateException ise) {
         //expected
       }
       try {
         sheet.getCellComment(new CellAddress(0, 0));
         fail("expected getCellComment to fail with IllegalStateException");
-      } catch(IllegalStateException ise) {
+      } catch (IllegalStateException ise) {
         //expected
       }
     }
@@ -560,17 +563,17 @@ public class StreamingReaderTest {
 
   @Test
   public void testSheetName_zulu() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
-        Workbook wb = StreamingReader.builder().setReadComments(true).open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
+            Workbook wb = StreamingReader.builder().setReadComments(true).open(is);
     ) {
 
       List<List<Cell>> obj = new ArrayList<>();
 
       Sheet sheet = wb.getSheet("SheetZulu");
-      for(Row r : sheet) {
+      for (Row r : sheet) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -591,15 +594,15 @@ public class StreamingReaderTest {
 
   @Test
   public void testSheetName_alpha() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       List<List<Cell>> obj = new ArrayList<>();
 
-      for(Row r : wb.getSheet("SheetAlpha")) {
+      for (Row r : wb.getSheet("SheetAlpha")) {
         List<Cell> o = new ArrayList<>();
-        for(Cell c : r) {
+        for (Cell c : r) {
           o.add(c);
         }
         obj.add(o);
@@ -617,9 +620,9 @@ public class StreamingReaderTest {
 
   @Test(expected = MissingSheetException.class)
   public void testSheetName_missingInStream() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/sheets.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       wb.getSheet("asdfasdfasdf");
       fail("Should have failed");
@@ -629,10 +632,10 @@ public class StreamingReaderTest {
   @Test
   public void testSheetName_missingInFile() throws Exception {
     File f = new File("src/test/resources/sheets.xlsx");
-    try(Workbook wb = StreamingReader.builder().open(f)) {
+    try (Workbook wb = StreamingReader.builder().open(f)) {
       wb.getSheet("asdfasdfasdf");
       fail("Should have failed");
-    } catch(MissingSheetException e) {
+    } catch (MissingSheetException e) {
       assertTrue(f.exists());
     }
   }
@@ -640,17 +643,17 @@ public class StreamingReaderTest {
   @Test
   public void testIteration() throws Exception {
     File f = new File("src/test/resources/large.xlsx");
-    try(
-        Workbook wb = StreamingReader.builder()
-            .rowCacheSize(5)
-            .open(f)) {
+    try (
+            Workbook wb = StreamingReader.builder()
+                    .rowCacheSize(5)
+                    .open(f)) {
       int i = 1;
-      for(Row r : wb.getSheetAt(0)) {
+      for (Row r : wb.getSheetAt(0)) {
         assertEquals(i, r.getCell(0).getNumericCellValue(), 0);
         assertEquals("#" + i, r.getCell(1).getStringCellValue());
         assertEquals("#" + i, r.getCell(1).getRichStringCellValue().getString());
         i++;
-        for(Cell c : r) {
+        for (Cell c : r) {
           assertNotNull("cell row is set", c.getRow());
           assertEquals(r, c.getRow());
           assertNotNull("cell address is set", c.getAddress());
@@ -664,7 +667,7 @@ public class StreamingReaderTest {
   public void testLeadingZeroes() throws Exception {
     File f = new File("src/test/resources/leadingZeroes.xlsx");
 
-    try(Workbook wb = StreamingReader.builder().open(f)) {
+    try (Workbook wb = StreamingReader.builder().open(f)) {
       Iterator<Row> iter = wb.getSheetAt(0).iterator();
       iter.hasNext();
 
@@ -685,7 +688,7 @@ public class StreamingReaderTest {
   public void testReadingEmptyFile() throws Exception {
     File f = new File("src/test/resources/empty_sheet.xlsx");
 
-    try(Workbook wb = StreamingReader.builder().open(f)) {
+    try (Workbook wb = StreamingReader.builder().open(f)) {
       Iterator<Row> iter = wb.getSheetAt(0).iterator();
       assertThat(iter.hasNext(), is(false));
     }
@@ -696,11 +699,11 @@ public class StreamingReaderTest {
     File f = new File("src/test/resources/special_types.xlsx");
 
     Map<Integer, List<Cell>> contents = new HashMap<>();
-    try(Workbook wb = StreamingReader.builder().open(f)) {
-      for(Row row : wb.getSheetAt(0)) {
+    try (Workbook wb = StreamingReader.builder().open(f)) {
+      for (Row row : wb.getSheetAt(0)) {
         contents.put(row.getRowNum(), new ArrayList<Cell>());
-        for(Cell c : row) {
-          if(c.getColumnIndex() > 0) {
+        for (Cell c : row) {
+          if (c.getColumnIndex() > 0) {
             contents.get(row.getRowNum()).add(c);
           }
         }
@@ -734,7 +737,7 @@ public class StreamingReaderTest {
   @Test
   public void testBlankNumerics() throws Exception {
     File f = new File("src/test/resources/blank_cells.xlsx");
-    try(Workbook wb = StreamingReader.builder().open(f)) {
+    try (Workbook wb = StreamingReader.builder().open(f)) {
       Row row = wb.getSheetAt(0).iterator().next();
       assertThat(row.getCell(1).getStringCellValue(), equalTo(""));
       assertThat(row.getCell(1).getRichStringCellValue().getString(), equalTo(""));
@@ -753,10 +756,10 @@ public class StreamingReaderTest {
   private void testBlankCellWithSstCacheSize(StreamingReader.Builder rb) throws Exception {
     File f = new File("src/test/resources/blank_cell_to_test_sst_size.xlsx");
     Map<Integer, List<Cell>> contents = new HashMap<>();
-    try(Workbook wb = StreamingReader.builder().setUseSstTempFile(true).open(f)) {
-      for(Row row : wb.getSheetAt(0)) {
+    try (Workbook wb = StreamingReader.builder().setUseSstTempFile(true).open(f)) {
+      for (Row row : wb.getSheetAt(0)) {
         contents.put(row.getRowNum(), new ArrayList<>());
-        for(Cell c : row) {
+        for (Cell c : row) {
           contents.get(row.getRowNum()).add(c);
         }
       }
@@ -767,7 +770,7 @@ public class StreamingReaderTest {
   @Test
   public void testFirstRowNumIs0() throws Exception {
     File f = new File("src/test/resources/data_types.xlsx");
-    try(Workbook wb = StreamingReader.builder().open(f)) {
+    try (Workbook wb = StreamingReader.builder().open(f)) {
       Row row = wb.getSheetAt(0).iterator().next();
       assertThat(row.getRowNum(), equalTo(0));
     }
@@ -775,11 +778,11 @@ public class StreamingReaderTest {
 
   @Test
   public void testNoTypeCell() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/no_type_cell.xlsx");
-        Workbook wb = StreamingReader.builder().open(is)) {
-      for(Row r : wb.getSheetAt(0)) {
-        for(Cell c : r) {
+    try (
+            InputStream is = new FileInputStream("src/test/resources/no_type_cell.xlsx");
+            Workbook wb = StreamingReader.builder().open(is)) {
+      for (Row r : wb.getSheetAt(0)) {
+        for (Cell c : r) {
           assertEquals("1", c.getStringCellValue());
         }
       }
@@ -788,7 +791,7 @@ public class StreamingReaderTest {
 
   @Test
   public void testEncryption() throws Exception {
-    try(
+    try (
             InputStream is = new FileInputStream("src/test/resources/encrypted.xlsx");
             Workbook wb = StreamingReader.builder().password("test").open(is)) {
       iterateEncryptedFile(wb);
@@ -797,7 +800,7 @@ public class StreamingReaderTest {
 
   @Test
   public void testEncryptionUsingAvoidTempFiles() throws Exception {
-    try(
+    try (
             InputStream is = new FileInputStream("src/test/resources/encrypted.xlsx");
             Workbook wb = StreamingReader.builder().setAvoidTempFiles(true).password("test").open(is)) {
       iterateEncryptedFile(wb);
@@ -806,7 +809,7 @@ public class StreamingReaderTest {
 
   @Test
   public void testEncryptionUsingFile() throws Exception {
-    try(Workbook wb = StreamingReader.builder().password("test")
+    try (Workbook wb = StreamingReader.builder().password("test")
             .open(new File("src/test/resources/encrypted.xlsx"))) {
       iterateEncryptedFile(wb);
     }
@@ -814,8 +817,8 @@ public class StreamingReaderTest {
 
   private void iterateEncryptedFile(Workbook wb) {
     OUTER:
-    for(Row r : wb.getSheetAt(0)) {
-      for(Cell c : r) {
+    for (Row r : wb.getSheetAt(0)) {
+      for (Cell c : r) {
         assertEquals("Demo", c.getStringCellValue());
         assertEquals("Demo", c.getRichStringCellValue().getString());
         break OUTER;
@@ -825,12 +828,12 @@ public class StreamingReaderTest {
 
   @Test
   public void testStringCellValue() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/blank_cell_StringCellValue.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/blank_cell_StringCellValue.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
-      for(Row r : wb.getSheetAt(0)) {
-        if(r.getRowNum() == 1) {
+      for (Row r : wb.getSheetAt(0)) {
+        if (r.getRowNum() == 1) {
           assertEquals("", r.getCell(1).getStringCellValue());
           assertEquals("", r.getCell(1).getRichStringCellValue().getString());
         }
@@ -840,13 +843,13 @@ public class StreamingReaderTest {
 
   @Test
   public void testNullValueType() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/null_celltype.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/null_celltype.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
-      for(Row r : wb.getSheetAt(0)) {
-        for(Cell cell : r) {
-          if(r.getRowNum() == 0 && cell.getColumnIndex() == 8) {
+      for (Row r : wb.getSheetAt(0)) {
+        for (Cell cell : r) {
+          if (r.getRowNum() == 0 && cell.getColumnIndex() == 8) {
             assertEquals(NUMERIC, cell.getCellType());
             assertEquals("8:00:00", cell.getStringCellValue());
           }
@@ -857,9 +860,9 @@ public class StreamingReaderTest {
 
   @Test
   public void testInlineCells() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/inline.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/inline.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       Row row = wb.getSheetAt(0).iterator().next();
       assertEquals("First inline cell", row.getCell(0).getStringCellValue());
@@ -877,12 +880,12 @@ public class StreamingReaderTest {
 
   @Test
   public void shouldIgnoreSpreadsheetDrawingRows() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/has_spreadsheetdrawing.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/has_spreadsheetdrawing.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       Iterator<Row> iterator = wb.getSheetAt(0).iterator();
-      while(iterator.hasNext()) {
+      while (iterator.hasNext()) {
         iterator.next();
       }
     }
@@ -890,9 +893,9 @@ public class StreamingReaderTest {
 
   @Test
   public void testShouldReturnNullForMissingCellPolicy_RETURN_BLANK_AS_NULL() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/blank_cells.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/blank_cells.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       Row row = wb.getSheetAt(0).iterator().next();
       assertNotNull(row.getCell(0, RETURN_BLANK_AS_NULL)); //Remain unchanged
@@ -902,9 +905,9 @@ public class StreamingReaderTest {
 
   @Test
   public void testShouldReturnBlankForMissingCellPolicy_CREATE_NULL_AS_BLANK() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/null_cell.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/null_cell.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       Row row = wb.getSheetAt(0).iterator().next();
       assertEquals("B1 is Null ->", row.getCell(0, CREATE_NULL_AS_BLANK).getStringCellValue()); //Remain unchanged
@@ -919,12 +922,12 @@ public class StreamingReaderTest {
   // Normally, if Excel saves the file, that whole <c ...></c> wouldn't even be there.
   @Test
   public void testShouldHandleBlankSSTReference() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/blank_sst_reference_doctored.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/blank_sst_reference_doctored.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       Iterator<Row> iterator = wb.getSheetAt(0).iterator();
-      while(iterator.hasNext()) {
+      while (iterator.hasNext()) {
         iterator.next();
       }
     }
@@ -934,16 +937,16 @@ public class StreamingReaderTest {
   // tag that was getting attached to the last cell causing it to be a FORUMLA.
   @Test
   public void testFormulaOutsideCellIgnored() throws Exception {
-    try(
-        InputStream is = new FileInputStream("src/test/resources/formula_outside_cell.xlsx");
-        Workbook wb = StreamingReader.builder().open(is);
+    try (
+            InputStream is = new FileInputStream("src/test/resources/formula_outside_cell.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
     ) {
       Iterator<Row> rows = wb.getSheetAt(0).iterator();
       Cell cell = null;
-      while(rows.hasNext()) {
+      while (rows.hasNext()) {
         Iterator<Cell> cells = rows.next().iterator();
-        while(cells.hasNext()) {
-            cell = cells.next();
+        while (cells.hasNext()) {
+          cell = cells.next();
         }
       }
       assertNotNull(cell);
@@ -953,9 +956,9 @@ public class StreamingReaderTest {
 
   @Test
   public void testFormulaWithDifferentTypes() throws Exception {
-    try(
-      InputStream is = new FileInputStream("src/test/resources/formula_test.xlsx");
-      Workbook wb = StreamingReader.builder().open(is)
+    try (
+            InputStream is = new FileInputStream("src/test/resources/formula_test.xlsx");
+            Workbook wb = StreamingReader.builder().open(is)
     ) {
       Sheet sheet = wb.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
@@ -990,7 +993,7 @@ public class StreamingReaderTest {
     // On consecutive columns the <c> element might miss an "r" attribute, which indicate the cell position.
     // This might be an optimization triggered by file size and specific to a particular excel version.
     // The excel would read such a file without complaining.
-    try(
+    try (
             InputStream is = new FileInputStream("src/test/resources/sparse-columns.xlsx");
             Workbook wb = StreamingReader.builder().open(is);
     ) {
@@ -1014,7 +1017,7 @@ public class StreamingReaderTest {
             Workbook wb = StreamingReader.builder().open(inputStream)
     ) {
       try {
-        ((StreamingWorkbook)wb).getCoreProperties();
+        ((StreamingWorkbook) wb).getCoreProperties();
         fail("expected getCoreProperties to fail with IllegalStateException");
       } catch (IllegalStateException ise) {
         //expected
@@ -1031,7 +1034,7 @@ public class StreamingReaderTest {
       assertTrue(rowIterator.hasNext());
       currentRow = rowIterator.next();
 
-      List<String> expected = Arrays.asList(new String[] {
+      List<String> expected = Arrays.asList(new String[]{
               "10002", "John", "Doe", "06/09/1976", "1", "NORMAL", "NORMAL", "CUSTOMER", "Customer",
               "NOT_CONFIRMED", "94", "2", "FALSE()"
       });
@@ -1054,7 +1057,7 @@ public class StreamingReaderTest {
             Workbook wb = StreamingReader.builder().open(inputStream)
     ) {
       try {
-        ((StreamingWorkbook)wb).getCoreProperties();
+        ((StreamingWorkbook) wb).getCoreProperties();
         fail("expected getCoreProperties to fail with IllegalStateException");
       } catch (IllegalStateException ise) {
         //expected
@@ -1070,7 +1073,7 @@ public class StreamingReaderTest {
       Row currentRow1 = rowIterator1.next();
       assertNotNull(currentRow1);
 
-      List<String> expected1 = Arrays.asList(new String[] {
+      List<String> expected1 = Arrays.asList(new String[]{
               "Lorem", "111"
       });
 
@@ -1090,7 +1093,7 @@ public class StreamingReaderTest {
       Row currentRow2 = rowIterator2.next();
       assertNotNull(currentRow2);
 
-      List<String> expected2 = Arrays.asList(new String[] {
+      List<String> expected2 = Arrays.asList(new String[]{
               "The quick brown fox jumps over the lazy dog"
       });
 
@@ -1111,7 +1114,7 @@ public class StreamingReaderTest {
             Workbook wb = StreamingReader.builder().setUseSstTempFile(true).setReadCoreProperties(true)
                     .open(inputStream)
     ) {
-      StreamingWorkbook swb = (StreamingWorkbook)wb;
+      StreamingWorkbook swb = (StreamingWorkbook) wb;
       assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
       assertNull(swb.getCoreProperties().getCreator());
       assertNotNull("created date set", swb.getCoreProperties().getCreated());
@@ -1126,7 +1129,7 @@ public class StreamingReaderTest {
       Row currentRow1 = rowIterator1.next();
       assertNotNull(currentRow1);
 
-      List<String> expected1 = Arrays.asList(new String[] {
+      List<String> expected1 = Arrays.asList(new String[]{
               "Lorem", "111"
       });
 
@@ -1146,7 +1149,7 @@ public class StreamingReaderTest {
       Row currentRow2 = rowIterator2.next();
       assertNotNull(currentRow2);
 
-      List<String> expected2 = Arrays.asList(new String[] {
+      List<String> expected2 = Arrays.asList(new String[]{
               "The quick brown fox jumps over the lazy dog"
       });
 
@@ -1169,7 +1172,7 @@ public class StreamingReaderTest {
                     .setReadComments(true)
                     .open(inputStream)
     ) {
-      StreamingWorkbook swb = (StreamingWorkbook)wb;
+      StreamingWorkbook swb = (StreamingWorkbook) wb;
       assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
       assertEquals("PJ Fanning", swb.getCoreProperties().getLastModifiedByUser());
       DataFormatter formatter = new DataFormatter();
@@ -1182,7 +1185,7 @@ public class StreamingReaderTest {
       Row currentRow1 = rowIterator1.next();
       assertNotNull(currentRow1);
 
-      List<String> expected1 = Arrays.asList(new String[] {
+      List<String> expected1 = Arrays.asList(new String[]{
               "2/28/21", "12:00:00 PM"
       });
 
@@ -1213,14 +1216,14 @@ public class StreamingReaderTest {
                     .setReadCoreProperties(true)
                     .open(inputStream)
     ) {
-      StreamingWorkbook swb = (StreamingWorkbook)wb;
+      StreamingWorkbook swb = (StreamingWorkbook) wb;
       assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
       assertEquals("semadmin", swb.getCoreProperties().getCreator());
     }
   }
 
   @Test
-  public void testReadComments() throws Exception {
+  public void testReadCommentsNotEnabled() throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
             Workbook wb = StreamingReader.builder().open(inputStream)
@@ -1228,14 +1231,34 @@ public class StreamingReaderTest {
       try {
         wb.getSheetAt(0).getCellComments();
         fail("expected getCellComments to fail with IllegalStateException");
-      } catch(IllegalStateException ise) {
+      } catch (IllegalStateException ise) {
         //expected
       }
     }
-    try (
+  }
+
+  @Test
+  public void testReadCommentsWithInMemoryComments() throws Exception {
+    testReadComments(false, false);
+  }
+
+  @Test
+  public void testReadCommentsWithTempFileComments() throws Exception {
+    testReadComments(true, false);
+  }
+
+  @Test
+  public void testReadCommentsWithEncryptedTempFileComments() throws Exception {
+    testReadComments(true, true);
+  }
+
+  private void testReadComments(boolean tempFileEnabled, boolean encrypt) throws Exception {
+    try(
             InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
             Workbook wb = StreamingReader.builder()
                     .setReadComments(true)
+                    .setUseCommentsTempFile(tempFileEnabled)
+                    .setEncryptCommentsTempFile(encrypt)
                     .open(inputStream)
     ) {
       Sheet sheet = wb.getSheetAt(0);
@@ -1253,7 +1276,10 @@ public class StreamingReaderTest {
       Row firstRow = sheet.rowIterator().next();
       Row secondRow = sheet.rowIterator().next();
       Cell cellA2 = secondRow.cellIterator().next();
-      assertEquals(comment10, cellA2.getCellComment());
+      Comment cellA2Comment = cellA2.getCellComment();
+      assertEquals(comment10.toString(), cellA2Comment.toString());
+      assertEquals(comment10.getAddress(), cellA2Comment.getAddress());
+      assertEquals(comment10.getAuthor(), cellA2Comment.getAuthor());
     }
   }
 }
