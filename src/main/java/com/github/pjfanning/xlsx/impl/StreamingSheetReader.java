@@ -15,7 +15,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.model.CommentsTable;
+import org.apache.poi.xssf.model.Comments;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.*;
@@ -38,7 +38,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final PackagePart packagePart;
   private final SharedStringsTable sst;
   private final StylesTable stylesTable;
-  private final CommentsTable commentsTable;
+  private final Comments commentsTable;
   private final XMLEventReader parser;
   private final DataFormatter dataFormatter = new DataFormatter();
   private final Set<Integer> hiddenColumns = new HashSet<>();
@@ -68,7 +68,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   StreamingSheetReader(StreamingWorkbookReader streamingWorkbookReader,
                        PackagePart packagePart,
-                       SharedStringsTable sst, StylesTable stylesTable, CommentsTable commentsTable,
+                       SharedStringsTable sst, StylesTable stylesTable, Comments commentsTable,
                        XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
     this.streamingWorkbookReader = streamingWorkbookReader;
     this.packagePart = packagePart;
@@ -523,7 +523,7 @@ public class StreamingSheetReader implements Iterable<Row> {
    * @return the comments associated with this sheet (only if feature is enabled on the Builder)
    * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadComments(boolean)} is not set to true
    */
-  CommentsTable getCellComments() {
+  Comments getCellComments() {
     if (!streamingWorkbookReader.getBuilder().readComments()) {
       throw new IllegalStateException("getCellComments() only works if StreamingWorking.Builder setReadComments is set to true");
     }

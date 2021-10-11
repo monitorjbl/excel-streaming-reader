@@ -45,10 +45,7 @@ import org.apache.poi.util.Internal;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
 import org.apache.poi.util.XMLHelper;
-import org.apache.poi.xssf.model.CommentsTable;
-import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.model.ThemesTable;
+import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.apache.poi.xssf.usermodel.XSSFShape;
@@ -334,7 +331,7 @@ public class OoxmlReader {
      * Returns the comments associated with this sheet,
      * or null if there aren't any
      */
-    public CommentsTable getSheetComments() {
+    public Comments getSheetComments() {
       PackagePart sheetPkg = getSheetPart();
 
       // Do we have a comments relationship? (Only ever one if so)
@@ -355,7 +352,7 @@ public class OoxmlReader {
     }
 
     //to allow subclassing
-    protected CommentsTable parseComments(PackagePart commentsPart) throws IOException {
+    protected Comments parseComments(PackagePart commentsPart) throws IOException {
       return new CommentsTable(commentsPart);
     }
 

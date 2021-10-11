@@ -22,10 +22,7 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Date1904Support;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.util.XMLHelper;
-import org.apache.poi.xssf.model.CommentsTable;
-import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.model.ThemesTable;
+import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,7 +208,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     //The sheets are listed in order, so we must keep track of insertion order.
     OoxmlReader.SheetIterator iter = reader.getSheetsData();
     Map<PackagePart, InputStream> sheetStreams = new LinkedHashMap<>();
-    Map<PackagePart, CommentsTable> sheetComments = new HashMap<>();
+    Map<PackagePart, Comments> sheetComments = new HashMap<>();
     while(iter.hasNext()) {
       InputStream is = iter.next();
       if (builder.readShapes()) {
