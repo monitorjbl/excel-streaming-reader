@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation 'org.apache.poi:poi:5.0.0'
     implementation 'org.apache.poi:poi-ooxml:5.0.0'
-    implementation 'com.github.pjfanning:poi-shared-strings:2.0.1'
+    implementation 'com.github.pjfanning:poi-shared-strings:2.0.2'
     implementation 'org.slf4j:slf4j-api:1.7.32'
     implementation 'commons-io:commons-io:2.11.0'
     testImplementation 'junit:junit:4.13.2'
