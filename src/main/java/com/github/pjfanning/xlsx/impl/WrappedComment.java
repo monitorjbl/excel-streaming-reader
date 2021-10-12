@@ -101,4 +101,14 @@ public class WrappedComment implements Comment {
     }
     return s.substring(i);
   }
+
+  @Override
+  public boolean equals(Object other) {
+    return xssfComment.equals(other);
+  }
+
+  @Override
+  public int hashCode() {
+    return xssfComment.hashCode();
+  }
 }
