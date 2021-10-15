@@ -23,15 +23,6 @@ public class StreamingRow implements Row {
     return cellMap;
   }
 
-  /**
-   * @deprecated this method exposes internal state in an untidy way
-   * @param cellMap
-   */
-  @Deprecated
-  public void setCellMap(TreeMap<Integer, Cell> cellMap) {
-    this.cellMap = cellMap;
-  }
-
  /* Supported */
 
   /**
