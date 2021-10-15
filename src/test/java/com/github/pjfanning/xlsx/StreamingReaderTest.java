@@ -1305,7 +1305,8 @@ public class StreamingReaderTest {
 
       assertEquals(expected2, value);
       assertEquals(expected2, cell.getRichStringCellValue().getString());
-      assertEquals(0, cell.getRichStringCellValue().numFormattingRuns());
+      int expectedRuns = fullFormat ? 11 : 0;
+      assertEquals(expectedRuns, cell.getRichStringCellValue().numFormattingRuns());
     }
   }
 }

@@ -296,10 +296,17 @@ public class StreamingCell implements Cell {
         rt = new XSSFRichTextString("");
         break;
       case STRING:
-        rt = new XSSFRichTextString(getStringCellValue());
+        Object content = contentsSupplier.getContent();
+        if (content instanceof XSSFRichTextString) {
+          rt = (XSSFRichTextString)content;
+        } else if (content != null) {
+          rt = new XSSFRichTextString(content.toString());
+        } else {
+          rt = new XSSFRichTextString("");
+        }
         break;
       default:
-        throw new NotSupportedException("getRichStringCellValue does not support cell type " + cellType.toString());
+        throw new NotSupportedException("getRichStringCellValue does not support cell type " + cellType);
     }
     return rt;
   }
