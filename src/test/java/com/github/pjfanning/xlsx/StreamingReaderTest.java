@@ -1150,17 +1150,15 @@ public class StreamingReaderTest {
       Row currentRow2 = rowIterator2.next();
       assertNotNull(currentRow2);
 
-      List<String> expected2 = Arrays.asList(new String[]{
-              "The quick brown fox jumps over the lazy dog"
-      });
+      String expected2 = "The quick brown fox jumps over the lazy dog";
 
-      for (int i = 0; i < currentRow2.getLastCellNum(); i++) {
-        Cell cell = currentRow2.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+      Cell cell = currentRow2.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
-        String value = formatter.formatCellValue(cell);
+      String value = formatter.formatCellValue(cell);
 
-        assertEquals(expected2.get(i), value);
-      }
+      assertEquals(expected2, value);
+      assertEquals(expected2, cell.getRichStringCellValue().getString());
+      assertEquals(0, cell.getRichStringCellValue().numFormattingRuns());
     }
   }
 
