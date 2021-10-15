@@ -753,10 +753,10 @@ public class StreamingReaderTest {
     testBlankCellWithSstCacheSize(StreamingReader.builder().setUseSstTempFile(true).setEncryptSstTempFile(true));
   }
 
-  private void testBlankCellWithSstCacheSize(StreamingReader.Builder rb) throws Exception {
+  private void testBlankCellWithSstCacheSize(StreamingReader.Builder builder) throws Exception {
     File f = new File("src/test/resources/blank_cell_to_test_sst_size.xlsx");
     Map<Integer, List<Cell>> contents = new HashMap<>();
-    try (Workbook wb = StreamingReader.builder().setUseSstTempFile(true).open(f)) {
+    try (Workbook wb = builder.open(f)) {
       for (Row row : wb.getSheetAt(0)) {
         contents.put(row.getRowNum(), new ArrayList<>());
         for (Cell c : row) {
@@ -764,7 +764,7 @@ public class StreamingReaderTest {
         }
       }
     }
-    assertThat(contents.get(1).get(2).getStringCellValue(), equalTo(""));
+    assertEquals("", contents.get(1).get(2).getStringCellValue());
   }
 
   @Test
@@ -772,7 +772,7 @@ public class StreamingReaderTest {
     File f = new File("src/test/resources/data_types.xlsx");
     try (Workbook wb = StreamingReader.builder().open(f)) {
       Row row = wb.getSheetAt(0).iterator().next();
-      assertThat(row.getRowNum(), equalTo(0));
+      assertEquals(0, row.getRowNum());
     }
   }
 
@@ -780,7 +780,8 @@ public class StreamingReaderTest {
   public void testNoTypeCell() throws Exception {
     try (
             InputStream is = new FileInputStream("src/test/resources/no_type_cell.xlsx");
-            Workbook wb = StreamingReader.builder().open(is)) {
+            Workbook wb = StreamingReader.builder().open(is)
+    ) {
       for (Row r : wb.getSheetAt(0)) {
         for (Cell c : r) {
           assertEquals("1", c.getStringCellValue());
