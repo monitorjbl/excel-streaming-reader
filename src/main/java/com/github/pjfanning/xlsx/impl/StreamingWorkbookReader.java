@@ -163,7 +163,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     }
     if(builder.useSstTempFile()) {
       log.debug("Created sst cache file");
-      sst = new TempFileSharedStringsTable(pkg, builder.encryptSstTempFile());
+      sst = new TempFileSharedStringsTable(pkg, builder.encryptSstTempFile(), builder.fullFormatRichText());
     } else if(strictFormat) {
       sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);
     } else {

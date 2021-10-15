@@ -47,6 +47,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean readCoreProperties = false;
     private boolean readHyperlinks = false;
     private boolean readShapes = false;
+    private boolean fullFormatRichText = false;
     private String password;
     private boolean convertFromOoXmlStrict;
 
@@ -141,7 +142,20 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
+     * Whether to parse the full formatting data for rich text shared strings and comments.
+     * This only has an effect if temp file SST and/or Comments Table support is enabled. The default is false.
+     * When you don't use temp file support, full formatting data is returned for the rich text anyway.
+     * @return Whether to parse the full formatting data for rich text shared strings and comments.
+     * @see #useSstTempFile()
+     * @see #useCommentsTempFile()
+     */
+    public boolean fullFormatRichText() {
+      return fullFormatRichText;
+    }
+
+    /**
      * @return Whether to convert the input from Strict OOXML (prevent "Strict OOXML isn't currently supported")
+     * @deprecated this is no longer needed, OOXML strict format is handled automatically
      */
     public boolean convertFromOoXmlStrict() {
       return convertFromOoXmlStrict;
@@ -228,9 +242,13 @@ public class StreamingReader implements AutoCloseable {
      * By default, the entire SST *will* be loaded into memory. <strong>However</strong>,
      * enabling this option at all will have some noticeable performance degradation as you are
      * trading memory for disk space.
+     * <p>
+     * If you enable this feature, you also want to enable <code>fullFormatRichText</code>.
      *
      * @param useSstTempFile whether to use a temp file to store the Shared Strings Table data
      * @return reference to current {@code Builder}
+     * @see #setEncryptSstTempFile(boolean)
+     * @see #setFullFormatRichText(boolean) 
      */
     public Builder setUseSstTempFile(boolean useSstTempFile) {
       this.useSstTempFile = useSstTempFile;
@@ -246,6 +264,7 @@ public class StreamingReader implements AutoCloseable {
      *
      * @param encryptSstTempFile whether to encrypt the temp file used to store the Shared Strings Table data
      * @return reference to current {@code Builder}
+     * @see #setUseSstTempFile(boolean) 
      */
     public Builder setEncryptSstTempFile(boolean encryptSstTempFile) {
       this.encryptSstTempFile = encryptSstTempFile;
@@ -260,11 +279,14 @@ public class StreamingReader implements AutoCloseable {
      * By default, all the Comments data *will* be loaded into memory. <strong>However</strong>,
      * enabling this option at all will have some noticeable performance degradation as you are
      * trading memory for disk space.
+     * <p>
+     * If you enable this feature, you also want to enable <code>fullFormatRichText</code>.
      *
      * @param useCommentsTempFile whether to use a temp file to store the Comments data
      * @return reference to current {@code Builder}
      * @see #setReadComments(boolean)
      * @see #setEncryptCommentsTempFile(boolean)
+     * @see #setFullFormatRichText(boolean) 
      */
     public Builder setUseCommentsTempFile(boolean useCommentsTempFile) {
       this.useCommentsTempFile = useCommentsTempFile;
@@ -341,6 +363,20 @@ public class StreamingReader implements AutoCloseable {
      */
     public Builder setReadShapes(boolean readShapes) {
       this.readShapes = readShapes;
+      return this;
+    }
+
+    /**
+     * Whether to parse the full formatting data for rich text shared strings and comments.
+     * This only has an effect if temp file SST and/or Comments Table support is enabled. The default is false.
+     * When you don't use temp file support, full formatting data is returned for the rich text anyway.
+     * @param fullFormatRichText Whether to parse the full formatting data for rich text shared strings and comments.
+     * @return reference to current {@code Builder}
+     * @see #setUseSstTempFile(boolean)
+     * @see #setUseCommentsTempFile(boolean)
+     */
+    public Builder setFullFormatRichText(boolean fullFormatRichText) {
+      this.fullFormatRichText = fullFormatRichText;
       return this;
     }
 

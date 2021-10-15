@@ -84,6 +84,7 @@ public class OoxmlStrictHelper {
             //continue
           }
         }
+        //TODO when POI 5.1.0 is ready, support using TempFilePackagePart
         MemoryPackagePart newPart = new MemoryPackagePart(pkg, part.getPartName(), part.getContentType());
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);

@@ -1239,38 +1239,54 @@ public class StreamingReaderTest {
 
   @Test
   public void testReadCommentsWithInMemoryComments() throws Exception {
-    testReadComments(false, false);
+    testReadComments(false, false, false);
   }
 
   @Test
   public void testReadCommentsWithTempFileComments() throws Exception {
-    testReadComments(true, false);
+    testReadComments(true, false, false);
+  }
+
+  @Test
+  public void testReadCommentsWithTempFileCommentsFullFormat() throws Exception {
+    testReadComments(true, false, true);
   }
 
   @Test
   public void testReadCommentsWithEncryptedTempFileComments() throws Exception {
-    testReadComments(true, true);
+    testReadComments(true, true, false);
   }
 
-  private void testReadComments(boolean tempFileEnabled, boolean encrypt) throws Exception {
+  @Test
+  public void testReadCommentsWithEncryptedTempFileCommentsFullFormat() throws Exception {
+    testReadComments(true, true, true);
+  }
+
+  private void testReadComments(boolean tempFileEnabled, boolean encrypt,
+                                boolean fullFormat) throws Exception {
     try(
             InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
             Workbook wb = StreamingReader.builder()
                     .setReadComments(true)
                     .setUseCommentsTempFile(tempFileEnabled)
                     .setEncryptCommentsTempFile(encrypt)
+                    .setFullFormatRichText(fullFormat)
                     .open(inputStream)
     ) {
+      int expectedRuns = tempFileEnabled && !fullFormat ? 0 : 2;
       Sheet sheet = wb.getSheetAt(0);
       assertEquals(14, sheet.getCellComments().size());
       Comment comment00 = sheet.getCellComment(new CellAddress(0, 0));
       assertEquals("Shaun Kalley:\nComment A1", comment00.getString().getString());
+      assertEquals(expectedRuns, comment00.getString().numFormattingRuns());
       assertEquals("Shaun Kalley", comment00.getAuthor());
       Comment comment10 = sheet.getCellComment(new CellAddress(1, 0));
       assertEquals("Shaun Kalley:\nComment A2", comment10.getString().getString());
+      assertEquals(expectedRuns, comment10.getString().numFormattingRuns());
       assertEquals("Shaun Kalley", comment10.getAuthor());
       Comment comment31 = sheet.getCellComment(new CellAddress(3, 1));
       assertEquals("Shaun Kalley:\nComment B4", comment31.getString().getString());
+      assertEquals(expectedRuns, comment31.getString().numFormattingRuns());
       assertEquals("Shaun Kalley", comment00.getAuthor());
 
       Row firstRow = sheet.rowIterator().next();

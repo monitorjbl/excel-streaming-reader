@@ -361,6 +361,7 @@ public class StreamingWorkbookTest {
       expectFormattedContent(A4, " עִבְרִית and اَلْعَرَبِيَّةُ");
 
       Comment a3Comment = sheet.getCellComment(new CellAddress("A3"));
+      assertEquals(0, a3Comment.getString().numFormattingRuns());
       assertEquals("تعليق الاختبار", a3Comment.getString().getString());
     }
   }
