@@ -414,7 +414,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
       case "str":
-        return new StringSupplier(new XSSFRichTextString(lastContents).toString());
+        return new StringSupplier(lastContents);
       case "e":           //error type
         return new StringSupplier("ERROR:  " + lastContents);
       case "n":           //numeric type
