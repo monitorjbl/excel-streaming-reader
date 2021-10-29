@@ -16,33 +16,6 @@ public class OoXmlStrictConverterUtils {
         return !isBlank(str);
     }
 
-    public static boolean isXml(final String fileName) {
-        if(isNotBlank(fileName)) {
-            int pos = fileName.lastIndexOf(".");
-            if(pos != -1) {
-                String ext = fileName.substring(pos + 1).toLowerCase();
-                return ext.equals("xml") || ext.equals("vml") || ext.equals("rels");
-            }
-        }
-        return false;
-    }
-
-    public static InputStream disableClose(InputStream inputStream) {
-        return new FilterInputStream(inputStream) {
-            @Override
-            public void close() throws IOException {
-            }
-        };
-    }
-
-    public static OutputStream disableClose(OutputStream outputStream) {
-        return new FilterOutputStream(outputStream) {
-            @Override
-            public void close() throws IOException {
-            }
-        };
-    }
-
     public static Properties readMappings() {
         Properties props = new Properties();
         try(InputStream is = OoXmlStrictConverterUtils.class.getResourceAsStream("/ooxml-strict-mappings.properties");
