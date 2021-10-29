@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
 
 import com.github.pjfanning.poi.xssf.streaming.TempFileCommentsTable;
 import com.github.pjfanning.xlsx.StreamingReader;
@@ -70,6 +71,8 @@ import org.xml.sax.helpers.DefaultHandler;
 @Internal
 public class OoxmlReader {
 
+  static final String PURL_COMMENTS_RELATIONSHIP_URL = "http://purl.oclc.org/ooxml/officeDocument/relationships/comments";
+
   private static final Set<String> WORKSHEET_RELS =
           Collections.unmodifiableSet(new HashSet<>(
                   Arrays.asList(XSSFRelation.WORKSHEET.getRelation(),
@@ -81,12 +84,15 @@ public class OoxmlReader {
 
   protected OPCPackage pkg;
   protected PackagePart workbookPart;
+  private final boolean strictOoxmlChecksNeeded;
 
   /**
    * Creates a new XSSFReader, for the given package
    */
-  public OoxmlReader(OPCPackage pkg) {
+  @Internal
+  public OoxmlReader(OPCPackage pkg, boolean strictOoxmlChecksNeeded) {
     this.pkg = pkg;
+    this.strictOoxmlChecksNeeded = strictOoxmlChecksNeeded;
 
     PackageRelationship coreDocRelationship = this.pkg.getRelationshipsByType(
             PackageRelationshipTypes.CORE_DOCUMENT).getRelationship(0);
@@ -152,7 +158,7 @@ public class OoxmlReader {
    * InputStreams when done with each one.
    */
   public SheetIterator getSheetsData() throws IOException {
-    return new SheetIterator(workbookPart);
+    return new SheetIterator(workbookPart, strictOoxmlChecksNeeded);
   }
 
   /**
@@ -177,12 +183,15 @@ public class OoxmlReader {
      */
     final Iterator<XSSFSheetRef> sheetIterator;
 
+    final boolean strictOoxmlChecksNeeded;
+
     /**
      * Construct a new SheetIterator
      *
      * @param wb package part holding workbook.xml
      */
-    SheetIterator(PackagePart wb) throws IOException {
+    SheetIterator(PackagePart wb, boolean strictOoxmlChecksNeeded) throws IOException {
+      this.strictOoxmlChecksNeeded = strictOoxmlChecksNeeded;
 
       /*
        * The order of sheets is defined by the order of CTSheet elements in workbook.xml
@@ -294,20 +303,24 @@ public class OoxmlReader {
       try {
         PackageRelationshipCollection commentsList =
                 sheetPkg.getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
+        if (commentsList.size() == 0 && strictOoxmlChecksNeeded) {
+          commentsList =
+                  sheetPkg.getRelationshipsByType(OoxmlReader.PURL_COMMENTS_RELATIONSHIP_URL);
+        }
         if (commentsList.size() > 0) {
           PackageRelationship comments = commentsList.getRelationship(0);
           PackagePartName commentsName = PackagingURIHelper.createPartName(comments.getTargetURI());
           PackagePart commentsPart = sheetPkg.getPackage().getPart(commentsName);
           return parseComments(builder, commentsPart);
         }
-      } catch (InvalidFormatException|IOException e) {
+      } catch (InvalidFormatException|IOException|XMLStreamException e) {
         LOGGER.log(POILogger.WARN, e);
         return null;
       }
       return null;
     }
 
-    private Comments parseComments(StreamingReader.Builder builder, PackagePart commentsPart) throws IOException {
+    private Comments parseComments(StreamingReader.Builder builder, PackagePart commentsPart) throws IOException, XMLStreamException, InvalidFormatException {
       if (builder.useCommentsTempFile()) {
         try (InputStream is = commentsPart.getInputStream()) {
           TempFileCommentsTable ct = new TempFileCommentsTable(
@@ -316,6 +329,8 @@ public class OoxmlReader {
           ct.readFrom(is);
           return ct;
         }
+      } else if (strictOoxmlChecksNeeded) {
+        return OoxmlStrictHelper.getCommentsTable(builder, commentsPart);
       } else {
         return new CommentsTable(commentsPart);
       }

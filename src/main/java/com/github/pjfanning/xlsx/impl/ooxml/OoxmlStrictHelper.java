@@ -7,6 +7,7 @@ import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
 import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.internal.MemoryPackagePart;
+import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.model.ThemesTable;
@@ -91,6 +92,27 @@ public class OoxmlStrictHelper {
         }
         return new SharedStringsTable(newPart);
       }
+    }
+  }
+
+  public static CommentsTable getCommentsTable(StreamingReader.Builder builder,
+                                               PackagePart part) throws IOException, XMLStreamException, InvalidFormatException {
+    try(TempDataStore tempData = createTempDataStore(builder)) {
+      try(
+              InputStream is = part.getInputStream();
+              OutputStream os = tempData.getOutputStream();
+              OoXmlStrictConverter converter = new OoXmlStrictConverter(is, os)
+      ) {
+        while (converter.convertNextElement()) {
+          //continue
+        }
+      }
+      //TODO when POI 5.1.0 is ready, support using TempFilePackagePart
+      MemoryPackagePart newPart = new MemoryPackagePart(part.getPackage(), part.getPartName(), part.getContentType());
+      try(InputStream is = tempData.getInputStream()) {
+        newPart.load(is);
+      }
+      return new CommentsTable(newPart);
     }
   }
 

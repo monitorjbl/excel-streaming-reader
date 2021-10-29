@@ -34,7 +34,7 @@ public class WorkbookUtilTest {
   }
 
   private OoxmlReader open(OPCPackage pkg) throws Exception {
-    return new OoxmlReader(pkg);
+    return new OoxmlReader(pkg, false);
   }
 
 }
