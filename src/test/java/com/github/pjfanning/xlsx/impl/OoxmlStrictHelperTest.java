@@ -21,7 +21,7 @@ public class OoxmlStrictHelperTest {
     StreamingReader.Builder builder2 = StreamingReader.builder().setAvoidTempFiles(true);
     for(StreamingReader.Builder builder : new StreamingReader.Builder[]{builder1, builder2}) {
       try (OPCPackage pkg = OPCPackage.open(new File("src/test/resources/sample.strict.xlsx"), PackageAccess.READ)) {
-        ThemesTable themes = OoxmlStrictHelper.getThemesTable(StreamingReader.builder(), pkg);
+        ThemesTable themes = OoxmlStrictHelper.getThemesTable(builder, pkg);
         assertNotNull(themes.getThemeColor(ThemesTable.ThemeElement.DK1.idx));
       }
     }
