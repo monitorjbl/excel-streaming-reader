@@ -6,6 +6,8 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -26,9 +28,17 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class StreamingReaderTest {
+  private static Locale defaultLocale;
+
   @BeforeClass
   public static void init() {
+    defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.ENGLISH);
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    Locale.setDefault(defaultLocale);
   }
 
   @Test

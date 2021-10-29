@@ -8,6 +8,7 @@ import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.usermodel.*;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,9 +24,17 @@ import static org.apache.poi.ss.usermodel.CellType.*;
 import static org.junit.Assert.*;
 
 public class StreamingWorkbookTest {
+  private static Locale defaultLocale;
+
   @BeforeClass
   public static void init() {
+    defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.ENGLISH);
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    Locale.setDefault(defaultLocale);
   }
 
   @Test

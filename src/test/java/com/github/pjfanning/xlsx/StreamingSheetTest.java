@@ -8,6 +8,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,9 +22,17 @@ import static com.github.pjfanning.xlsx.TestUtils.*;
 import static org.junit.Assert.*;
 
 public class StreamingSheetTest {
+  private static Locale defaultLocale;
+
   @BeforeClass
   public static void init() {
+    defaultLocale = Locale.getDefault();
     Locale.setDefault(Locale.ENGLISH);
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    Locale.setDefault(defaultLocale);
   }
 
   @Test
