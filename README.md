@@ -28,7 +28,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>3.1.6</version>
+    <version>3.2.0</version>
   </dependency>
 </dependencies>  
 ```
