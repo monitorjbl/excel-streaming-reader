@@ -4,9 +4,8 @@ import com.github.pjfanning.xlsx.StreamingReader;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
-import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
-import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
 import org.apache.poi.openxml4j.opc.internal.MemoryPackagePart;
+import org.apache.poi.openxml4j.opc.internal.TempFilePackagePart;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.model.StylesTable;
@@ -18,7 +17,8 @@ import java.io.*;
 import java.util.List;
 
 public class OoxmlStrictHelper {
-  public static ThemesTable getThemesTable(StreamingReader.Builder builder, OPCPackage pkg) throws IOException, XMLStreamException, InvalidFormatException {
+  public static ResourceWithTrackedCloseable<ThemesTable> getThemesTable(StreamingReader.Builder builder, OPCPackage pkg)
+          throws IOException, XMLStreamException, InvalidFormatException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.THEME.getContentType());
     if (parts.isEmpty()) {
       return null;
@@ -34,16 +34,17 @@ public class OoxmlStrictHelper {
             //continue
           }
         }
-        MemoryPackagePart newPart = new MemoryPackagePart(pkg, part.getPartName(), part.getContentType());
+        PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);
         }
-        return new ThemesTable(newPart);
+        return new ResourceWithTrackedCloseable(new ThemesTable(newPart), () -> newPart.close() );
       }
     }
   }
 
-  public static StylesTable getStylesTable(StreamingReader.Builder builder, OPCPackage pkg) throws IOException, XMLStreamException, InvalidFormatException {
+  public static ResourceWithTrackedCloseable<StylesTable> getStylesTable(StreamingReader.Builder builder, OPCPackage pkg)
+          throws IOException, XMLStreamException, InvalidFormatException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
     if (parts.isEmpty()) {
       return null;
@@ -59,12 +60,11 @@ public class OoxmlStrictHelper {
             //continue
           }
         }
-        //TODO when POI 5.1.0 is ready, support using TempFilePackagePart
-        MemoryPackagePart newPart = new MemoryPackagePart(pkg, part.getPartName(), part.getContentType());
+        PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);
         }
-        return new StylesTable(newPart);
+        return new ResourceWithTrackedCloseable(new StylesTable(newPart), () -> newPart.close() );
       }
     }
   }
@@ -85,18 +85,26 @@ public class OoxmlStrictHelper {
             //continue
           }
         }
-        //TODO when POI 5.1.0 is ready, support using TempFilePackagePart
-        MemoryPackagePart newPart = new MemoryPackagePart(pkg, part.getPartName(), part.getContentType());
+        PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);
         }
-        return new SharedStringsTable(newPart);
+        return new SharedStringsTable(newPart) {
+          @Override
+          public void close() throws IOException {
+            try {
+              super.close();
+            } finally {
+              newPart.close();
+            }
+          }
+        };
       }
     }
   }
 
-  public static CommentsTable getCommentsTable(StreamingReader.Builder builder,
-                                               PackagePart part) throws IOException, XMLStreamException, InvalidFormatException {
+  public static ResourceWithTrackedCloseable getCommentsTable(StreamingReader.Builder builder, PackagePart part)
+          throws IOException, XMLStreamException, InvalidFormatException {
     try(TempDataStore tempData = createTempDataStore(builder)) {
       try(
               InputStream is = part.getInputStream();
@@ -107,20 +115,12 @@ public class OoxmlStrictHelper {
           //continue
         }
       }
-      //TODO when POI 5.1.0 is ready, support using TempFilePackagePart
-      MemoryPackagePart newPart = new MemoryPackagePart(part.getPackage(), part.getPartName(), part.getContentType());
+      PackagePart newPart = createTempPackagePart(builder, part.getPackage(), part);
       try(InputStream is = tempData.getInputStream()) {
         newPart.load(is);
       }
-      return new CommentsTable(newPart);
+      return new ResourceWithTrackedCloseable(new CommentsTable(newPart), () -> newPart.close() );
     }
-  }
-
-  //TODO OPCPackage has this method in POI 5.0.1
-  public static boolean isStrictOoxmlFormat(OPCPackage pkg) {
-    PackageRelationshipCollection coreDocRelationships = pkg.getRelationshipsByType(
-            PackageRelationshipTypes.STRICT_CORE_DOCUMENT);
-    return coreDocRelationships.size() > 0;
   }
 
   private static TempDataStore createTempDataStore(StreamingReader.Builder builder) {
@@ -128,6 +128,15 @@ public class OoxmlStrictHelper {
       return new TempMemoryDataStore();
     } else {
       return new TempFileDataStore();
+    }
+  }
+
+  private static PackagePart createTempPackagePart(StreamingReader.Builder builder, OPCPackage pkg,
+                                                   PackagePart part) throws IOException, InvalidFormatException {
+    if (builder.avoidTempFiles()) {
+      return new MemoryPackagePart(pkg, part.getPartName(), part.getContentType());
+    } else {
+      return new TempFilePackagePart(pkg, part.getPartName(), part.getContentType());
     }
   }
 }

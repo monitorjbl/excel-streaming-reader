@@ -9,6 +9,7 @@ import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlStrictHelper;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlReader;
+import com.github.pjfanning.xlsx.impl.ooxml.ResourceWithTrackedCloseable;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -20,6 +21,7 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Date1904Support;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.util.Internal;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFShape;
@@ -55,6 +57,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
   private boolean use1904Dates = false;
   private StreamingWorkbook workbook = null;
   private POIXMLProperties.CoreProperties coreProperties = null;
+  private final List<ResourceWithTrackedCloseable<?>> trackedCloseables = new ArrayList<>();
 
   public StreamingWorkbookReader(Builder builder) {
     this.sheets = new ArrayList<>();
@@ -66,7 +69,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       try {
         if(builder.getPassword() != null) {
           POIFSFileSystem poifs = new POIFSFileSystem(is);
-          decryptWorkbook(poifs);
+          pkg = decryptWorkbook(poifs);
         } else {
           pkg = OPCPackage.open(is);
         }
@@ -109,7 +112,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     try {
       if(builder.getPassword() != null) {
         POIFSFileSystem poifs = new POIFSFileSystem(f);
-        decryptWorkbook(poifs);
+        pkg = decryptWorkbook(poifs);
       } else {
         pkg = OPCPackage.open(f);
       }
@@ -129,17 +132,17 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     }
   }
 
-  private void decryptWorkbook(POIFSFileSystem poifs) throws IOException, GeneralSecurityException, InvalidFormatException {
+  private OPCPackage decryptWorkbook(POIFSFileSystem poifs) throws IOException, GeneralSecurityException, InvalidFormatException {
     // Based on: https://poi.apache.org/encryption.html
     EncryptionInfo info = new EncryptionInfo(poifs);
     Decryptor d = Decryptor.getInstance(info);
     d.verifyPassword(builder.getPassword());
-    pkg = OPCPackage.open(d.getDataStream(poifs));
+    return OPCPackage.open(d.getDataStream(poifs));
   }
 
   private void loadPackage(OPCPackage pkg) throws IOException, OpenXML4JException, ParserConfigurationException, SAXException, XMLStreamException {
-    boolean strictFormat = OoxmlStrictHelper.isStrictOoxmlFormat(pkg);
-    OoxmlReader reader = new OoxmlReader(pkg, strictFormat);
+    boolean strictFormat = pkg.isStrictOoxmlFormat();
+    OoxmlReader reader = new OoxmlReader(this, pkg, strictFormat);
     if (strictFormat) {
       log.info("file is in strict OOXML format");
     }
@@ -163,10 +166,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
     StylesTable styles;
     if(strictFormat) {
-      ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
-      StylesTable stylesTable = OoxmlStrictHelper.getStylesTable(builder, pkg);
-      stylesTable.setTheme(themesTable);
-      styles = stylesTable;
+      ResourceWithTrackedCloseable<ThemesTable> themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
+      ResourceWithTrackedCloseable<StylesTable> stylesTable = OoxmlStrictHelper.getStylesTable(builder, pkg);
+      styles = stylesTable.getResource();
+      styles.setTheme(themesTable.getResource());
     } else {
       styles = reader.getStylesTable();
     }
@@ -188,7 +191,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     //Some workbooks have multiple references to the same sheet. Need to filter
     //them out before creating the XMLEventReader by keeping track of their URIs.
     //The sheets are listed in order, so we must keep track of insertion order.
-    OoxmlReader.SheetIterator iter = reader.getSheetsData();
+    OoxmlReader.OoxmlSheetIterator iter = reader.getSheetsData();
     Map<PackagePart, InputStream> sheetStreams = new LinkedHashMap<>();
     Map<PackagePart, Comments> sheetComments = new HashMap<>();
     while(iter.hasNext()) {
@@ -270,6 +273,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       if(sst != null) {
         sst.close();
       }
+      for(ResourceWithTrackedCloseable<?> trackedCloseable : trackedCloseables) {
+        trackedCloseable.close();
+      }
     }
   }
 
@@ -283,6 +289,15 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
   List<XSSFShape> getShapes(String sheetName) {
     return shapeMap.get(sheetName);
+  }
+
+  /**
+   * Internal use only. To track resources that should be closed when this reader instance is closed.
+   * @param trackedCloseable resource to close (later)
+   */
+  @Internal
+  public void addTrackableCloseable(ResourceWithTrackedCloseable<?> trackedCloseable) {
+    this.trackedCloseables.add(trackedCloseable);
   }
 
   static class StreamingSheetIterator implements Iterator<Sheet> {

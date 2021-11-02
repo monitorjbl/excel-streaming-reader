@@ -2,6 +2,7 @@ package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlStrictHelper;
+import com.github.pjfanning.xlsx.impl.ooxml.ResourceWithTrackedCloseable;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.xssf.model.SharedStringsTable;
@@ -21,8 +22,9 @@ public class OoxmlStrictHelperTest {
     StreamingReader.Builder builder2 = StreamingReader.builder().setAvoidTempFiles(true);
     for(StreamingReader.Builder builder : new StreamingReader.Builder[]{builder1, builder2}) {
       try (OPCPackage pkg = OPCPackage.open(new File("src/test/resources/sample.strict.xlsx"), PackageAccess.READ)) {
-        ThemesTable themes = OoxmlStrictHelper.getThemesTable(builder, pkg);
-        assertNotNull(themes.getThemeColor(ThemesTable.ThemeElement.DK1.idx));
+        try (ResourceWithTrackedCloseable<ThemesTable> themes = OoxmlStrictHelper.getThemesTable(builder, pkg)) {
+          assertNotNull(themes.getResource().getThemeColor(ThemesTable.ThemeElement.DK1.idx));
+        }
       }
     }
   }
@@ -33,12 +35,16 @@ public class OoxmlStrictHelperTest {
     StreamingReader.Builder builder2 = StreamingReader.builder().setAvoidTempFiles(true);
     for(StreamingReader.Builder builder : new StreamingReader.Builder[]{builder1, builder2}) {
       try(OPCPackage pkg = OPCPackage.open(new File("src/test/resources/sample.strict.xlsx"), PackageAccess.READ)) {
-        StylesTable styles = OoxmlStrictHelper.getStylesTable(builder, pkg);
-        ThemesTable themes = OoxmlStrictHelper.getThemesTable(builder, pkg);
-        styles.setTheme(themes);
-        assertEquals("has right borders", 1, styles.getBorders().size());
-        assertEquals("has right fonts", 11, styles.getFonts().size());
-        assertEquals("has right cell styles", 3, styles.getNumCellStyles());
+        try (
+                ResourceWithTrackedCloseable<StylesTable> stylesWrapper = OoxmlStrictHelper.getStylesTable(builder, pkg);
+                ResourceWithTrackedCloseable<ThemesTable> themesWrapper = OoxmlStrictHelper.getThemesTable(builder, pkg)
+        ) {
+          StylesTable styles = stylesWrapper.getResource();
+          styles.setTheme(themesWrapper.getResource());
+          assertEquals("has right borders", 1, styles.getBorders().size());
+          assertEquals("has right fonts", 11, styles.getFonts().size());
+          assertEquals("has right cell styles", 3, styles.getNumCellStyles());
+        }
       }
     }
   }

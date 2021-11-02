@@ -6,7 +6,6 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -618,10 +617,10 @@ public class StreamingReaderTest {
     File f = new File("src/test/resources/blank_cells.xlsx");
     try (Workbook wb = StreamingReader.builder().open(f)) {
       Row row = wb.getSheetAt(0).iterator().next();
-      assertThat(row.getCell(1).getStringCellValue(), equalTo(""));
-      assertThat(row.getCell(1).getRichStringCellValue().getString(), equalTo(""));
-      assertThat(row.getCell(1).getDateCellValue(), is(nullValue()));
-      assertThat(row.getCell(1).getNumericCellValue(), equalTo(0.0));
+      assertEquals("", row.getCell(1).getStringCellValue());
+      assertEquals("", row.getCell(1).getRichStringCellValue().getString());
+      assertNull(row.getCell(1).getDateCellValue());
+      assertEquals(0.0, row.getCell(1).getNumericCellValue(), 0.0);
     }
   }
 
@@ -673,7 +672,8 @@ public class StreamingReaderTest {
   public void testEncryption() throws Exception {
     try (
             InputStream is = new FileInputStream("src/test/resources/encrypted.xlsx");
-            Workbook wb = StreamingReader.builder().password("test").open(is)) {
+            Workbook wb = StreamingReader.builder().password("test").open(is)
+    ) {
       iterateEncryptedFile(wb);
     }
   }
@@ -682,7 +682,8 @@ public class StreamingReaderTest {
   public void testEncryptionUsingAvoidTempFiles() throws Exception {
     try (
             InputStream is = new FileInputStream("src/test/resources/encrypted.xlsx");
-            Workbook wb = StreamingReader.builder().setAvoidTempFiles(true).password("test").open(is)) {
+            Workbook wb = StreamingReader.builder().setAvoidTempFiles(true).password("test").open(is)
+    ) {
       iterateEncryptedFile(wb);
     }
   }

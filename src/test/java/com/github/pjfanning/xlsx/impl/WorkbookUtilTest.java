@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlReader;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
@@ -34,7 +35,7 @@ public class WorkbookUtilTest {
   }
 
   private OoxmlReader open(OPCPackage pkg) throws Exception {
-    return new OoxmlReader(pkg, false);
+    return new OoxmlReader(new StreamingWorkbookReader(StreamingReader.builder()), pkg, false);
   }
 
 }

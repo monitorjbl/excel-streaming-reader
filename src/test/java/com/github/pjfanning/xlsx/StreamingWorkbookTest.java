@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx;
 
+import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.impl.XlsxPictureData;
 import fi.iki.elonen.NanoHTTPD;
@@ -315,7 +316,7 @@ public class StreamingWorkbookTest {
     }
   }
 
-  @Test(expected = ParseException.class)
+  @Test(expected = OpenException.class)
   public void testEntityExpansion() throws Exception {
     ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
       try(Workbook workbook = openWorkbook("entity-expansion-exploit-poc-file.xlsx")) {

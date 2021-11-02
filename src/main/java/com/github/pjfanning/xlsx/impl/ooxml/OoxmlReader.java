@@ -16,83 +16,55 @@
 ==================================================================== */
 package com.github.pjfanning.xlsx.impl.ooxml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
-
 import com.github.pjfanning.poi.xssf.streaming.TempFileCommentsTable;
 import com.github.pjfanning.xlsx.StreamingReader;
+import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
 import org.apache.poi.ooxml.POIXMLException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackagePart;
-import org.apache.poi.openxml4j.opc.PackagePartName;
-import org.apache.poi.openxml4j.opc.PackageRelationship;
-import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
-import org.apache.poi.openxml4j.opc.PackageRelationshipTypes;
-import org.apache.poi.openxml4j.opc.PackagingURIHelper;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+import org.apache.poi.openxml4j.opc.*;
 import org.apache.poi.util.Internal;
-import org.apache.poi.util.POILogFactory;
-import org.apache.poi.util.POILogger;
-import org.apache.poi.util.XMLHelper;
+import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
 import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.apache.xmlbeans.XmlException;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * This class makes it easy to get at individual parts
- * of an OOXML .xlsx file, suitable for low memory sax
- * parsing or similar.
- * It makes up the core part of the EventUserModel support
- * for XSSF.
- *
- * This is a forked copy of the POI XSSFReader class.
- */
-//TODO POI XSSFReader should be extended once POI 5.0.1 is available
+import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+
 @Internal
-public class OoxmlReader {
+public class OoxmlReader extends XSSFReader {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(OoxmlReader.class);
   static final String PURL_COMMENTS_RELATIONSHIP_URL = "http://purl.oclc.org/ooxml/officeDocument/relationships/comments";
   static final String PURL_DRAWING_RELATIONSHIP_URL = "http://purl.oclc.org/ooxml/officeDocument/relationships/drawing";
 
-  private static final Set<String> WORKSHEET_RELS =
+  private static final Set<String> OVERRIDE_WORKSHEET_RELS =
           Collections.unmodifiableSet(new HashSet<>(
                   Arrays.asList(XSSFRelation.WORKSHEET.getRelation(),
                           "http://purl.oclc.org/ooxml/officeDocument/relationships/worksheet",
                           XSSFRelation.CHARTSHEET.getRelation(),
                           XSSFRelation.MACRO_SHEET_BIN.getRelation())
           ));
-  private static final POILogger LOGGER = POILogFactory.getLogger(org.apache.poi.xssf.eventusermodel.XSSFReader.class);
 
-  protected OPCPackage pkg;
   protected PackagePart workbookPart;
   private final boolean strictOoxmlChecksNeeded;
+  private final StreamingWorkbookReader streamingWorkbookReader;
 
   /**
    * Creates a new XSSFReader, for the given package
    */
   @Internal
-  public OoxmlReader(OPCPackage pkg, boolean strictOoxmlChecksNeeded) {
-    this.pkg = pkg;
+  public OoxmlReader(StreamingWorkbookReader streamingWorkbookReader,
+                     OPCPackage pkg, boolean strictOoxmlChecksNeeded) throws IOException, OpenXML4JException {
+    super(pkg, true);
+    this.streamingWorkbookReader = streamingWorkbookReader;
     this.strictOoxmlChecksNeeded = strictOoxmlChecksNeeded;
 
     PackageRelationship coreDocRelationship = this.pkg.getRelationshipsByType(
@@ -120,7 +92,7 @@ public class OoxmlReader {
    * returns a handy object for working with
    * shared strings.
    */
-  public SharedStringsTable getSharedStringsTable() throws IOException, InvalidFormatException {
+  public SharedStringsTable getSharedStringsTable() throws IOException {
     ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
     return parts.size() == 0 ? null : new SharedStringsTable(parts.get(0));
   }
@@ -141,15 +113,6 @@ public class OoxmlReader {
     }
     return styles;
   }
-  
-  /**
-   * Returns an InputStream to read the contents of the
-   * main Workbook, which contains key overall data for
-   * the file, including sheet definitions.
-   */
-  public InputStream getWorkbookData() throws IOException, InvalidFormatException {
-    return workbookPart.getInputStream();
-  }
 
   /**
    * Returns an Iterator which will let you get at all the
@@ -158,90 +121,22 @@ public class OoxmlReader {
    * from the Iterator. It's up to you to close the
    * InputStreams when done with each one.
    */
-  public SheetIterator getSheetsData() throws IOException {
-    return new SheetIterator(workbookPart, strictOoxmlChecksNeeded);
+  public OoxmlSheetIterator getSheetsData() throws IOException {
+    return new OoxmlSheetIterator(workbookPart);
   }
 
   /**
    * Iterator over sheet data.
    */
-  public static class SheetIterator implements Iterator<InputStream> {
-
-    /**
-     * Maps relId and the corresponding PackagePart
-     */
-    private final Map<String, PackagePart> sheetMap;
-
-    /**
-     * Current sheet reference
-     */
-    XSSFSheetRef xssfSheetRef;
-
-    /**
-     * Iterator over CTSheet objects, returns sheets in <tt>logical</tt> order.
-     * We can't rely on the Ooxml4J's relationship iterator because it returns objects in physical order,
-     * i.e. as they are stored in the underlying package
-     */
-    final Iterator<XSSFSheetRef> sheetIterator;
-
-    final boolean strictOoxmlChecksNeeded;
+  public class OoxmlSheetIterator extends SheetIterator {
 
     /**
      * Construct a new SheetIterator
      *
      * @param wb package part holding workbook.xml
      */
-    SheetIterator(PackagePart wb, boolean strictOoxmlChecksNeeded) throws IOException {
-      this.strictOoxmlChecksNeeded = strictOoxmlChecksNeeded;
-
-      /*
-       * The order of sheets is defined by the order of CTSheet elements in workbook.xml
-       */
-      try {
-        //step 1. Map sheet's relationship Id and the corresponding PackagePart
-        sheetMap = new HashMap<>();
-        OPCPackage pkg = wb.getPackage();
-        Set<String> worksheetRels = getSheetRelationships();
-        for (PackageRelationship rel : wb.getRelationships()) {
-          String relType = rel.getRelationshipType();
-          if (worksheetRels.contains(relType)) {
-            PackagePartName relName = PackagingURIHelper.createPartName(rel.getTargetURI());
-            sheetMap.put(rel.getId(), pkg.getPart(relName));
-          }
-        }
-        //step 2. Read array of CTSheet elements, wrap it in a LinkedList
-        //and construct an iterator
-        sheetIterator = createSheetIteratorFromWB(wb);
-      } catch (InvalidFormatException e) {
-        throw new POIXMLException(e);
-      }
-    }
-
-    Iterator<XSSFSheetRef> createSheetIteratorFromWB(PackagePart wb) throws IOException {
-
-      XMLSheetRefReader xmlSheetRefReader = new XMLSheetRefReader();
-      XMLReader xmlReader;
-      try {
-        xmlReader = XMLHelper.newXMLReader();
-      } catch (ParserConfigurationException | SAXException e) {
-        throw new POIXMLException(e);
-      }
-      xmlReader.setContentHandler(xmlSheetRefReader);
-      try {
-        xmlReader.parse(new InputSource(wb.getInputStream()));
-      } catch (SAXException e) {
-        throw new POIXMLException(e);
-      }
-
-      List<XSSFSheetRef> validSheets = new ArrayList<>();
-      for (XSSFSheetRef xssfSheetRef : xmlSheetRefReader.getSheetRefs()) {
-        //if there's no relationship id, silently skip the sheet
-        String sheetId = xssfSheetRef.getId();
-        if (sheetId != null && sheetId.length() > 0) {
-          validSheets.add(xssfSheetRef);
-        }
-      }
-      return validSheets.iterator();
+    OoxmlSheetIterator(PackagePart wb) throws IOException {
+      super(wb);
     }
 
     /**
@@ -252,45 +147,8 @@ public class OoxmlReader {
      *
      * @return all relationships that are sheet-like
      */
-    Set<String> getSheetRelationships() {
-      return WORKSHEET_RELS;
-    }
-
-    /**
-     * Returns <tt>true</tt> if the iteration has more elements.
-     *
-     * @return <tt>true</tt> if the iterator has more elements.
-     */
-    @Override
-    public boolean hasNext() {
-      return sheetIterator.hasNext();
-    }
-
-    /**
-     * Returns input stream of the next sheet in the iteration
-     *
-     * @return input stream of the next sheet in the iteration
-     */
-    @Override
-    public InputStream next() {
-      xssfSheetRef = sheetIterator.next();
-
-      String sheetId = xssfSheetRef.getId();
-      try {
-        PackagePart sheetPkg = sheetMap.get(sheetId);
-        return sheetPkg.getInputStream();
-      } catch (IOException e) {
-        throw new POIXMLException(e);
-      }
-    }
-
-    /**
-     * Returns name of the current sheet
-     *
-     * @return name of the current sheet
-     */
-    public String getSheetName() {
-      return xssfSheetRef.getName();
+    protected Set<String> getSheetRelationships() {
+      return OVERRIDE_WORKSHEET_RELS;
     }
 
     /**
@@ -315,7 +173,7 @@ public class OoxmlReader {
           return parseComments(builder, commentsPart);
         }
       } catch (InvalidFormatException|IOException|XMLStreamException e) {
-        LOGGER.log(POILogger.WARN, e);
+        LOGGER.warn("issue getting sheet comments", e);
         return null;
       }
       return null;
@@ -331,7 +189,10 @@ public class OoxmlReader {
           return ct;
         }
       } else if (strictOoxmlChecksNeeded) {
-        return OoxmlStrictHelper.getCommentsTable(builder, commentsPart);
+        ResourceWithTrackedCloseable<CommentsTable> trackableResource =
+                OoxmlStrictHelper.getCommentsTable(builder, commentsPart);
+        streamingWorkbookReader.addTrackableCloseable(trackableResource);
+        return trackableResource.getResource();
       } else {
         return new CommentsTable(commentsPart);
       }
@@ -355,84 +216,17 @@ public class OoxmlReader {
           PackagePart drawingsPart = sheetPkg.getPackage().getPart(drawingsName);
           if (drawingsPart == null) {
             //parts can go missing; Excel ignores them silently -- TIKA-2134
-            LOGGER.log(POILogger.WARN, "Missing drawing: " + drawingsName + ". Skipping it.");
+            LOGGER.warn("Missing drawing: " + drawingsName + ". Skipping it.");
             continue;
           }
           XSSFDrawing drawing = new XSSFDrawing(drawingsPart);
           shapes.addAll(drawing.getShapes());
         }
       } catch (XmlException|InvalidFormatException|IOException e) {
-        LOGGER.log(POILogger.WARN, e);
+        LOGGER.warn("issue getting shapes", e);
         return null;
       }
       return shapes;
-    }
-
-    public PackagePart getSheetPart() {
-      String sheetId = xssfSheetRef.getId();
-      return sheetMap.get(sheetId);
-    }
-
-    /**
-     * We're read only, so remove isn't supported
-     */
-    @Override
-    public void remove() {
-      throw new IllegalStateException("Not supported");
-    }
-  }
-
-  protected static final class XSSFSheetRef {
-    //do we need to store sheetId, too?
-    private final String id;
-    private final String name;
-
-    public XSSFSheetRef(String id, String name) {
-      this.id = id;
-      this.name = name;
-    }
-
-    public String getId() {
-      return id;
-    }
-
-    public String getName() {
-      return name;
-    }
-  }
-
-  //scrapes sheet reference info and order from workbook.xml
-  private static class XMLSheetRefReader extends DefaultHandler {
-    private static final String SHEET = "sheet";
-    private static final String ID = "id";
-    private static final String NAME = "name";
-
-    private final List<XSSFSheetRef> sheetRefs = new LinkedList<>();
-
-    // read <sheet name="Sheet6" sheetId="4" r:id="rId6"/>
-    // and add XSSFSheetRef(id="rId6", name="Sheet6") to sheetRefs
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attrs) throws SAXException {
-      if (localName.equalsIgnoreCase(SHEET)) {
-        String name = null;
-        String id = null;
-        for (int i = 0; i < attrs.getLength(); i++) {
-          final String attrName = attrs.getLocalName(i);
-          if (attrName.equalsIgnoreCase(NAME)) {
-            name = attrs.getValue(i);
-          } else if (attrName.equalsIgnoreCase(ID)) {
-            id = attrs.getValue(i);
-          }
-          if (name != null && id != null) {
-            sheetRefs.add(new XSSFSheetRef(id, name));
-            break;
-          }
-        }
-      }
-    }
-
-    List<XSSFSheetRef> getSheetRefs() {
-      return Collections.unmodifiableList(sheetRefs);
     }
   }
 }
