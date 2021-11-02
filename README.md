@@ -119,14 +119,13 @@ This is a brief and very generalized list of things that are not supported for r
 
 This library focuses on spreadsheets in OOXML Transitional format - despite the name, this format is more widely used. The wikipedia entry on OOXML formats has a good [description](https://en.wikipedia.org/wiki/Office_Open_XML).
 
-* StreamingReader.Builder has `convertFromOoXmlStrict` which attempts to convert input streams from OOXML Strict format (if set to `true`) to the better supported Transitional format. This is all done in memory so this might not be a good option if you have memory limitations. This approach is now deprecated and will be removed in version 4.0.0. 
 * From version 3.0.2, the standard streaming code will also try to read OOXML Strict format.
-  * support is still evolving, it is recommended you use the latest available excel-streaming-reader version if you are interested in supporting OOXML Strict format 
-  * `setReadComments(true)` option is not properly supported for OOXML Strict format files (https://github.com/pjfanning/excel-streaming-reader/issues/37)
+  * support is still evolving, it is recommended you use the latest available excel-streaming-reader version if you are interested in supporting OOXML Strict format
+* Version 3.2.0 drops StreamingReader.Builder `convertFromOoXmlStrict` option (previously deprecated) as this is supported by default now.
 
 # Logging
 
-This library uses SLF4j logging. This is a rare use case, but you can plug in your logging provider and get some potentially useful output. 
+This library uses [SLF4j](http://www.slf4j.org/) logging. This is a rare use case, but you can plug in your logging provider and get some potentially useful output. POI 5.1.0 switched to [Log4j 2.x](https://logging.apache.org/log4j/2.x/) for logging. If you need logs from both libraries, you will need to use one of the bridge jars to map slf4j to log4j or vice versa.
 
 # Implementation Details
 
