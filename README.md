@@ -69,12 +69,13 @@ Sheet sheet = workbook.getSheet("My Sheet")
 The StreamingWorkbook is an autocloseable resource, and it's important that you close it to free the filesystem resource it consumed. With Java 8, you can do this:
 
 ```java
-try {
-  InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
-  Workbook workbook = StreamingReader.builder()
-          .rowCacheSize(100)
-          .bufferSize(4096)
-          .open(is) {
+try (
+        InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
+        Workbook workbook = StreamingReader.builder()
+        .rowCacheSize(100)
+        .bufferSize(4096)
+        .open(is)
+){
   for (Sheet sheet : workbook){
     System.out.println(sheet.getSheetName());
     for (Row r : sheet) {
@@ -96,11 +97,40 @@ You can use the `setUseSstTempFile(true)` option to have this data stored in a t
 
 ```java
   Workbook workbook = StreamingReader.builder()
-          .rowCacheSize(100)
-          .bufferSize(4096)
           .setUseSstTempFile(true)
-          .setEncryptSstTempFile(true)
+          .setEncryptSstTempFile(false)
+          .fullFormatRichText(true) //if you want the rich text formatting as well as the text
           .open(is)
+```
+
+## Temp File Comments
+
+As with shared strings, comments are stored in a separate part of the xlsx file and by default,
+excel-streaming-reader does not read them. You can configure excel-streaming-reader to read them and
+choose whether you want them stored in memory or in a temp file while reading the xlsx file.
+
+```java
+  Workbook workbook = StreamingReader.builder()
+          .setReadComments(true)
+          .setUseCommentsTempFile(true)
+          .setEncryptCommentsTempFile(false)
+          .fullFormatRichText(true) //if you want the rich text formatting as well as the text
+          .open(is)
+```
+
+## Reading Very Large Excel Files
+
+excel-streaming-reader uses some Apache POI code under the hood. That code uses memory and/or
+temp files to store temporary data while it processes the xlsx. With very large files, you will probably
+want to favour using temp files.
+
+With `StreamingReader.builder()`, do not set `setAvoidTempFiles(true)`. You should also consider, tuning
+[POI settings](https://poi.apache.org/components/configuration.html) too. In particular,
+consider setting these properties:
+
+```java
+  org.apache.poi.openxml4j.util.ZipInputStreamZipEntrySource.setThresholdBytesForTempFiles(16384); //16KB
+  org.apache.poi.openxml4j.opc.ZipPackage.setUseTempFilePackageParts(true);
 ```
 
 # Supported Methods
