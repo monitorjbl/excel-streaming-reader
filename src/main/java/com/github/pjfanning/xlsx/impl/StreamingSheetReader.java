@@ -305,7 +305,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("is".equals(tagLocalName)) {
         insideIS = false;
       } else if("f".equals(tagLocalName)) {
-        insideFormulaElement = true;
+        insideFormulaElement = false;
         if (currentCell != null) {
           currentCell.setFormula(formulaBuilder.toString());
         }
