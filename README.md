@@ -72,9 +72,9 @@ The StreamingWorkbook is an autocloseable resource, and it's important that you 
 try (
         InputStream is = new FileInputStream(new File("/path/to/workbook.xlsx"));
         Workbook workbook = StreamingReader.builder()
-        .rowCacheSize(100)
-        .bufferSize(4096)
-        .open(is)
+          .rowCacheSize(100)
+          .bufferSize(4096)
+          .open(is)
 ){
   for (Sheet sheet : workbook){
     System.out.println(sheet.getSheetName());
@@ -100,7 +100,7 @@ You can use the `setUseSstTempFile(true)` option to have this data stored in a t
           .setUseSstTempFile(true)
           .setEncryptSstTempFile(false)
           .fullFormatRichText(true) //if you want the rich text formatting as well as the text
-          .open(is)
+          .open(is);
 ```
 
 ## Temp File Comments
@@ -115,7 +115,7 @@ choose whether you want them stored in memory or in a temp file while reading th
           .setUseCommentsTempFile(true)
           .setEncryptCommentsTempFile(false)
           .fullFormatRichText(true) //if you want the rich text formatting as well as the text
-          .open(is)
+          .open(is);
 ```
 
 ## Reading Very Large Excel Files
@@ -141,9 +141,8 @@ I'll try to add more support as time goes on, but some items simply can't be rea
 
 This is a brief and very generalized list of things that are not supported for reads:
 
-* Functions
+* Recalculating Formulas - you will get values that Excel cached in the xlsx when the file was saved
 * Macros
-* Styled cells (the styles are kept at the end of the ZIP file)
 
 # OOXML Strict format
 
