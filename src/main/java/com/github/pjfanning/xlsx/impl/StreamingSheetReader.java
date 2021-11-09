@@ -240,6 +240,14 @@ public class StreamingSheetReader implements Iterable<Row> {
         insideFormulaElement = true;
         if (currentCell != null) {
           currentCell.setFormulaType(true);
+          Attribute tAttr = startElement.getAttributeByName(new QName("t"));
+          if (tAttr != null && tAttr.getValue().equals("shared")) {
+            currentCell.setSharedFormula(true);
+          }
+          Attribute siAttr = startElement.getAttributeByName(new QName("si"));
+          if (siAttr != null) {
+            currentCell.setFormulaSI(siAttr.getValue());
+          }
         }
       } else if("mergeCell".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(QName.valueOf("ref"));
