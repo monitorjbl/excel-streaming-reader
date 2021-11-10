@@ -1,13 +1,13 @@
 package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.OpenException;
-import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.impl.XlsxPictureData;
 import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -417,6 +417,33 @@ public class StreamingWorkbookTest {
         }
         assertEquals(FormulaError.DIV0.getCode(), row0.getCell(1).getErrorCellValue());
         assertEquals(FormulaError.FUNCTION_NOT_IMPLEMENTED.getCode(), row0.getCell(2).getErrorCellValue());
+      }
+    }
+  }
+
+  @Test
+  public void testBug65676() throws Exception {
+    try (UnsynchronizedByteArrayOutputStream output = new UnsynchronizedByteArrayOutputStream()) {
+      try(Workbook wb = new SXSSFWorkbook()) {
+        Row r = wb.createSheet("Sheet").createRow(0);
+        r.createCell(0).setCellValue(1.2); /* A1: Number 1.2 */
+        r.createCell(1).setCellValue("ABC"); /* B1: Inline string "ABC" */
+        wb.write(output);
+      }
+      try(Workbook wb = StreamingReader.builder().open(output.toInputStream())) {
+        Sheet sheet = wb.getSheet("Sheet");
+        Cell a1 = null;
+        Cell b1 = null;
+        for (Row row : sheet) {
+          if (row.getRowNum() == 0) {
+            a1 = row.getCell(0);
+            b1 = row.getCell(1);
+          }
+        }
+        assertNotNull("a1 should be found", a1);
+        assertNotNull("b1 should be found", b1);
+        assertEquals(1.2, a1.getNumericCellValue(), 0.00000001);
+        assertEquals("ABC", b1.getStringCellValue());
       }
     }
   }
