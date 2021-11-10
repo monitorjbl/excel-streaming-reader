@@ -368,10 +368,10 @@ public class StreamingReader implements AutoCloseable {
      * @return A {@link Workbook} that can be read from
      * @throws ReadException if there is an issue reading the stream
      */
-    public StreamingWorkbook open(InputStream is) {
-      StreamingWorkbookReader reader = new StreamingWorkbookReader(this);
-      reader.init(is);
-      return new StreamingWorkbook(reader);
+    public Workbook open(InputStream is) {
+      StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
+      workbook.init(is);
+      return new StreamingWorkbook(workbook);
     }
 
     /**
@@ -383,10 +383,10 @@ public class StreamingReader implements AutoCloseable {
      * @throws OpenException if there is an issue opening the file
      * @throws ReadException if there is an issue reading the file
      */
-    public StreamingWorkbook open(File file) {
-      StreamingWorkbookReader reader = new StreamingWorkbookReader(this);
-      reader.init(file);
-      return new StreamingWorkbook(reader);
+    public Workbook open(File file) {
+      StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
+      workbook.init(file);
+      return new StreamingWorkbook(workbook);
     }
   }
 }
