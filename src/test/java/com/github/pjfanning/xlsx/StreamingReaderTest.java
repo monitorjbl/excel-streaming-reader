@@ -1171,6 +1171,51 @@ public class StreamingReaderTest {
     }
   }
 
+  @Test
+  public void testIteratingRowsOnSheetTwice() throws Exception {
+    Map<String, SharedFormula> sharedFormulaMap = null;
+    try (
+            Workbook wb = StreamingReader.builder()
+                    .open(new File("src/test/resources/bug65464.xlsx"))
+    ) {
+      Sheet sheet = wb.getSheet("SheetWithSharedFormula");
+      for (Row row : sheet) {
+        //iterate through rows to ensure all state is loaded for the sheet
+      }
+      sharedFormulaMap = ((StreamingSheet)sheet).getSharedFormulaMap();
+    }
+    assertEquals(1, sharedFormulaMap.size());
+
+    //the only way to do a 2nd pass on the row data is to create a new workbook and iterate over its sheet
+    try (
+            Workbook wb = StreamingReader.builder()
+                    .open(new File("src/test/resources/bug65464.xlsx"))
+    ) {
+      StreamingSheet sheet = (StreamingSheet)wb.getSheet("SheetWithSharedFormula");
+      sharedFormulaMap.entrySet().forEach( entry ->
+              sheet.addSharedFormula(entry.getKey(), entry.getValue())
+      );
+      Cell v15 = null;
+      Cell v16 = null;
+      Cell v17 = null;
+      for (Row row : sheet) {
+        if (row.getRowNum() == 14) {
+          v15 = row.getCell(21);
+        } else if (row.getRowNum() == 15) {
+          v16 = row.getCell(21);
+        } else if (row.getRowNum() == 16) {
+          v17 = row.getCell(21);
+        }
+      }
+      assertNotNull("v15 found", v15);
+      assertNotNull("v16 found", v16);
+      assertNotNull("v17 found", v17);
+      assertEquals("U15/R15", v15.getCellFormula());
+      assertEquals("U16/R16", v16.getCellFormula());
+      assertEquals("U17/R17", v17.getCellFormula());
+    }
+  }
+
   private void testReadComments(boolean tempFileEnabled, boolean encrypt,
                                 boolean fullFormat) throws Exception {
     try(
