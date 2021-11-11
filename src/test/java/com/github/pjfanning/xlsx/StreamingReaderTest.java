@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
+import com.github.pjfanning.xlsx.impl.StreamingSheet;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
@@ -1146,12 +1147,27 @@ public class StreamingReaderTest {
       assertNotNull("v17 found", v17);
       assertEquals("U15/R15", v15.getCellFormula());
       assertEquals("U16/R16", v16.getCellFormula());
+      assertEquals("U17/R17", v17.getCellFormula());
+      StreamingSheet ss = (StreamingSheet)sheet;
+      Map<String, SharedFormula> sharedFormulaMap = ss.getSharedFormulaMap();
+      assertEquals(1, sharedFormulaMap.size());
+      assertEquals("U15/R15", sharedFormulaMap.get("0").getFormula());
+      assertEquals("V15", sharedFormulaMap.get("0").getCellAddress().formatAsString());
       try {
-        v17.getCellFormula();
-        fail("expected cell with shared formula to fail");
-      } catch (IllegalStateException ise) {
-        assertTrue(ise.getMessage().contains("shared formula"));
+        sharedFormulaMap.remove("0");
+        fail("expected UnsupportedOperationException to be thrown");
+      } catch (UnsupportedOperationException e) {
+        //expected
       }
+      ss.addSharedFormula("0", new SharedFormula(new CellAddress("A1"), "A2"));
+      Map<String, SharedFormula> sharedFormulaMap2 = ss.getSharedFormulaMap();
+      assertEquals(1, sharedFormulaMap2.size());
+      SharedFormula sf = sharedFormulaMap2.get("0");
+      assertEquals("A2", sf.getFormula());
+      assertEquals("A1", sf.getCellAddress().formatAsString());
+      assertEquals(sf, ss.removeSharedFormula("0"));
+      assertNull("expected null on 2nd remove call", ss.removeSharedFormula("0"));
+      assertEquals(0, ss.getSharedFormulaMap().size());
     }
   }
 

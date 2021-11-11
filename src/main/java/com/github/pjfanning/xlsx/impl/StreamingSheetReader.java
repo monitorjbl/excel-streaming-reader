@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.SharedFormula;
 import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.XmlUtils;
 import com.github.pjfanning.xlsx.exceptions.CloseException;
@@ -11,6 +12,12 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.openxml4j.opc.PackageRelationshipCollection;
+import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.formula.FormulaParser;
+import org.apache.poi.ss.formula.FormulaRenderer;
+import org.apache.poi.ss.formula.FormulaShifter;
+import org.apache.poi.ss.formula.FormulaType;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -45,6 +52,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final List<CellRangeAddress> mergedCells = new ArrayList<>();
   private final List<HyperlinkData> hyperlinks = new ArrayList<>();
   private List<XlsxHyperlink> xlsxHyperlinks;
+  private Map<String, SharedFormula> sharedFormulaMap;
 
   private int firstRowNum = 0;
   private int lastRowNum;
@@ -82,6 +90,27 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   void setSheet(StreamingSheet sheet) {
     this.sheet = sheet;
+  }
+
+  Map<String, SharedFormula> getSharedFormulaMap() {
+    if (sharedFormulaMap == null) {
+      return Collections.emptyMap();
+    }
+    return Collections.unmodifiableMap(sharedFormulaMap);
+  }
+
+  void addSharedFormula(String siValue, SharedFormula sharedFormula) {
+    if (sharedFormulaMap == null) {
+      sharedFormulaMap = new HashMap<>();
+    }
+    sharedFormulaMap.put(siValue, sharedFormula);
+  }
+
+  SharedFormula removeSharedFormula(String siValue) {
+    if (sharedFormulaMap != null) {
+      return sharedFormulaMap.remove(siValue);
+    }
+    return null;
   }
 
   /**
@@ -307,7 +336,45 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if("f".equals(tagLocalName)) {
         insideFormulaElement = false;
         if (currentCell != null) {
-          currentCell.setFormula(formulaBuilder.toString());
+          final String formula = formulaBuilder.toString();
+          currentCell.setFormula(formula);
+          if (currentCell.isSharedFormula() && currentCell.getFormulaSI() != null) {
+            if (sharedFormulaMap == null) {
+              sharedFormulaMap = new HashMap<>();
+            }
+            if (!sharedFormulaMap.containsKey(currentCell.getFormulaSI()) && !formula.isEmpty()) {
+              sharedFormulaMap.put(currentCell.getFormulaSI(), new SharedFormula(currentCell.getAddress(), formula));
+            } else if (formula.isEmpty()) {
+              Workbook wb = streamingWorkbookReader.getWorkbook();
+              if (wb != null) {
+                SharedFormula sf = sharedFormulaMap.get(currentCell.getFormulaSI());
+                if (sf == null) {
+                  log.warn("No SharedFormula found for si={}", currentCell.getFormulaSI());
+                } else {
+                  CurrentRowEvaluationWorkbook evaluationWorkbook =
+                          new CurrentRowEvaluationWorkbook(wb, currentRow);
+                  int sheetIndex = streamingWorkbookReader.getWorkbook().getSheetIndex(sheet);
+                  if (sheetIndex < 0) {
+                    log.warn("Failed to find correct sheet index; defaulting to zero");
+                    sheetIndex = 0;
+                  }
+                  Ptg[] ptgs = FormulaParser.parse(sf.getFormula(), evaluationWorkbook, FormulaType.CELL, sheetIndex, currentRow.getRowNum());
+                  String shiftedFmla = null;
+                  final int rowsToMove = currentRowNum - sf.getCellAddress().getRow();
+                  FormulaShifter formulaShifter = FormulaShifter.createForRowShift(sheetIndex, sheet.getSheetName(),
+                          0, SpreadsheetVersion.EXCEL2007.getLastRowIndex(), rowsToMove, SpreadsheetVersion.EXCEL2007);
+                  if (formulaShifter.adjustFormula(ptgs, sheetIndex)) {
+                    shiftedFmla = FormulaRenderer.toFormulaString(evaluationWorkbook, ptgs);
+                  }
+                  log.debug("cell {} should have formula {} based on shared formula {} (rowsToMove={})",
+                          currentCell.getAddress(), shiftedFmla, sf.getFormula(), rowsToMove);
+                  currentCell.setFormula(shiftedFmla);
+                }
+              }
+            } else {
+              log.error("No eval workbook found");
+            }
+          }
         }
       }
 

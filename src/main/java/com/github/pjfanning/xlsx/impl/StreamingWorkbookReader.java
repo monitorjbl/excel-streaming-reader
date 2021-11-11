@@ -21,6 +21,7 @@ import org.apache.poi.poifs.crypt.EncryptionInfo;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Date1904Support;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.Internal;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.model.*;
@@ -182,6 +183,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
   void setWorkbook(StreamingWorkbook workbook) {
     this.workbook = workbook;
     workbook.setCoreProperties(coreProperties);
+  }
+
+  Workbook getWorkbook() {
+    return workbook;
   }
 
   void loadSheets(OoxmlReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,

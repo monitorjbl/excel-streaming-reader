@@ -96,8 +96,16 @@ public class StreamingCell implements Cell {
     this.sharedFormula = sharedFormula;
   }
 
+  boolean isSharedFormula() {
+    return sharedFormula;
+  }
+
   void setFormulaSI(String formulaSI) {
     this.formulaSI = formulaSI;
+  }
+
+  String getFormulaSI() {
+    return formulaSI;
   }
 
   @Override

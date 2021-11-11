@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.SharedFormula;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -223,6 +224,29 @@ public class StreamingSheet implements Sheet {
   @Override
   public CellAddress getActiveCell() {
     return reader.getActiveCell();
+  }
+
+  /**
+   * @return immutable copy of the shared formula map for this sheet
+   */
+  public Map<String, SharedFormula> getSharedFormulaMap() {
+    return reader.getSharedFormulaMap();
+  }
+
+  /**
+   * @param siValue the ID for the shared formula (appears in Excel sheet XML as an <code>si</code> attribute
+   * @param sharedFormula maps the base cell and formula for the shared formula
+   */
+  public void addSharedFormula(String siValue, SharedFormula sharedFormula) {
+    reader.addSharedFormula(siValue, sharedFormula);
+  }
+
+  /**
+   * @param siValue the ID for the shared formula (appears in Excel sheet XML as an <code>si</code> attribute
+   * @return the shared formula that was removed (can be null if no existing shared formula is found)
+   */
+  public SharedFormula removeSharedFormula(String siValue) {
+    return reader.removeSharedFormula(siValue);
   }
 
   /* Unsupported */
