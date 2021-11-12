@@ -46,7 +46,7 @@ import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
-  private static final XMLInputFactory xmlInputFactory = XMLHelper.newXMLInputFactory();
+  private static XMLInputFactory xmlInputFactory;
 
   private final List<StreamingSheet> sheets;
   private final List<Map<String, String>> sheetProperties = new ArrayList<>();
@@ -214,7 +214,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     //Iterate over the loaded streams
     int i = 0;
     for(PackagePart packagePart : sheetStreams.keySet()) {
-      XMLEventReader parser = xmlInputFactory.createXMLEventReader(sheetStreams.get(packagePart));
+      XMLEventReader parser = getXmlInputFactory().createXMLEventReader(sheetStreams.get(packagePart));
       sheets.add(new StreamingSheet(
               workbook,
               sheetProperties.get(i++).get("name"),
@@ -294,6 +294,18 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
   List<XSSFShape> getShapes(String sheetName) {
     return shapeMap.get(sheetName);
+  }
+
+  private static XMLInputFactory getXmlInputFactory() {
+    if (xmlInputFactory == null) {
+      try {
+        xmlInputFactory = XMLHelper.newXMLInputFactory();
+      } catch (Throwable t) {
+        log.error("Issue creating XMLInputFactory", t);
+        throw t;
+      }
+    }
+    return xmlInputFactory;
   }
 
   /**

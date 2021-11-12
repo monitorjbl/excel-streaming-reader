@@ -3,6 +3,8 @@ package com.github.pjfanning.xlsx.impl.ooxml;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.util.Beta;
 import org.apache.poi.util.XMLHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;
@@ -14,11 +16,12 @@ import java.util.*;
 @Beta
 public class OoXmlStrictConverter implements AutoCloseable {
 
-    private static final XMLEventFactory XEF = XMLHelper.newXMLEventFactory();
-    private static final XMLInputFactory XIF = XMLHelper.newXMLInputFactory();
-    private static final XMLOutputFactory XOF = XMLHelper.newXMLOutputFactory();
+    private static final Logger LOGGER = LoggerFactory.getLogger(OoXmlStrictConverter.class);
     private static final QName CONFORMANCE = new QName("conformance");
     private static final Properties mappings;
+    private static XMLEventFactory XEF;
+    private static XMLInputFactory XIF;
+    private static XMLOutputFactory XOF;
 
     static {
         mappings = OoXmlStrictConverterUtils.readMappings();
@@ -31,8 +34,8 @@ public class OoXmlStrictConverter implements AutoCloseable {
     private boolean inDateValue;
 
     public OoXmlStrictConverter(InputStream is, OutputStream os) throws XMLStreamException {
-        this.xer = XIF.createXMLEventReader(is);
-        this.xew = XOF.createXMLEventWriter(os);
+        this.xer = getXmlInputFactory().createXMLEventReader(is);
+        this.xew = getXmlOutputFactory().createXMLEventWriter(os);
     }
 
     public boolean convertNextElement() throws XMLStreamException {
@@ -70,7 +73,7 @@ public class OoXmlStrictConverter implements AutoCloseable {
 
         double excelDate = DateUtil.getExcelDate(date);
 
-        return XEF.createCharacters(Double.toString(excelDate));
+        return getXmlEventFactory().createCharacters(Double.toString(excelDate));
     }
 
     private EndElement updateDateFlagsOnEndElement(EndElement endElement) {
@@ -107,7 +110,7 @@ public class OoXmlStrictConverter implements AutoCloseable {
         this.inDateCell = true;
 
         // Change to numeric cell.
-        return XEF.createStartElement(startElement.getName(),
+        return getXmlEventFactory().createStartElement(startElement.getName(),
                 changeTypeAttributeToNumeric(startElement.getAttributes()),
                 startElement.getNamespaces());
 
@@ -124,7 +127,7 @@ public class OoXmlStrictConverter implements AutoCloseable {
                 continue;
             }
 
-            result.add(XEF.createAttribute(attribute.getName(), "n"));
+            result.add(getXmlEventFactory().createAttribute(attribute.getName(), "n"));
         }
 
         return Collections.unmodifiableList(result).iterator();
@@ -155,13 +158,13 @@ public class OoXmlStrictConverter implements AutoCloseable {
     }
 
     private static StartElement convertStartElement(StartElement startElement, boolean root) {
-        return XEF.createStartElement(updateQName(startElement.getName()),
+        return getXmlEventFactory().createStartElement(updateQName(startElement.getName()),
                 processAttributes(startElement.getAttributes(), startElement.getName().getNamespaceURI(), root),
                 processNamespaces(startElement.getNamespaces()));
     }
 
     private static EndElement convertEndElement(EndElement endElement) {
-        return XEF.createEndElement(updateQName(endElement.getName()),
+        return getXmlEventFactory().createEndElement(updateQName(endElement.getName()),
                 processNamespaces(endElement.getNamespaces()));
 
     }
@@ -194,7 +197,7 @@ public class OoXmlStrictConverter implements AutoCloseable {
                         break;
                     }
                 }
-                list.add(XEF.createAttribute(qn, newValue));
+                list.add(getXmlEventFactory().createAttribute(qn, newValue));
             }
         }
         return Collections.unmodifiableList(list).iterator();
@@ -211,4 +214,39 @@ public class OoXmlStrictConverter implements AutoCloseable {
         return Collections.unmodifiableList(list).iterator();
     }
 
+    private static XMLInputFactory getXmlInputFactory() {
+        if (XIF == null) {
+            try {
+                XIF = XMLHelper.newXMLInputFactory();
+            } catch (Throwable t) {
+                LOGGER.error("Issue creating XMLInputFactory", t);
+                throw t;
+            }
+        }
+        return XIF;
+    }
+
+    private static XMLOutputFactory getXmlOutputFactory() {
+        if (XOF == null) {
+            try {
+                XOF = XMLHelper.newXMLOutputFactory();
+            } catch (Throwable t) {
+                LOGGER.error("Issue creating XMLOutputFactory", t);
+                throw t;
+            }
+        }
+        return XOF;
+    }
+
+    private static XMLEventFactory getXmlEventFactory() {
+        if (XEF == null) {
+            try {
+                XEF = XMLHelper.newXMLEventFactory();
+            } catch (Throwable t) {
+                LOGGER.error("Issue creating XMLEventFactory", t);
+                throw t;
+            }
+        }
+        return XEF;
+    }
 }
