@@ -1216,6 +1216,42 @@ public class StreamingReaderTest {
     }
   }
 
+  @Test
+  public void testReadSharedFormulasDisabled() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/bug65464.xlsx");
+            Workbook wb = StreamingReader.builder()
+                    .setReadSharedFormulas(false)
+                    .open(inputStream)
+    ) {
+      Sheet sheet = wb.getSheet("SheetWithSharedFormula");
+      Cell v15 = null;
+      Cell v16 = null;
+      Cell v17 = null;
+      for (Row row : sheet) {
+        if (row.getRowNum() == 14) {
+          v15 = row.getCell(21);
+        } else if (row.getRowNum() == 15) {
+          v16 = row.getCell(21);
+        } else if (row.getRowNum() == 16) {
+          v17 = row.getCell(21);
+        }
+      }
+      assertNotNull("v15 found", v15);
+      assertNotNull("v16 found", v16);
+      assertNotNull("v17 found", v17);
+      assertEquals("U15/R15", v15.getCellFormula());
+      assertEquals("U16/R16", v16.getCellFormula());
+      try {
+        v17.getCellFormula();
+        fail("expected V17 getCellFormula to fail because setReadSharedFormulas is set false");
+      } catch (IllegalStateException ise) {
+        //expected
+      }
+    }
+  }
+
+
   private void testReadComments(boolean tempFileEnabled, boolean encrypt,
                                 boolean fullFormat) throws Exception {
     try(

@@ -47,6 +47,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean readCoreProperties = false;
     private boolean readHyperlinks = false;
     private boolean readShapes = false;
+    private boolean readSharedFormulas = true;
     private boolean fullFormatRichText = false;
     private String password;
 
@@ -138,6 +139,14 @@ public class StreamingReader implements AutoCloseable {
      */
     public boolean readShapes() {
       return readShapes;
+    }
+
+    /**
+     * @return Whether to read the shared formulas. Only affects cell formulas, cell values are retrieved
+     * using values stored in the sheet data.
+     */
+    public boolean readSharedFormulas() {
+      return readSharedFormulas;
     }
 
     /**
@@ -340,6 +349,18 @@ public class StreamingReader implements AutoCloseable {
      */
     public Builder setReadShapes(boolean readShapes) {
       this.readShapes = readShapes;
+      return this;
+    }
+
+    /**
+     * Enables the reading of shared formulas. This is enabled by default.
+     * Only affects cell formulas, cell values are retrieved using values stored in the sheet data.
+     *
+     * @param readSharedFormulas whether to read shared formulas
+     * @return reference to current {@code Builder}
+     */
+    public Builder setReadSharedFormulas(boolean readSharedFormulas) {
+      this.readSharedFormulas = readSharedFormulas;
       return this;
     }
 

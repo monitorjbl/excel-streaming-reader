@@ -93,17 +93,23 @@ public class StreamingSheetReader implements Iterable<Row> {
   }
 
   Map<String, SharedFormula> getSharedFormulaMap() {
-    if (sharedFormulaMap == null) {
-      return Collections.emptyMap();
+    if (getBuilder().readSharedFormulas()) {
+      if (sharedFormulaMap == null) {
+        return Collections.emptyMap();
+      }
+      return Collections.unmodifiableMap(sharedFormulaMap);
+    } else {
+      throw new IllegalStateException("The reading of shared formulas has been disabled. Enable using StreamingReader.Builder.");
     }
-    return Collections.unmodifiableMap(sharedFormulaMap);
   }
 
   void addSharedFormula(String siValue, SharedFormula sharedFormula) {
-    if (sharedFormulaMap == null) {
-      sharedFormulaMap = new HashMap<>();
+    if (getBuilder().readSharedFormulas()) {
+      if (sharedFormulaMap == null) {
+        sharedFormulaMap = new HashMap<>();
+      }
+      sharedFormulaMap.put(siValue, sharedFormula);
     }
-    sharedFormulaMap.put(siValue, sharedFormula);
   }
 
   SharedFormula removeSharedFormula(String siValue) {
@@ -338,7 +344,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         if (currentCell != null) {
           final String formula = formulaBuilder.toString();
           currentCell.setFormula(formula);
-          if (currentCell.isSharedFormula() && currentCell.getFormulaSI() != null) {
+          if (currentCell.isSharedFormula() && currentCell.getFormulaSI() != null && getBuilder().readSharedFormulas()) {
             if (sharedFormulaMap == null) {
               sharedFormulaMap = new HashMap<>();
             }
@@ -377,7 +383,6 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
         }
       }
-
     }
   }
 

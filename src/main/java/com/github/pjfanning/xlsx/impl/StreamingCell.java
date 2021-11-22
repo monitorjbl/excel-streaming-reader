@@ -291,7 +291,7 @@ public class StreamingCell implements Cell {
     if (!formulaType)
       throw new IllegalStateException("This cell does not have a formula");
     if ((formula == null || formula.isEmpty()) && sharedFormula)
-      throw new IllegalStateException("This cell has a shared formula and excel-streaming-reader does not support this yet");
+      throw new IllegalStateException("This cell has a shared formula and it seems setReadSharedFormulas has been set to false");
     return formula;
   }
 
