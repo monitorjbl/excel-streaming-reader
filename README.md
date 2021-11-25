@@ -3,7 +3,7 @@
 
 # Excel Streaming Reader
 
-This is a fork of [monitorjbl/excel-streaming-reader](https://github.com/monitorjbl/excel-streaming-reader).
+This is a fork of [monitorjbl/excel-streaming-reader](https://github.com/monitorjbl/excel-streaming-reader). This library does not support the legacy xls format ([Microsoft Office Excel 97-2003 Binary File Format](https://www.loc.gov/preservation/digital/formats/fdd/fdd000510.shtml)).
 
 This implementation supports [Apache POI](http://poi.apache.org) 5.x and only supports Java 8 and above. v2.3.x supports POI 4.x.
 
