@@ -119,6 +119,10 @@ public class StreamingSheetReader implements Iterable<Row> {
     return null;
   }
 
+  boolean isUse1904Dates() {
+    return use1904Dates;
+  }
+
   /**
    * Read through a number of rows equal to the rowCacheSize field or until there is no more data to read
    *
@@ -186,6 +190,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
         boolean isHidden = isHiddenAttr != null && XmlUtils.evaluateBoolean(isHiddenAttr.getValue());
         currentRow = new StreamingRow(sheet, rowIndex, isHidden);
+        currentRow.setStreamingSheetReader(this);
         currentColNum = firstColNum;
       } else if("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));

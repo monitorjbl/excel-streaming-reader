@@ -73,7 +73,9 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Gets the first row on the sheet
+   * Gets the first row on the sheet. This value is only available on some sheets where the
+   * sheet XML has the dimension data set. At present, this method will return 0 if this
+   * dimension data is missing (this may change in a future release).
    *
    * @return first row contained in this sheet (0-based)
    */
@@ -83,7 +85,9 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Gets the last row on the sheet
+   * Gets the last row on the sheet. This value is only available on some sheets where the
+   * sheet XML has the dimension data set. At present, this method will return 0 if this
+   * dimension data is missing (this may change in a future release).
    *
    * @return last row contained in this sheet (0-based)
    */
@@ -93,10 +97,10 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Return cell comment at row, column, if one exists. Otherwise returns null.
+   * Return cell comment at row, column, if one exists. Otherwise, return null.
    *
    * @param cellAddress the location of the cell comment
-   * @return the cell comment, if one exists. Otherwise return null.
+   * @return the cell comment, if one exists. Otherwise, return null.
    * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadComments(boolean)} is not set to true
    */
   @Override

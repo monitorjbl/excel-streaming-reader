@@ -12,11 +12,16 @@ public class StreamingRow implements Row {
   private final int rowIndex;
   private boolean isHidden;
   private TreeMap<Integer, Cell> cellMap = new TreeMap<>();
+  private StreamingSheetReader streamingSheetReader;
 
   public StreamingRow(Sheet sheet, int rowIndex, boolean isHidden) {
     this.sheet = sheet;
     this.rowIndex = rowIndex;
     this.isHidden = isHidden;
+  }
+
+  void setStreamingSheetReader(StreamingSheetReader streamingSheetReader) {
+    this.streamingSheetReader = streamingSheetReader;
   }
 
   public Map<Integer, Cell> getCellMap() {
@@ -118,7 +123,10 @@ public class StreamingRow implements Row {
   public Cell getCell(int cellnum, MissingCellPolicy policy) {
     StreamingCell cell = (StreamingCell) cellMap.get(cellnum);
     if(policy == MissingCellPolicy.CREATE_NULL_AS_BLANK) {
-      if(cell == null) { return new StreamingCell(sheet, cellnum, this, false); }
+      if(cell == null) {
+        boolean use1904Dates = streamingSheetReader == null ? false : streamingSheetReader.isUse1904Dates();
+        return new StreamingCell(sheet, cellnum, this, use1904Dates);
+      }
     } else if(policy == MissingCellPolicy.RETURN_BLANK_AS_NULL) {
       if(cell == null || cell.getCellType() == CellType.BLANK) { return null; }
     }
