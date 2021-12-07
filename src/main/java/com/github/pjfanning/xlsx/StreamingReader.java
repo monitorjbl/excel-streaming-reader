@@ -47,7 +47,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean readCoreProperties = false;
     private boolean readHyperlinks = false;
     private boolean readShapes = false;
-    private boolean readSharedFormulas = true;
+    private boolean readSharedFormulas = false;
     private boolean fullFormatRichText = false;
     private String password;
 
@@ -353,7 +353,7 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
-     * Enables the reading of shared formulas. This is enabled by default.
+     * Enables the reading of shared formulas. This is disabled by default. This feature is experimental.
      * Only affects cell formulas, cell values are retrieved using values stored in the sheet data.
      *
      * @param readSharedFormulas whether to read shared formulas

@@ -1123,10 +1123,11 @@ public class StreamingReaderTest {
   }
 
   @Test
-  public void testReadSharedFormulas() throws Exception {
+  public void testReadSharedFormulasEnabled() throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/bug65464.xlsx");
             Workbook wb = StreamingReader.builder()
+                    .setReadSharedFormulas(true)
                     .open(inputStream)
     ) {
       Sheet sheet = wb.getSheet("SheetWithSharedFormula");
@@ -1176,6 +1177,7 @@ public class StreamingReaderTest {
     Map<String, SharedFormula> sharedFormulaMap = null;
     try (
             Workbook wb = StreamingReader.builder()
+                    .setReadSharedFormulas(true)
                     .open(new File("src/test/resources/bug65464.xlsx"))
     ) {
       Sheet sheet = wb.getSheet("SheetWithSharedFormula");
@@ -1189,6 +1191,7 @@ public class StreamingReaderTest {
     //the only way to do a 2nd pass on the row data is to create a new workbook and iterate over its sheet
     try (
             Workbook wb = StreamingReader.builder()
+                    .setReadSharedFormulas(true)
                     .open(new File("src/test/resources/bug65464.xlsx"))
     ) {
       StreamingSheet sheet = (StreamingSheet)wb.getSheet("SheetWithSharedFormula");
@@ -1217,12 +1220,20 @@ public class StreamingReaderTest {
   }
 
   @Test
-  public void testReadSharedFormulasDisabled() throws Exception {
+  public void testReadSharedFormulasDisabledByDefault() throws Exception {
+    testReadSharedFormulasDisabled(StreamingReader.builder());
+  }
+
+  @Test
+  public void testReadSharedFormulasDisabledExplicitly() throws Exception {
+    testReadSharedFormulasDisabled(StreamingReader.builder().setReadSharedFormulas(false));
+  }
+
+
+  private void testReadSharedFormulasDisabled(StreamingReader.Builder builder) throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/bug65464.xlsx");
-            Workbook wb = StreamingReader.builder()
-                    .setReadSharedFormulas(false)
-                    .open(inputStream)
+            Workbook wb = builder.open(inputStream)
     ) {
       Sheet sheet = wb.getSheet("SheetWithSharedFormula");
       Cell v15 = null;
@@ -1250,7 +1261,6 @@ public class StreamingReaderTest {
       }
     }
   }
-
 
   private void testReadComments(boolean tempFileEnabled, boolean encrypt,
                                 boolean fullFormat) throws Exception {
