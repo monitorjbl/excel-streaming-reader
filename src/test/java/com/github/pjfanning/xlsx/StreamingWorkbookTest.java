@@ -82,6 +82,41 @@ public class StreamingWorkbookTest {
   }
 
   @Test
+  public void testMissingCells() throws Exception {
+    try(UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()) {
+      try(XSSFWorkbook xssfWorkbook = new XSSFWorkbook()) {
+        Sheet sheet = xssfWorkbook.createSheet();
+        Row row = sheet.createRow(0);
+        Cell cell = row.createCell(10);
+        cell.setCellValue("value123");
+        xssfWorkbook.write(bos);
+      }
+      try(Workbook workbook = StreamingReader.builder().open(bos.toInputStream())) {
+        assertEquals(1, workbook.getNumberOfSheets());
+        Sheet sheet = workbook.getSheetAt(0);
+        int rowCount = 0;
+        for (Row row : sheet) {
+          rowCount++;
+          assertEquals("rowNum matches", 0, row.getRowNum());
+          int cellCount = 0;
+          for(Cell cell : row) {
+            cellCount++;
+            assertEquals("column matches", 10, cell.getColumnIndex());
+            assertEquals("value123", cell.getStringCellValue());
+          }
+          assertEquals("cellCount matches", 1, cellCount);
+          Cell cell0 = row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+          assertEquals("cell0 column matches", 0, cell0.getColumnIndex());
+          assertEquals("cell0 cell type", BLANK, cell0.getCellType());
+
+          assertNull("null cell when no MissingCellPolicy?", row.getCell(0));
+        }
+        assertEquals("rowCount matches", 1, rowCount);
+      }
+    }
+  }
+
+  @Test
   public void testHiddenCells() throws Exception {
     try(
             InputStream is = new FileInputStream("src/test/resources/hidden.xlsx");
