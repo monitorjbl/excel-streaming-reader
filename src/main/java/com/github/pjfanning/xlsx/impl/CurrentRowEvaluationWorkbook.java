@@ -10,8 +10,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.Internal;
-import org.apache.poi.xssf.streaming.*;
-import org.apache.poi.xssf.usermodel.BaseXSSFEvaluationWorkbook;
 
 /**
  * wrapper around the workbook

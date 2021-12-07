@@ -369,17 +369,22 @@ public class StreamingSheetReader implements Iterable<Row> {
                     log.warn("Failed to find correct sheet index; defaulting to zero");
                     sheetIndex = 0;
                   }
-                  Ptg[] ptgs = FormulaParser.parse(sf.getFormula(), evaluationWorkbook, FormulaType.CELL, sheetIndex, currentRow.getRowNum());
-                  String shiftedFmla = null;
-                  final int rowsToMove = currentRowNum - sf.getCellAddress().getRow();
-                  FormulaShifter formulaShifter = FormulaShifter.createForRowShift(sheetIndex, sheet.getSheetName(),
-                          0, SpreadsheetVersion.EXCEL2007.getLastRowIndex(), rowsToMove, SpreadsheetVersion.EXCEL2007);
-                  if (formulaShifter.adjustFormula(ptgs, sheetIndex)) {
-                    shiftedFmla = FormulaRenderer.toFormulaString(evaluationWorkbook, ptgs);
+                  try {
+                    Ptg[] ptgs = FormulaParser.parse(sf.getFormula(), evaluationWorkbook, FormulaType.CELL, sheetIndex, currentRow.getRowNum());
+                    String shiftedFmla = null;
+                    final int rowsToMove = currentRowNum - sf.getCellAddress().getRow();
+                    FormulaShifter formulaShifter = FormulaShifter.createForRowShift(sheetIndex, sheet.getSheetName(),
+                            0, SpreadsheetVersion.EXCEL2007.getLastRowIndex(), rowsToMove, SpreadsheetVersion.EXCEL2007);
+                    if (formulaShifter.adjustFormula(ptgs, sheetIndex)) {
+                      shiftedFmla = FormulaRenderer.toFormulaString(evaluationWorkbook, ptgs);
+                    }
+                    log.debug("cell {} should have formula {} based on shared formula {} (rowsToMove={})",
+                            currentCell.getAddress(), shiftedFmla, sf.getFormula(), rowsToMove);
+                    currentCell.setFormula(shiftedFmla);
+                  } catch (Exception e) {
+                    log.warn("cell {} should has a shared formula but excel-streaming-reader has an issue parsing it - will ignore the formula",
+                            currentCell.getAddress(), e);
                   }
-                  log.debug("cell {} should have formula {} based on shared formula {} (rowsToMove={})",
-                          currentCell.getAddress(), shiftedFmla, sf.getFormula(), rowsToMove);
-                  currentCell.setFormula(shiftedFmla);
                 }
               }
             } else {
