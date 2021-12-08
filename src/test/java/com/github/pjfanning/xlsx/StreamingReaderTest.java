@@ -1229,6 +1229,27 @@ public class StreamingReaderTest {
     testReadSharedFormulasDisabled(StreamingReader.builder().setReadSharedFormulas(false));
   }
 
+  @Test
+  public void testReadSharedFormulasStrictFomat() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/sharedformula-strict-format.xlsx");
+            Workbook wb = StreamingReader.builder().setReadSharedFormulas(true)
+                    .open(inputStream)
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+      for (Row row : sheet) {
+        for (Cell cell : row) {
+          if (cell.getCellType() == FORMULA) {
+            assertNotNull(cell.getCellFormula());
+          }
+          if ("B10".equals(cell.getAddress().formatAsString())) {
+            assertEquals("abc", cell.getStringCellValue());
+            assertEquals("_xlfn.SINGLE(IFERROR(A10,\"Error!\"))", cell.getCellFormula());
+          }
+        }
+      }
+    }
+  }
 
   private void testReadSharedFormulasDisabled(StreamingReader.Builder builder) throws Exception {
     try (

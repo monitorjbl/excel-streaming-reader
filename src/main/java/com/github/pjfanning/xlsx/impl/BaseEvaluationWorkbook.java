@@ -4,6 +4,7 @@ import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.*;
 import org.apache.poi.ss.formula.functions.FreeRefFunction;
 import org.apache.poi.ss.formula.ptg.*;
+import org.apache.poi.ss.formula.udf.AggregatingUDFFinder;
 import org.apache.poi.ss.formula.udf.IndexedUDFFinder;
 import org.apache.poi.ss.formula.udf.UDFFinder;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -20,6 +21,12 @@ import org.apache.poi.xssf.usermodel.XSSFTable;
  */
 @Internal
 abstract class BaseEvaluationWorkbook implements FormulaRenderingWorkbook, EvaluationWorkbook, FormulaParsingWorkbook {
+  /**
+   * The locator of user-defined functions.
+   * By default, includes functions from the Excel Analysis Toolpack
+   */
+  private final IndexedUDFFinder _udfFinder = new IndexedUDFFinder(AggregatingUDFFinder.DEFAULT);
+
   protected final Workbook _uBook;
 
   protected BaseEvaluationWorkbook(Workbook book) {
@@ -79,9 +86,9 @@ abstract class BaseEvaluationWorkbook implements FormulaRenderingWorkbook, Evalu
   }
 
   @Override
-  @NotImplemented
   public EvaluationName getName(String name, int sheetIndex) {
-    throw new IllegalStateException("EvaluationNames are not supported in excel-streaming-reader");
+    //EvaluationNames are not supported in excel-streaming-reader
+    return null;
   }
 
   @Override
@@ -224,9 +231,8 @@ abstract class BaseEvaluationWorkbook implements FormulaRenderingWorkbook, Evalu
   }
 
   @Override
-  @NotImplemented
-  public UDFFinder getUDFFinder(){
-    throw new IllegalStateException("UDFFinder is not supported in excel-streaming-reader");
+  public UDFFinder getUDFFinder() {
+    return _udfFinder;
   }
 
   @Override
