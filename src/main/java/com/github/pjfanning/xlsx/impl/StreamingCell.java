@@ -285,7 +285,7 @@ public class StreamingCell implements Cell {
    *
    * @return a formula for the cell
    * @throws IllegalStateException if the cell type returned by {@link #getCellType()} is not CELL_TYPE_FORMULA or
-   *                               if the cell has a formula that can't be evaluated
+   *                               if the cell has a shared formula that can't be evaluated
    */
   @Override
   public String getCellFormula() {
