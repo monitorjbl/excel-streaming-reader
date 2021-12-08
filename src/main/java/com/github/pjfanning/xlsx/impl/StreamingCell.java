@@ -284,14 +284,15 @@ public class StreamingCell implements Cell {
    * Return a formula for the cell, for example, <code>SUM(C4:E4)</code>
    *
    * @return a formula for the cell
-   * @throws IllegalStateException if the cell type returned by {@link #getCellType()} is not CELL_TYPE_FORMULA
+   * @throws IllegalStateException if the cell type returned by {@link #getCellType()} is not CELL_TYPE_FORMULA or
+   *                               if the cell has a formula that can't be evaluated
    */
   @Override
   public String getCellFormula() {
     if (!formulaType)
       throw new IllegalStateException("This cell does not have a formula");
     if ((formula == null || formula.isEmpty()) && sharedFormula)
-      throw new IllegalStateException("This cell has a shared formula and it seems setReadSharedFormulas has been set to false");
+      throw new IllegalStateException("This cell has a shared formula and it seems setReadSharedFormulas has been set to false or the formula can't be evaluated");
     return formula;
   }
 
