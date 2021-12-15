@@ -14,10 +14,8 @@ public class StreamingSheet implements Sheet {
 
   private final String name;
   private final StreamingSheetReader reader;
-  private final StreamingWorkbook workbook;
 
-  public StreamingSheet(StreamingWorkbook workbook, String name, StreamingSheetReader reader) {
-    this.workbook = workbook;
+  public StreamingSheet(String name, StreamingSheetReader reader) {
     this.name = name;
     this.reader = reader;
     reader.setSheet(this);
@@ -34,7 +32,7 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public Workbook getWorkbook() {
-    return workbook;
+    return reader.getWorkbook();
   }
 
   /**

@@ -356,7 +356,7 @@ public class StreamingSheetReader implements Iterable<Row> {
             if (!sharedFormulaMap.containsKey(currentCell.getFormulaSI()) && !formula.isEmpty()) {
               sharedFormulaMap.put(currentCell.getFormulaSI(), new SharedFormula(currentCell.getAddress(), formula));
             } else if (formula.isEmpty()) {
-              Workbook wb = streamingWorkbookReader.getWorkbook();
+              Workbook wb = getWorkbook();
               if (wb != null) {
                 SharedFormula sf = sharedFormulaMap.get(currentCell.getFormulaSI());
                 if (sf == null) {
@@ -364,7 +364,7 @@ public class StreamingSheetReader implements Iterable<Row> {
                 } else {
                   CurrentRowEvaluationWorkbook evaluationWorkbook =
                           new CurrentRowEvaluationWorkbook(wb, currentRow);
-                  int sheetIndex = streamingWorkbookReader.getWorkbook().getSheetIndex(sheet);
+                  int sheetIndex = wb.getSheetIndex(sheet);
                   if (sheetIndex < 0) {
                     log.warn("Failed to find correct sheet index; defaulting to zero");
                     sheetIndex = 0;
@@ -648,6 +648,10 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   StreamingReader.Builder getBuilder() {
     return streamingWorkbookReader.getBuilder();
+  }
+
+  Workbook getWorkbook() {
+    return streamingWorkbookReader.getWorkbook();
   }
 
   /**

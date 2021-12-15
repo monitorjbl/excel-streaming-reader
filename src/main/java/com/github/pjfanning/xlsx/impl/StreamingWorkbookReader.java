@@ -216,7 +216,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     for(PackagePart packagePart : sheetStreams.keySet()) {
       XMLEventReader parser = getXmlInputFactory().createXMLEventReader(sheetStreams.get(packagePart));
       sheets.add(new StreamingSheet(
-              workbook,
               sheetProperties.get(i++).get("name"),
               new StreamingSheetReader(this, packagePart, sst, stylesTable,
                       sheetComments.get(packagePart), parser, use1904Dates, rowCacheSize)));
