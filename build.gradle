@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.github.pjfanning'
-version = '3.2.6'
+version = '3.2.7-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
