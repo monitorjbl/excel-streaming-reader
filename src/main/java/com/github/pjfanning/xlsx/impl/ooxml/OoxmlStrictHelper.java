@@ -34,6 +34,7 @@ public class OoxmlStrictHelper {
             //continue
           }
         }
+        //remove newPart as part of https://github.com/pjfanning/excel-streaming-reader/issues/88
         PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);
@@ -62,12 +63,10 @@ public class OoxmlStrictHelper {
             //continue
           }
         }
-        PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
-          newPart.load(is);
-          return new StylesTable(newPart);
-        } finally {
-          newPart.close();
+          StylesTable stylesTable = new StylesTable();
+          stylesTable.readFrom(is);
+          return stylesTable;
         }
       }
     }
