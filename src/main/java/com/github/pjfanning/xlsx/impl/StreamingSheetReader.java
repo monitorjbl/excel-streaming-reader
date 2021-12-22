@@ -23,7 +23,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.model.Comments;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   private final StreamingWorkbookReader streamingWorkbookReader;
   private final PackagePart packagePart;
-  private final SharedStringsTable sst;
+  private final SharedStrings sst;
   private final StylesTable stylesTable;
   private final Comments commentsTable;
   private final XMLEventReader parser;
@@ -76,7 +76,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   StreamingSheetReader(StreamingWorkbookReader streamingWorkbookReader,
                        PackagePart packagePart,
-                       SharedStringsTable sst, StylesTable stylesTable, Comments commentsTable,
+                       SharedStrings sst, StylesTable stylesTable, Comments commentsTable,
                        XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
     this.streamingWorkbookReader = streamingWorkbookReader;
     this.packagePart = packagePart;

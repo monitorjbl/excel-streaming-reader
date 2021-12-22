@@ -34,6 +34,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +53,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
   private final Builder builder;
   private File tmp;
   private OPCPackage pkg;
-  private SharedStringsTable sst;
+  private SharedStrings sst;
   private boolean use1904Dates = false;
   private StreamingWorkbook workbook = null;
   private POIXMLProperties.CoreProperties coreProperties = null;
@@ -187,7 +188,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     return workbook;
   }
 
-  void loadSheets(OoxmlReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
+  void loadSheets(OoxmlReader reader, SharedStrings sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
       XMLStreamException {
     lookupSheetNames(reader);
 
@@ -272,8 +273,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
         }
         tmp.delete();
       }
-      if(sst != null) {
-        sst.close();
+      if(sst instanceof Closeable) {
+        ((Closeable)sst).close();
       }
     }
   }
