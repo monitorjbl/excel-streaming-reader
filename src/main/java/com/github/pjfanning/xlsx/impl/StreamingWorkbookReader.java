@@ -251,6 +251,11 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     return new StreamingSheetIterator(sheets.iterator());
   }
 
+  @Override
+  public Spliterator<Sheet> spliterator() {
+    return Spliterators.spliterator(sheets, Spliterator.ORDERED);
+  }
+
   /**
    * {@inheritDoc}
    */

@@ -3,9 +3,7 @@ package com.github.pjfanning.xlsx.impl;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import org.apache.poi.ss.usermodel.*;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class StreamingRow implements Row {
   private final Sheet sheet;
@@ -54,6 +52,11 @@ public class StreamingRow implements Row {
   @Override
   public Iterator<Cell> iterator() {
     return cellMap.values().iterator();
+  }
+
+  @Override
+  public Spliterator<Cell> spliterator() {
+    return Spliterators.spliterator(cellMap.values(), Spliterator.ORDERED);
   }
 
   @Override

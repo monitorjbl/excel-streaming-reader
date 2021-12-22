@@ -12,10 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFPictureData;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseable {
@@ -53,6 +50,11 @@ public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseab
   @Override
   public Iterator<Sheet> sheetIterator() {
     return iterator();
+  }
+
+  @Override
+  public Spliterator<Sheet> spliterator() {
+    return reader.spliterator();
   }
 
   /**
