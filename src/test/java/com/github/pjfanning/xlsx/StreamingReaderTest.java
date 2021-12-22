@@ -929,6 +929,43 @@ public class StreamingReaderTest {
         assertEquals(expected.get(i), value);
       }
 
+      assertEquals("1976-09-06T00:00", currentRow.getCell(3).getLocalDateTimeCellValue().toString());
+    }
+  }
+
+  @Test
+  public void testReadFileWithoutStyles() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
+            Workbook wb = StreamingReader.builder()
+                    .setReadStyles(false)
+                    .open(inputStream)
+    ) {
+      DataFormatter formatter = new DataFormatter();
+
+      Sheet sheet = wb.getSheet("Sheet0");
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      assertTrue(rowIterator.hasNext());
+      // header
+      Row currentRow = rowIterator.next();
+      assertTrue(rowIterator.hasNext());
+      currentRow = rowIterator.next();
+
+      List<String> expected = Arrays.asList(new String[]{
+              "10002.0", "John", "Doe", "28009.0", "1", "NORMAL", "NORMAL", "CUSTOMER", "Customer",
+              "NOT_CONFIRMED", "94.0", "2.0", "FALSE()"
+      });
+
+      for (int i = 0; i < currentRow.getLastCellNum(); i++) {
+        Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        String value = formatter.formatCellValue(cell);
+
+        assertEquals(expected.get(i), value);
+      }
+
+      assertEquals("1976-09-06T00:00", currentRow.getCell(3).getLocalDateTimeCellValue().toString());
     }
   }
 

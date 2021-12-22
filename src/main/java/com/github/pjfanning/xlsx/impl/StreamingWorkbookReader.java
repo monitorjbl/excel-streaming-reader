@@ -144,10 +144,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     if (strictFormat) {
       log.info("file is in strict OOXML format");
     }
-    if(builder.useSstTempFile()) {
+    if (builder.useSstTempFile()) {
       log.debug("Created sst cache file");
       sst = new TempFileSharedStringsTable(pkg, builder.encryptSstTempFile(), builder.fullFormatRichText());
-    } else if(strictFormat) {
+    } else if (strictFormat) {
       sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);
     } else {
       sst = reader.getSharedStringsTable();
@@ -162,13 +162,15 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       }
     }
 
-    StylesTable styles;
-    if(strictFormat) {
-      ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
-      styles = OoxmlStrictHelper.getStylesTable(builder, pkg);
-      styles.setTheme(themesTable);
-    } else {
-      styles = reader.getStylesTable();
+    StylesTable styles = null;
+    if (builder.readStyles()) {
+      if (strictFormat) {
+        ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
+        styles = OoxmlStrictHelper.getStylesTable(builder, pkg);
+        styles.setTheme(themesTable);
+      } else {
+        styles = reader.getStylesTable();
+      }
     }
 
     use1904Dates = WorkbookUtil.use1904Dates(reader);
