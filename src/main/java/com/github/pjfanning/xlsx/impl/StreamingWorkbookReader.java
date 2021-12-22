@@ -9,7 +9,6 @@ import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.exceptions.ReadException;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlStrictHelper;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlReader;
-import com.github.pjfanning.xlsx.impl.ooxml.ResourceWithTrackedCloseable;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -22,7 +21,6 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Date1904Support;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.util.Internal;
 import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFShape;
@@ -58,7 +56,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
   private boolean use1904Dates = false;
   private StreamingWorkbook workbook = null;
   private POIXMLProperties.CoreProperties coreProperties = null;
-  private final List<ResourceWithTrackedCloseable<?>> trackedCloseables = new ArrayList<>();
 
   public StreamingWorkbookReader(Builder builder) {
     this.sheets = new ArrayList<>();
@@ -167,10 +164,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
     StylesTable styles;
     if(strictFormat) {
-      ResourceWithTrackedCloseable<ThemesTable> themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
-      ResourceWithTrackedCloseable<StylesTable> stylesTable = OoxmlStrictHelper.getStylesTable(builder, pkg);
-      styles = stylesTable.getResource();
-      styles.setTheme(themesTable.getResource());
+      ThemesTable themesTable = OoxmlStrictHelper.getThemesTable(builder, pkg);
+      styles = OoxmlStrictHelper.getStylesTable(builder, pkg);
+      styles.setTheme(themesTable);
     } else {
       styles = reader.getStylesTable();
     }
@@ -277,9 +273,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       if(sst != null) {
         sst.close();
       }
-      for(ResourceWithTrackedCloseable<?> trackedCloseable : trackedCloseables) {
-        trackedCloseable.close();
-      }
     }
   }
 
@@ -305,15 +298,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       }
     }
     return xmlInputFactory;
-  }
-
-  /**
-   * Internal use only. To track resources that should be closed when this reader instance is closed.
-   * @param trackedCloseable resource to close (later)
-   */
-  @Internal
-  public void addTrackableCloseable(ResourceWithTrackedCloseable<?> trackedCloseable) {
-    this.trackedCloseables.add(trackedCloseable);
   }
 
   static class StreamingSheetIterator implements Iterator<Sheet> {

@@ -17,7 +17,7 @@ import java.io.*;
 import java.util.List;
 
 public class OoxmlStrictHelper {
-  public static ResourceWithTrackedCloseable<ThemesTable> getThemesTable(StreamingReader.Builder builder, OPCPackage pkg)
+  public static ThemesTable getThemesTable(StreamingReader.Builder builder, OPCPackage pkg)
           throws IOException, XMLStreamException, InvalidFormatException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.THEME.getContentType());
     if (parts.isEmpty()) {
@@ -37,13 +37,15 @@ public class OoxmlStrictHelper {
         PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);
+          return new ThemesTable(newPart);
+        } finally {
+          newPart.close();
         }
-        return new ResourceWithTrackedCloseable(new ThemesTable(newPart), () -> newPart.close() );
       }
     }
   }
 
-  public static ResourceWithTrackedCloseable<StylesTable> getStylesTable(StreamingReader.Builder builder, OPCPackage pkg)
+  public static StylesTable getStylesTable(StreamingReader.Builder builder, OPCPackage pkg)
           throws IOException, XMLStreamException, InvalidFormatException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
     if (parts.isEmpty()) {
@@ -63,8 +65,10 @@ public class OoxmlStrictHelper {
         PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);
+          return new StylesTable(newPart);
+        } finally {
+          newPart.close();
         }
-        return new ResourceWithTrackedCloseable(new StylesTable(newPart), () -> newPart.close() );
       }
     }
   }
@@ -88,22 +92,15 @@ public class OoxmlStrictHelper {
         PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
           newPart.load(is);
+          return new SharedStringsTable(newPart);
+        } finally {
+          newPart.close();
         }
-        return new SharedStringsTable(newPart) {
-          @Override
-          public void close() throws IOException {
-            try {
-              super.close();
-            } finally {
-              newPart.close();
-            }
-          }
-        };
       }
     }
   }
 
-  public static ResourceWithTrackedCloseable getCommentsTable(StreamingReader.Builder builder, PackagePart part)
+  public static CommentsTable getCommentsTable(StreamingReader.Builder builder, PackagePart part)
           throws IOException, XMLStreamException, InvalidFormatException {
     try(TempDataStore tempData = createTempDataStore(builder)) {
       try(
@@ -118,8 +115,10 @@ public class OoxmlStrictHelper {
       PackagePart newPart = createTempPackagePart(builder, part.getPackage(), part);
       try(InputStream is = tempData.getInputStream()) {
         newPart.load(is);
+        return new CommentsTable(newPart);
+      } finally {
+        newPart.close();
       }
-      return new ResourceWithTrackedCloseable(new CommentsTable(newPart), () -> newPart.close() );
     }
   }
 

@@ -189,10 +189,7 @@ public class OoxmlReader extends XSSFReader {
           return ct;
         }
       } else if (strictOoxmlChecksNeeded) {
-        ResourceWithTrackedCloseable<CommentsTable> trackableResource =
-                OoxmlStrictHelper.getCommentsTable(builder, commentsPart);
-        streamingWorkbookReader.addTrackableCloseable(trackableResource);
-        return trackableResource.getResource();
+        return OoxmlStrictHelper.getCommentsTable(builder, commentsPart);
       } else {
         return new CommentsTable(commentsPart);
       }
