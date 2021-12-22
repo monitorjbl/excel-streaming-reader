@@ -564,6 +564,19 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testSheetSpliterator() throws Exception {
+    File f = new File("src/test/resources/leadingZeroes.xlsx");
+    try (Workbook wb = StreamingReader.builder().open(f)) {
+      Spliterator<Sheet> sheetSpliterator = wb.spliterator();
+      assertEquals(1, sheetSpliterator.getExactSizeIfKnown());
+      List<String> names = new ArrayList<>();
+      sheetSpliterator.tryAdvance(s -> names.add(s.getSheetName()));
+      assertEquals(1, names.size());
+      assertEquals("TestSheet1", names.get(0));
+    }
+  }
+
+      @Test
   public void testReadingEmptyFile() throws Exception {
     File f = new File("src/test/resources/empty_sheet.xlsx");
 
@@ -1354,6 +1367,13 @@ public class StreamingReaderTest {
       assertEquals(comment10.toString(), cellA2Comment.toString());
       assertEquals(comment10.getAddress(), cellA2Comment.getAddress());
       assertEquals(comment10.getAuthor(), cellA2Comment.getAuthor());
+
+      Spliterator<Cell> cellSpliterator = secondRow.spliterator();
+      assertEquals(1, cellSpliterator.getExactSizeIfKnown());
+      List<Cell> cells = new ArrayList<>();
+      cellSpliterator.tryAdvance(c -> cells.add(c));
+      assertEquals(1, cells.size());
+      assertEquals(cellA2, cells.get(0));
     }
   }
 
