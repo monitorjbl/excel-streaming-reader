@@ -89,12 +89,10 @@ public class OoxmlStrictHelper {
             //continue
           }
         }
-        PackagePart newPart = createTempPackagePart(builder, pkg, part);
         try(InputStream is = tempData.getInputStream()) {
-          newPart.load(is);
-          return new SharedStringsTable(newPart);
-        } finally {
-          newPart.close();
+          SharedStringsTable sst = new SharedStringsTable();
+          sst.readFrom(is);
+          return sst;
         }
       }
     }
@@ -112,12 +110,10 @@ public class OoxmlStrictHelper {
           //continue
         }
       }
-      PackagePart newPart = createTempPackagePart(builder, part.getPackage(), part);
       try(InputStream is = tempData.getInputStream()) {
-        newPart.load(is);
-        return new CommentsTable(newPart);
-      } finally {
-        newPart.close();
+        CommentsTable commentsTable = new CommentsTable();
+        commentsTable.readFrom(is);
+        return commentsTable;
       }
     }
   }
