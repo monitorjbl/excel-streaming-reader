@@ -22,9 +22,6 @@ import java.util.*;
 import static org.apache.poi.ss.usermodel.CellType.*;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.RETURN_BLANK_AS_NULL;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class StreamingReaderTest {
@@ -582,7 +579,7 @@ public class StreamingReaderTest {
 
     try (Workbook wb = StreamingReader.builder().open(f)) {
       Iterator<Row> iter = wb.getSheetAt(0).iterator();
-      assertThat(iter.hasNext(), is(false));
+      assertFalse("iter hasNext", iter.hasNext());
     }
   }
 
@@ -604,26 +601,26 @@ public class StreamingReaderTest {
 
     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 
-    assertThat(contents.size(), equalTo(2));
-    assertThat(contents.get(0).size(), equalTo(4));
-    assertThat(contents.get(0).get(0).getStringCellValue(), equalTo("Thu\", \"Dec 25\", \"14"));
-    assertThat(contents.get(0).get(0).getDateCellValue(), equalTo(df.parse("25/12/2014")));
-    assertThat(contents.get(0).get(1).getStringCellValue(), equalTo("02/04/15"));
-    assertThat(contents.get(0).get(1).getDateCellValue(), equalTo(df.parse("04/02/2015")));
-    assertThat(contents.get(0).get(2).getStringCellValue(), equalTo("14\". \"Mar\". \"2015"));
-    assertThat(contents.get(0).get(2).getDateCellValue(), equalTo(df.parse("14/03/2015")));
-    assertThat(contents.get(0).get(3).getStringCellValue(), equalTo("2015-05-05"));
-    assertThat(contents.get(0).get(3).getDateCellValue(), equalTo(df.parse("05/05/2015")));
+    assertEquals(2, contents.size());
+    assertEquals(4, contents.get(0).size());
+    assertEquals("Thu\", \"Dec 25\", \"14", contents.get(0).get(0).getStringCellValue());
+    assertEquals(df.parse("25/12/2014"), contents.get(0).get(0).getDateCellValue());
+    assertEquals("02/04/15", contents.get(0).get(1).getStringCellValue());
+    assertEquals(df.parse("04/02/2015"), contents.get(0).get(1).getDateCellValue());
+    assertEquals("14\". \"Mar\". \"2015", contents.get(0).get(2).getStringCellValue());
+    assertEquals(df.parse("14/03/2015"), contents.get(0).get(2).getDateCellValue());
+    assertEquals("2015-05-05", contents.get(0).get(3).getStringCellValue());
+    assertEquals(df.parse("05/05/2015"), contents.get(0).get(3).getDateCellValue());
 
-    assertThat(contents.get(1).size(), equalTo(4));
-    assertThat(contents.get(1).get(0).getStringCellValue(), equalTo("3.12"));
-    assertThat(contents.get(1).get(0).getNumericCellValue(), equalTo(3.12312312312));
-    assertThat(contents.get(1).get(1).getStringCellValue(), equalTo("1,023,042"));
-    assertThat(contents.get(1).get(1).getNumericCellValue(), equalTo(1023042.0));
-    assertThat(contents.get(1).get(2).getStringCellValue(), equalTo("-312,231.12"));
-    assertThat(contents.get(1).get(2).getNumericCellValue(), equalTo(-312231.12123145));
-    assertThat(contents.get(1).get(3).getStringCellValue(), equalTo("(132)"));
-    assertThat(contents.get(1).get(3).getNumericCellValue(), equalTo(-132.0));
+    assertEquals(4, contents.get(1).size());
+    assertEquals("3.12", contents.get(1).get(0).getStringCellValue());
+    assertEquals(3.12312312312, contents.get(1).get(0).getNumericCellValue(), 0.0);
+    assertEquals("1,023,042", contents.get(1).get(1).getStringCellValue());
+    assertEquals(1023042.0, contents.get(1).get(1).getNumericCellValue(), 0.0);
+    assertEquals("-312,231.12", contents.get(1).get(2).getStringCellValue());
+    assertEquals(-312231.12123145, contents.get(1).get(2).getNumericCellValue(), 0.0);
+    assertEquals("(132)", contents.get(1).get(3).getStringCellValue());
+    assertEquals(-132.0, contents.get(1).get(3).getNumericCellValue(),0.0);
   }
 
   @Test
@@ -807,7 +804,7 @@ public class StreamingReaderTest {
       Row row = wb.getSheetAt(0).iterator().next();
       assertEquals("B1 is Null ->", row.getCell(0, CREATE_NULL_AS_BLANK).getStringCellValue()); //Remain unchanged
       assertEquals("B1 is Null ->", row.getCell(0, CREATE_NULL_AS_BLANK).getRichStringCellValue().getString()); //Remain unchanged
-      assertThat(row.getCell(1), is(nullValue()));
+      assertNull(row.getCell(1));
       assertNotNull(row.getCell(1, CREATE_NULL_AS_BLANK));
     }
   }
@@ -845,7 +842,7 @@ public class StreamingReaderTest {
         }
       }
       assertNotNull(cell);
-      assertThat(cell.getCellType(), is(CellType.NUMERIC));
+      assertEquals(CellType.NUMERIC, cell.getCellType());
     }
   }
 
@@ -861,25 +858,25 @@ public class StreamingReaderTest {
       Row next = rowIterator.next();
       Cell cell = next.getCell(0);
 
-      assertThat(cell.getCellType(), is(CellType.STRING));
+      assertEquals(CellType.STRING, cell.getCellType());
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
-      assertThat(cell.getCellType(), is(CellType.FORMULA));
-      assertThat(cell.getCachedFormulaResultType(), is(CellType.STRING));
+      assertEquals(CellType.FORMULA, cell.getCellType());
+      assertEquals(CellType.STRING, cell.getCachedFormulaResultType());
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
-      assertThat(cell.getCellType(), is(CellType.FORMULA));
-      assertThat(cell.getCachedFormulaResultType(), is(CellType.BOOLEAN));
+      assertEquals(CellType.FORMULA, cell.getCellType());
+      assertEquals(CellType.BOOLEAN, cell.getCachedFormulaResultType());
 
       next = rowIterator.next();
       cell = next.getCell(0);
 
-      assertThat(cell.getCellType(), is(CellType.FORMULA));
-      assertThat(cell.getCachedFormulaResultType(), is(CellType.NUMERIC));
+      assertEquals(CellType.FORMULA, cell.getCellType());
+      assertEquals(CellType.NUMERIC, cell.getCachedFormulaResultType());
     }
   }
 
@@ -897,53 +894,22 @@ public class StreamingReaderTest {
       Iterator<Row> rowIterator = sheet.rowIterator();
       Row row = rowIterator.next();
 
-      assertThat(row.getCell(0).getStringCellValue(), is("sparse"));
-      assertThat(row.getCell(3).getStringCellValue(), is("columns"));
-      assertThat(row.getCell(4).getNumericCellValue(), is(0.0));
-      assertThat(row.getCell(5).getNumericCellValue(), is(1.0));
+      assertEquals("sparse", row.getCell(0).getStringCellValue());
+      assertEquals("columns", row.getCell(3).getStringCellValue());
+      assertEquals(0.0, row.getCell(4).getNumericCellValue(), 0.0);
+      assertEquals(1.0, row.getCell(5).getNumericCellValue(), 0.0);
 
     }
   }
 
   @Test
   public void testReadFile() throws Exception {
-    try (
-            InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
-            Workbook wb = StreamingReader.builder().open(inputStream)
-    ) {
-      try {
-        ((StreamingWorkbook) wb).getCoreProperties();
-        fail("expected getCoreProperties to fail with IllegalStateException");
-      } catch (IllegalStateException ise) {
-        //expected
-      }
+    testReadFile(false);
+  }
 
-      DataFormatter formatter = new DataFormatter();
-
-      Sheet sheet = wb.getSheet("Sheet0");
-      Iterator<Row> rowIterator = sheet.rowIterator();
-
-      assertTrue(rowIterator.hasNext());
-      // header
-      Row currentRow = rowIterator.next();
-      assertTrue(rowIterator.hasNext());
-      currentRow = rowIterator.next();
-
-      List<String> expected = Arrays.asList(new String[]{
-              "10002", "John", "Doe", "06/09/1976", "1", "NORMAL", "NORMAL", "CUSTOMER", "Customer",
-              "NOT_CONFIRMED", "94", "2", "FALSE()"
-      });
-
-      for (int i = 0; i < currentRow.getLastCellNum(); i++) {
-        Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-
-        String value = formatter.formatCellValue(cell);
-
-        assertEquals(expected.get(i), value);
-      }
-
-      assertEquals("1976-09-06T00:00", currentRow.getCell(3).getLocalDateTimeCellValue().toString());
-    }
+  @Test
+  public void testReadFileWithReadOnlySst() throws Exception {
+    testReadFile(true);
   }
 
   @Test
@@ -1447,6 +1413,48 @@ public class StreamingReaderTest {
       RichTextString richTextString = sheet2.getCellComment(new CellAddress("A1")).getString();
       assertEquals("date", richTextString.getString());
       assertEquals(0, richTextString.numFormattingRuns());
+    }
+  }
+
+  private void testReadFile(boolean useReadOnlySst) throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
+            Workbook wb = StreamingReader.builder()
+                    .setUseSstReadOnly(useReadOnlySst)
+                    .open(inputStream)
+    ) {
+      try {
+        ((StreamingWorkbook) wb).getCoreProperties();
+        fail("expected getCoreProperties to fail with IllegalStateException");
+      } catch (IllegalStateException ise) {
+        //expected
+      }
+
+      DataFormatter formatter = new DataFormatter();
+
+      Sheet sheet = wb.getSheet("Sheet0");
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      assertTrue(rowIterator.hasNext());
+      // header
+      Row currentRow = rowIterator.next();
+      assertTrue(rowIterator.hasNext());
+      currentRow = rowIterator.next();
+
+      List<String> expected = Arrays.asList(new String[]{
+              "10002", "John", "Doe", "06/09/1976", "1", "NORMAL", "NORMAL", "CUSTOMER", "Customer",
+              "NOT_CONFIRMED", "94", "2", "FALSE()"
+      });
+
+      for (int i = 0; i < currentRow.getLastCellNum(); i++) {
+        Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+        String value = formatter.formatCellValue(cell);
+
+        assertEquals(expected.get(i), value);
+      }
+
+      assertEquals("1976-09-06T00:00", currentRow.getCell(3).getLocalDateTimeCellValue().toString());
     }
   }
 

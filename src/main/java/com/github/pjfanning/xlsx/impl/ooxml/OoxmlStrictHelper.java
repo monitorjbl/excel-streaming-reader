@@ -6,11 +6,10 @@ import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.openxml4j.opc.internal.MemoryPackagePart;
 import org.apache.poi.openxml4j.opc.internal.TempFilePackagePart;
-import org.apache.poi.xssf.model.CommentsTable;
-import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.model.ThemesTable;
+import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
+import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
+import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
@@ -74,7 +73,8 @@ public class OoxmlStrictHelper {
     }
   }
 
-  public static SharedStringsTable getSharedStringsTable(StreamingReader.Builder builder, OPCPackage pkg) throws IOException, XMLStreamException, InvalidFormatException {
+  public static SharedStrings getSharedStringsTable(StreamingReader.Builder builder, OPCPackage pkg)
+          throws IOException, XMLStreamException, SAXException, InvalidFormatException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
     if (parts.isEmpty()) {
       return null;
@@ -91,9 +91,19 @@ public class OoxmlStrictHelper {
           }
         }
         try(InputStream is = tempData.getInputStream()) {
-          SharedStringsTable sst = new SharedStringsTable();
-          sst.readFrom(is);
-          return sst;
+          if (builder.useSstReadOnly()) {
+            PackagePart newPart = createTempPackagePart(builder, pkg, part);
+            try {
+              newPart.load(is);
+              return new ReadOnlySharedStringsTable(newPart);
+            } finally {
+              newPart.close();
+            }
+          } else {
+            SharedStringsTable sst = new SharedStringsTable();
+            sst.readFrom(is);
+            return sst;
+          }
         }
       }
     }

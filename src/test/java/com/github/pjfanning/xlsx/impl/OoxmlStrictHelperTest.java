@@ -4,7 +4,7 @@ import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.impl.ooxml.OoxmlStrictHelper;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.model.ThemesTable;
 import org.junit.Test;
@@ -47,10 +47,17 @@ public class OoxmlStrictHelperTest {
   public void testSharedStrings() throws Exception {
     StreamingReader.Builder builder1 = StreamingReader.builder().setAvoidTempFiles(false);
     StreamingReader.Builder builder2 = StreamingReader.builder().setAvoidTempFiles(true);
-    for (StreamingReader.Builder builder : new StreamingReader.Builder[]{builder1, builder2}) {
+    StreamingReader.Builder builder3 = StreamingReader.builder()
+            .setUseSstReadOnly(true)
+            .setAvoidTempFiles(false);
+    StreamingReader.Builder builder4 = StreamingReader.builder()
+            .setUseSstReadOnly(true)
+            .setAvoidTempFiles(true);
+    for (StreamingReader.Builder builder : new StreamingReader.Builder[]{builder1, builder2, builder3, builder4}) {
       try (OPCPackage pkg = OPCPackage.open(new File("src/test/resources/sample.strict.xlsx"), PackageAccess.READ)) {
-        SharedStringsTable sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);
+        SharedStrings sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);
         assertEquals("has right count", 15, sst.getUniqueCount());
+        assertEquals("has right count", 19, sst.getCount());
         assertEquals("ipsum", sst.getItemAt(1).getString());
       }
     }

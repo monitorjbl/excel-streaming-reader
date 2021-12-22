@@ -39,6 +39,7 @@ public class StreamingReader implements AutoCloseable {
     private int bufferSize = 1024;
     private boolean avoidTempFiles = false;
     private boolean useSstTempFile = false;
+    private boolean useSstReadOnly = false;
     private boolean encryptSstTempFile = false;
     private boolean useCommentsTempFile = false;
     private boolean encryptCommentsTempFile = false;
@@ -80,6 +81,18 @@ public class StreamingReader implements AutoCloseable {
      */
     public boolean useSstTempFile() {
       return useSstTempFile;
+    }
+
+    /**
+     * @return Whether to use {@link org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable} instead
+     * of {@link org.apache.poi.xssf.model.SharedStringsTable}. If you use {@link #setUseSstTempFile(boolean)}
+     * and set to `true`, then this setting is ignored.
+     *
+     * @see #useSstTempFile()
+     * @since v3.3.0
+     */
+    public boolean useSstReadOnly() {
+      return useSstReadOnly;
     }
 
     /**
@@ -152,6 +165,7 @@ public class StreamingReader implements AutoCloseable {
 
     /**
      * @return Whether to read the styles (associated with cells). Defaults to true.
+     * @since v3.3.0
      */
     public boolean readStyles() {
       return readStyles;
@@ -242,10 +256,29 @@ public class StreamingReader implements AutoCloseable {
      * @param useSstTempFile whether to use a temp file to store the Shared Strings Table data
      * @return reference to current {@code Builder}
      * @see #setEncryptSstTempFile(boolean)
-     * @see #setFullFormatRichText(boolean) 
+     * @see #setFullFormatRichText(boolean)
+     * @see #setUseSstReadOnly(boolean)
      */
     public Builder setUseSstTempFile(boolean useSstTempFile) {
       this.useSstTempFile = useSstTempFile;
+      return this;
+    }
+
+    /**
+     * If you use an in memory Shared String Table (default), this controls which in memory implementation to use.
+     * {@link org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable} is a simpler implementation than
+     * the default {@link org.apache.poi.xssf.model.SharedStringsTable} and uses less memory - but may not support formatted
+     * text as well.
+     *
+     * @param useSstReadOnly Whether to use {@link org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable} instead
+     *                       of {@link org.apache.poi.xssf.model.SharedStringsTable}. If you use {@link #setUseSstTempFile(boolean)}
+     *                       and set to <code>true</code>, then this setting is ignored.
+     * @return reference to current {@code Builder}
+     * @see #setUseSstTempFile(boolean)
+     * @since v3.3.0
+     */
+    public Builder setUseSstReadOnly(boolean useSstReadOnly) {
+      this.useSstReadOnly = useSstReadOnly;
       return this;
     }
 
@@ -388,6 +421,7 @@ public class StreamingReader implements AutoCloseable {
      *
      * @param readStyles Whether to read the styles (associated with cells)
      * @return reference to current {@code Builder}
+     * @since v3.3.0
      */
     public Builder setReadStyles(boolean readStyles) {
       this.readStyles = readStyles;

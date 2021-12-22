@@ -151,7 +151,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     } else if (strictFormat) {
       sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);
     } else {
-      sst = reader.getSharedStringsTable();
+      sst = reader.getSharedStrings(builder);
     }
 
     if (builder.readCoreProperties()) {

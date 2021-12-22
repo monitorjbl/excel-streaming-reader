@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.OpenException;
+import com.github.pjfanning.xlsx.exceptions.ParseException;
 import com.github.pjfanning.xlsx.impl.XlsxPictureData;
 import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
@@ -12,6 +13,7 @@ import org.apache.poi.xssf.usermodel.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -355,6 +357,26 @@ public class StreamingWorkbookTest {
   public void testEntityExpansion() throws Exception {
     ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
       try(Workbook workbook = openWorkbook("entity-expansion-exploit-poc-file.xlsx")) {
+        Sheet sheet = workbook.getSheetAt(0);
+        for(Row row : sheet) {
+          for(Cell cell : row) {
+            System.out.println(cell.getStringCellValue());
+          }
+        }
+      } catch(IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    });
+  }
+
+  @Test(expected = ParseException.class)
+  public void testEntityExpansionWithReadOnlySst() throws Exception {
+    ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
+      try (
+              InputStream stream = getInputStream("entity-expansion-exploit-poc-file.xlsx");
+              Workbook workbook = StreamingReader.builder().setUseSstReadOnly(true)
+                      .open(stream)
+      ) {
         Sheet sheet = workbook.getSheetAt(0);
         for(Row row : sheet) {
           for(Cell cell : row) {

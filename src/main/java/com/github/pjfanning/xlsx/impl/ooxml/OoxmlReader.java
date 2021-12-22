@@ -24,6 +24,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.*;
 import org.apache.poi.util.Internal;
+import org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFDrawing;
@@ -32,6 +33,7 @@ import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.apache.xmlbeans.XmlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
@@ -92,9 +94,22 @@ public class OoxmlReader extends XSSFReader {
    * returns a handy object for working with
    * shared strings.
    */
+  @Override
   public SharedStringsTable getSharedStringsTable() throws IOException {
     ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
     return parts.size() == 0 ? null : new SharedStringsTable(parts.get(0));
+  }
+
+  /**
+   * Opens up the Shared Strings Table, parses it, and
+   * returns a handy object for working with
+   * shared strings.
+   */
+  public SharedStrings getSharedStrings(StreamingReader.Builder builder) throws IOException, SAXException {
+    ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
+    return parts.size() == 0 ? null :
+            builder.useSstReadOnly() ? new ReadOnlySharedStringsTable(parts.get(0)) :
+              new SharedStringsTable(parts.get(0));
   }
 
   /**
