@@ -176,7 +176,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
     use1904Dates = WorkbookUtil.use1904Dates(reader);
 
-    loadSheets(reader, sst, styles, builder.getRowCacheSize());
+    loadSheets(reader, sst, styles);
   }
 
   void setWorkbook(StreamingWorkbook workbook) {
@@ -188,8 +188,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     return workbook;
   }
 
-  void loadSheets(OoxmlReader reader, SharedStrings sst, StylesTable stylesTable, int rowCacheSize) throws IOException, InvalidFormatException,
-      XMLStreamException {
+  private void loadSheets(OoxmlReader reader, SharedStrings sst, StylesTable stylesTable)
+          throws IOException, InvalidFormatException, XMLStreamException {
     lookupSheetNames(reader);
 
     //Some workbooks have multiple references to the same sheet. Need to filter
@@ -217,11 +217,11 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       sheets.add(new StreamingSheet(
               sheetProperties.get(i++).get("name"),
               new StreamingSheetReader(this, packagePart, sst, stylesTable,
-                      sheetComments.get(packagePart), parser, use1904Dates, rowCacheSize)));
+                      sheetComments.get(packagePart), parser, use1904Dates, builder.getRowCacheSize())));
     }
   }
 
-  void lookupSheetNames(OoxmlReader reader) throws IOException, InvalidFormatException {
+  private void lookupSheetNames(OoxmlReader reader) throws IOException, InvalidFormatException {
     sheetProperties.clear();
     try {
       NodeList nl = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
