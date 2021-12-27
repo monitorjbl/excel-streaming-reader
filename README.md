@@ -12,7 +12,7 @@ This implementation supports [Apache POI](http://poi.apache.org) 5.x and only su
 This implementation has some extra features
 * OOXML Strict format support (see below)
 * More methods are implemented. Some require that features are enabled in the StreamingReader.Builder instance because they might have an additional overhead.
-* Check [Builder](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.1.6/com/github/pjfanning/xlsx/StreamingReader.Builder.html) implementation to see what options are available.
+* Check [Builder](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.3.0/com/github/pjfanning/xlsx/StreamingReader.Builder.html) implementation to see what options are available.
 
 ## Used By
 * [Apache Drill](https://drill.apache.org/)
@@ -28,7 +28,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>3.2.6</version>
+    <version>3.3.0</version>
   </dependency>
 </dependencies>  
 ```
@@ -88,6 +88,11 @@ try (
 ```
 
 You may access cells randomly within a row, as the entire row is cached. **However**, there is no way to randomly access rows. As this is a streaming implementation, only a small number of rows are kept in memory at any given time.
+
+## Javadocs
+
+* [latest](https://pjfanning.github.io/excel-streaming-reader/)
+* [v3.1.6](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.1.6/)
 
 ## Temp File Shared Strings
 
