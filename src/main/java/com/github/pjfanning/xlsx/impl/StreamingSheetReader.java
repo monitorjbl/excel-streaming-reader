@@ -562,7 +562,7 @@ public class StreamingSheetReader implements Iterable<Row> {
                           currentNumericFormatIndex,
                           currentNumericFormat);
                 } catch (Exception e) {
-                  log.warn("cannot format strict format date/time " + currentLastContents);
+                  log.warn("cannot format strict format date/time {}", currentLastContents);
                   cachedContent = currentLastContents;
                 }
               }

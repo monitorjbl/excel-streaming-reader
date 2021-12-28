@@ -228,7 +228,7 @@ public class OoxmlReader extends XSSFReader {
           PackagePart drawingsPart = sheetPkg.getPackage().getPart(drawingsName);
           if (drawingsPart == null) {
             //parts can go missing; Excel ignores them silently -- TIKA-2134
-            LOGGER.warn("Missing drawing: " + drawingsName + ". Skipping it.");
+            LOGGER.warn("Missing drawing: {}. Skipping it.", drawingsName);
             continue;
           }
           XSSFDrawing drawing = new XSSFDrawing(drawingsPart);

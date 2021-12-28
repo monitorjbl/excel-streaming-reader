@@ -90,7 +90,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       File f = null;
       try {
         f = TempFileUtil.writeInputStreamToFile(is, builder.getBufferSize());
-        log.debug("Created temp file [" + f.getAbsolutePath() + "]");
+        if (log.isDebugEnabled()) {
+          log.debug("Created temp file [{}]", f.getAbsolutePath());
+        }
         init(f);
         tmp = f;
       } catch(IOException e) {
@@ -274,7 +276,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     } finally {
       if(tmp != null) {
         if (log.isDebugEnabled()) {
-          log.debug("Deleting tmp file [" + tmp.getAbsolutePath() + "]");
+          log.debug("Deleting tmp file [{}]", tmp.getAbsolutePath());
         }
         tmp.delete();
       }
