@@ -96,13 +96,13 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
         init(f);
         tmp = f;
       } catch(IOException e) {
-        if (f != null) {
-          f.delete();
+        if(f !=null && !f.delete()) {
+          log.debug("failed to delete temp file");
         }
         throw new ReadException("Unable to read input stream", e);
       } catch(RuntimeException e) {
-        if (f != null) {
-          f.delete();
+        if(f !=null && !f.delete()) {
+          log.debug("failed to delete temp file");
         }
         throw e;
       }

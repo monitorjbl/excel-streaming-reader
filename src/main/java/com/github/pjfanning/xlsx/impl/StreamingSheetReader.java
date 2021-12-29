@@ -339,7 +339,11 @@ public class StreamingSheetReader implements Iterable<Row> {
         rowCache.add(currentRow);
         currentRowNum++;
       } else if("c".equals(tagLocalName)) {
-        currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
+        if (currentRow == null) {
+          log.warn("failed to add cell {} to cell map because currentRow is null", currentCell.getAddress().formatAsString());
+        } else {
+          currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
+        }
         currentCell = null;
         currentColNum++;
       } else if("is".equals(tagLocalName)) {
@@ -697,7 +701,9 @@ public class StreamingSheetReader implements Iterable<Row> {
   class StreamingRowIterator implements Iterator<Row> {
     public StreamingRowIterator() {
       if(rowCacheIterator == null) {
-        hasNext();
+        if(!hasNext()) {
+          log.debug("there appear to be no rows");
+        }
       }
     }
 
