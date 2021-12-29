@@ -22,7 +22,7 @@ public class StreamingReader implements AutoCloseable {
   /**
    * Closes the streaming resource, attempting to clean up any temporary files created.
    *
-   * @throws CloseException if there is an issue closing the stream
+   * @throws com.github.pjfanning.xlsx.exceptions.CloseException if there is an issue closing the stream
    */
   @Override
   public void close() throws IOException {
@@ -450,7 +450,7 @@ public class StreamingReader implements AutoCloseable {
      *
      * @param is input stream to read in
      * @return A {@link Workbook} that can be read from
-     * @throws ReadException if there is an issue reading the stream
+     * @throws com.github.pjfanning.xlsx.exceptions.ReadException if there is an issue reading the stream
      */
     public Workbook open(InputStream is) {
       StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
@@ -464,8 +464,8 @@ public class StreamingReader implements AutoCloseable {
      *
      * @param file file to read in
      * @return built streaming reader instance
-     * @throws OpenException if there is an issue opening the file
-     * @throws ReadException if there is an issue reading the file
+     * @throws com.github.pjfanning.xlsx.exceptions.OpenException if there is an issue opening the file
+     * @throws com.github.pjfanning.xlsx.exceptions.ReadException if there is an issue reading the file
      */
     public Workbook open(File file) {
       StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
