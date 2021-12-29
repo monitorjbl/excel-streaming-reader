@@ -8,6 +8,8 @@ import java.util.Properties;
 @Beta
 public class OoXmlStrictConverterUtils {
 
+    private OoXmlStrictConverterUtils() {}
+
     public static boolean isBlank(final String str) {
         return str == null || str.trim().length() == 0;
     }

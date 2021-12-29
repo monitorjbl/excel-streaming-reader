@@ -12,6 +12,9 @@ import java.io.IOException;
 import static com.github.pjfanning.xlsx.XmlUtils.*;
 
 public class WorkbookUtil {
+
+  private WorkbookUtil() {}
+
   public static boolean use1904Dates(OoxmlReader reader) throws IOException, InvalidFormatException, ParserConfigurationException, SAXException {
     NodeList workbookPr = searchForNodeList(readDocument(reader.getWorkbookData()), "/ss:workbook/ss:workbookPr");
     if (workbookPr.getLength() == 1) {
