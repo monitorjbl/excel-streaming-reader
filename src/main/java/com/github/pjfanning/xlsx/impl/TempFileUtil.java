@@ -29,8 +29,8 @@ public class TempFileUtil {
         if(!f.delete()) {
           log.debug("failed to delete temp file");
         }
-      } catch (Throwable t) {
-        log.warn("Failed to delete temp file {}: {}", f.getAbsolutePath(), t.toString());
+      } catch (Exception fileException) {
+        log.warn("Failed to delete temp file {}: {}", f.getAbsolutePath(), fileException.toString());
       }
       throw e;
     } finally {

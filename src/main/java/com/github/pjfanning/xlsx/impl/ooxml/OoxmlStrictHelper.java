@@ -16,6 +16,9 @@ import java.io.*;
 import java.util.List;
 
 public class OoxmlStrictHelper {
+
+  private OoxmlStrictHelper() {}
+
   public static ThemesTable getThemesTable(StreamingReader.Builder builder, OPCPackage pkg)
           throws IOException, XMLStreamException, InvalidFormatException {
     List<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.THEME.getContentType());

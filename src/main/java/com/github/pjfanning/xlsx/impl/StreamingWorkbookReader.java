@@ -240,7 +240,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     }
   }
 
-  List<? extends Sheet> getSheets() {
+  List<StreamingSheet> getSheets() {
     return sheets;
   }
 

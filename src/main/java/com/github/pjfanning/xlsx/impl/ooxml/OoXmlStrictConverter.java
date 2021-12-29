@@ -218,9 +218,9 @@ public class OoXmlStrictConverter implements AutoCloseable {
         if (XIF == null) {
             try {
                 XIF = XMLHelper.newXMLInputFactory();
-            } catch (Throwable t) {
-                LOGGER.error("Issue creating XMLInputFactory", t);
-                throw t;
+            } catch (Exception e) {
+                LOGGER.error("Issue creating XMLInputFactory", e);
+                throw e;
             }
         }
         return XIF;
@@ -230,9 +230,9 @@ public class OoXmlStrictConverter implements AutoCloseable {
         if (XOF == null) {
             try {
                 XOF = XMLHelper.newXMLOutputFactory();
-            } catch (Throwable t) {
-                LOGGER.error("Issue creating XMLOutputFactory", t);
-                throw t;
+            } catch (Exception e) {
+                LOGGER.error("Issue creating XMLOutputFactory", e);
+                throw e;
             }
         }
         return XOF;
@@ -242,9 +242,9 @@ public class OoXmlStrictConverter implements AutoCloseable {
         if (XEF == null) {
             try {
                 XEF = XMLHelper.newXMLEventFactory();
-            } catch (Throwable t) {
-                LOGGER.error("Issue creating XMLEventFactory", t);
-                throw t;
+            } catch (Exception e) {
+                LOGGER.error("Issue creating XMLEventFactory", e);
+                throw e;
             }
         }
         return XEF;

@@ -6,6 +6,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 class DateTimeUtil {
+
+  private DateTimeUtil() {}
+
   static LocalDateTime parseDateTime(String dt) {
     try {
       return LocalDateTime.parse(dt);

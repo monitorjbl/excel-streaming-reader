@@ -52,7 +52,7 @@ public class XmlUtils {
   private static class NamespaceContextImpl implements NamespaceContext {
     private Map<String, String> urisByPrefix = new HashMap<>();
 
-    private Map<String, Set> prefixesByURI = new HashMap<>();
+    private Map<String, Set<String>> prefixesByURI = new HashMap<>();
 
     public NamespaceContextImpl() {
       addNamespace(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);

@@ -300,7 +300,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         String activeCellRef = getAttributeValue(activeCell);
         try {
           this.activeCell = new CellAddress(activeCellRef);
-        } catch (Throwable t) {
+        } catch (Exception e) {
           log.warn("unable to parse active cell reference {}", activeCellRef);
         }
       }
