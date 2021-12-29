@@ -2,7 +2,17 @@ plugins {
     id 'java-library'
     id 'signing'
     id 'maven-publish'
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id 'io.github.gradle-nexus.publish-plugin' version "1.1.0"
+    id 'org.cyclonedx.bom' version "1.4.1"
+    id 'org.sonarqube' version "3.3"
+}
+
+sonarqube {
+  properties {
+    property "sonar.projectKey", "pjfanning_excel-streaming-reader"
+    property "sonar.organization", "pjfanning"
+    property "sonar.host.url", "https://sonarcloud.io"
+  }
 }
 
 group = 'com.github.pjfanning'
