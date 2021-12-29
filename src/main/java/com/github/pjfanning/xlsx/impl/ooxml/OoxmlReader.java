@@ -115,6 +115,7 @@ public class OoxmlReader extends XSSFReader {
    * Opens up the Styles Table, parses it, and
    * returns a handy object for working with cell styles
    */
+  @Override
   public StylesTable getStylesTable() throws IOException, InvalidFormatException {
     ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
     if (parts.isEmpty()) return null;
@@ -135,6 +136,7 @@ public class OoxmlReader extends XSSFReader {
    * from the Iterator. It's up to you to close the
    * InputStreams when done with each one.
    */
+  @Override
   public OoxmlSheetIterator getSheetsData() throws IOException {
     return new OoxmlSheetIterator(workbookPart);
   }
@@ -193,31 +195,11 @@ public class OoxmlReader extends XSSFReader {
       return null;
     }
 
-    private Comments parseComments(StreamingReader.Builder builder, PackagePart commentsPart) throws IOException, XMLStreamException, InvalidFormatException {
-      if (builder.useCommentsTempFile()) {
-        try (InputStream is = commentsPart.getInputStream()) {
-          TempFileCommentsTable ct = new TempFileCommentsTable(
-                  builder.encryptCommentsTempFile(),
-                  builder.fullFormatRichText());
-          try {
-            ct.readFrom(is);
-          } catch (IOException|RuntimeException e) {
-            ct.close();
-            throw e;
-          }
-          return ct;
-        }
-      } else if (strictOoxmlChecksNeeded) {
-        return OoxmlStrictHelper.getCommentsTable(builder, commentsPart);
-      } else {
-        return new CommentsTable(commentsPart);
-      }
-    }
-
     /**
      * Returns the shapes associated with this sheet,
      * an empty list or null if there is an exception
      */
+    @Override
     public List<XSSFShape> getShapes() {
       PackagePart sheetPkg = getSheetPart();
       List<XSSFShape> shapes = new LinkedList<>();
@@ -243,6 +225,27 @@ public class OoxmlReader extends XSSFReader {
         return null;
       }
       return shapes;
+    }
+
+    private Comments parseComments(StreamingReader.Builder builder, PackagePart commentsPart) throws IOException, XMLStreamException, InvalidFormatException {
+      if (builder.useCommentsTempFile()) {
+        try (InputStream is = commentsPart.getInputStream()) {
+          TempFileCommentsTable ct = new TempFileCommentsTable(
+                  builder.encryptCommentsTempFile(),
+                  builder.fullFormatRichText());
+          try {
+            ct.readFrom(is);
+          } catch (IOException|RuntimeException e) {
+            ct.close();
+            throw e;
+          }
+          return ct;
+        }
+      } else if (strictOoxmlChecksNeeded) {
+        return OoxmlStrictHelper.getCommentsTable(builder, commentsPart);
+      } else {
+        return new CommentsTable(commentsPart);
+      }
     }
   }
 }

@@ -22,6 +22,6 @@ class TempMemoryDataStore implements TempDataStore {
 
   @Override
   public void close() throws IOException {
-    if (bos != null) bos.close();
+    bos.close();
   }
 }

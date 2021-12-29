@@ -259,7 +259,7 @@ public class StreamingReaderTest {
       assertNotNull(dt);
       final GregorianCalendar cal = new GregorianCalendar();
       cal.setTime(dt);
-      assertEquals(cal.get(Calendar.YEAR), 2014);
+      assertEquals(2014, cal.get(Calendar.YEAR));
 
       try {
         obj.get(0).get(0).getDateCellValue();
@@ -290,7 +290,7 @@ public class StreamingReaderTest {
       assertNotNull(dt);
       final GregorianCalendar cal = new GregorianCalendar();
       cal.setTime(dt);
-      assertEquals(cal.get(Calendar.YEAR), 1991);
+      assertEquals(1991, cal.get(Calendar.YEAR));
 
       try {
         obj.get(0).get(0).getDateCellValue();
