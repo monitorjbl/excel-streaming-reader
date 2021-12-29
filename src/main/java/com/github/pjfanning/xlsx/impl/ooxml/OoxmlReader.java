@@ -55,7 +55,6 @@ public class OoxmlReader extends XSSFReader {
                           XSSFRelation.MACRO_SHEET_BIN.getRelation())
           ));
 
-  protected PackagePart workbookPart;
   private final boolean strictOoxmlChecksNeeded;
   private final StreamingWorkbookReader streamingWorkbookReader;
 
@@ -200,7 +199,12 @@ public class OoxmlReader extends XSSFReader {
           TempFileCommentsTable ct = new TempFileCommentsTable(
                   builder.encryptCommentsTempFile(),
                   builder.fullFormatRichText());
-          ct.readFrom(is);
+          try {
+            ct.readFrom(is);
+          } catch (IOException|RuntimeException e) {
+            ct.close();
+            throw e;
+          }
           return ct;
         }
       } else if (strictOoxmlChecksNeeded) {

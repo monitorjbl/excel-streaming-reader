@@ -101,7 +101,12 @@ public class OoxmlStrictHelper {
             }
           } else {
             SharedStringsTable sst = new SharedStringsTable();
-            sst.readFrom(is);
+            try {
+              sst.readFrom(is);
+            } catch (IOException|RuntimeException e) {
+              sst.close();
+              throw e;
+            }
             return sst;
           }
         }
