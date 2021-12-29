@@ -214,12 +214,12 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
     //Iterate over the loaded streams
     int i = 0;
-    for(PackagePart packagePart : sheetStreams.keySet()) {
-      XMLEventReader parser = getXmlInputFactory().createXMLEventReader(sheetStreams.get(packagePart));
+    for(Map.Entry<PackagePart, InputStream> entry : sheetStreams.entrySet()) {
+      XMLEventReader parser = getXmlInputFactory().createXMLEventReader(entry.getValue());
       sheets.add(new StreamingSheet(
               sheetProperties.get(i++).get("name"),
-              new StreamingSheetReader(this, packagePart, sst, stylesTable,
-                      sheetComments.get(packagePart), parser, use1904Dates, builder.getRowCacheSize())));
+              new StreamingSheetReader(this, entry.getKey(), sst, stylesTable,
+                      sheetComments.get(entry.getKey()), parser, use1904Dates, builder.getRowCacheSize())));
     }
   }
 
@@ -278,7 +278,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
         if (log.isDebugEnabled()) {
           log.debug("Deleting tmp file [{}]", tmp.getAbsolutePath());
         }
-        tmp.delete();
+        if (!tmp.delete()) {
+          log.debug("Failed tp delete temp file");
+        }
       }
       if(sst instanceof Closeable) {
         ((Closeable)sst).close();
