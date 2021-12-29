@@ -12,6 +12,8 @@ import java.io.InputStream;
 public class TempFileUtil {
   private static final Logger log = LoggerFactory.getLogger(TempFileUtil.class);
 
+  private TempFileUtil() {}
+
   public static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
     if (is == null) throw new NullPointerException("InputStream is null");
     File f = TempFile.createTempFile("tmp-", ".xlsx");
