@@ -12,6 +12,8 @@ sonarqube {
     property "sonar.projectKey", "pjfanning_excel-streaming-reader"
     property "sonar.organization", "pjfanning"
     property "sonar.host.url", "https://sonarcloud.io"
+    // the plugin seems to not detect our non-standard build-layout
+    property "sonar.junit.reportPaths", "$projectDir/build/test-results/test"
   }
 }
 
