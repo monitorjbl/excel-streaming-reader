@@ -1,6 +1,5 @@
 package com.github.pjfanning.xlsx;
 
-import com.github.pjfanning.xlsx.exceptions.*;
 import com.github.pjfanning.xlsx.impl.*;
 import org.apache.poi.ss.usermodel.Workbook;
 

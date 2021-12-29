@@ -24,6 +24,8 @@ public class XmlUtils {
   public static final String FALSE_AS_STRING = "0";
   public static final String TRUE_AS_STRING  = "1";
 
+  private XmlUtils() {}
+
   public static Document readDocument(InputStream inp) throws IOException, SAXException, ParserConfigurationException {
     return DocumentHelper.readDocument(inp);
   }
@@ -48,9 +50,9 @@ public class XmlUtils {
   }
 
   private static class NamespaceContextImpl implements NamespaceContext {
-    private Map<String, String> urisByPrefix = new HashMap<String, String>();
+    private Map<String, String> urisByPrefix = new HashMap<>();
 
-    private Map<String, Set> prefixesByURI = new HashMap<String, Set>();
+    private Map<String, Set> prefixesByURI = new HashMap<>();
 
     public NamespaceContextImpl() {
       addNamespace(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
