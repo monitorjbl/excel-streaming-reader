@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 
 public class TempFileUtil {
   private static final Logger log = LoggerFactory.getLogger(TempFileUtil.class);
