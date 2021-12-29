@@ -84,7 +84,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public short getLastCellNum() {
-    return (short) (cellMap.size() == 0 ? -1 : cellMap.lastEntry().getValue().getColumnIndex() + 1);
+    return (short) (cellMap.isEmpty() ? -1 : cellMap.lastEntry().getValue().getColumnIndex() + 1);
   }
 
   /**
@@ -113,7 +113,7 @@ public class StreamingRow implements Row {
    */
   @Override
   public short getFirstCellNum() {
-    if(cellMap.size() == 0) {
+    if(cellMap.isEmpty()) {
       return -1;
     }
     return cellMap.firstKey().shortValue();

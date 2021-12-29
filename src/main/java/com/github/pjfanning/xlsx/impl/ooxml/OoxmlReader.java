@@ -97,7 +97,7 @@ public class OoxmlReader extends XSSFReader {
   @Override
   public SharedStringsTable getSharedStringsTable() throws IOException {
     ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
-    return parts.size() == 0 ? null : new SharedStringsTable(parts.get(0));
+    return parts.isEmpty() ? null : new SharedStringsTable(parts.get(0));
   }
 
   /**
@@ -107,7 +107,7 @@ public class OoxmlReader extends XSSFReader {
    */
   public SharedStrings getSharedStrings(StreamingReader.Builder builder) throws IOException, SAXException {
     ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
-    return parts.size() == 0 ? null :
+    return parts.isEmpty() ? null :
             builder.useSstReadOnly() ? new ReadOnlySharedStringsTable(parts.get(0)) :
               new SharedStringsTable(parts.get(0));
   }
@@ -118,12 +118,12 @@ public class OoxmlReader extends XSSFReader {
    */
   public StylesTable getStylesTable() throws IOException, InvalidFormatException {
     ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.STYLES.getContentType());
-    if (parts.size() == 0) return null;
+    if (parts.isEmpty()) return null;
 
     // Create the Styles Table, and associate the Themes if present
     StylesTable styles = new StylesTable(parts.get(0));
     parts = pkg.getPartsByContentType(XSSFRelation.THEME.getContentType());
-    if (parts.size() != 0) {
+    if (!parts.isEmpty()) {
       styles.setTheme(new ThemesTable(parts.get(0)));
     }
     return styles;
