@@ -1,11 +1,14 @@
 package com.github.pjfanning.xlsx.impl.ooxml;
 
 import org.apache.poi.util.TempFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 class TempFileDataStore implements TempDataStore {
 
+  private static final Logger log = LoggerFactory.getLogger(TempFileDataStore.class);
   private File tempFile;
 
   @Override
@@ -27,6 +30,8 @@ class TempFileDataStore implements TempDataStore {
 
   @Override
   public void close() throws IOException {
-    if (tempFile != null) tempFile.delete();
+    if (tempFile != null && !tempFile.delete()) {
+      log.debug("failed to delete temp file");
+    }
   }
 }
