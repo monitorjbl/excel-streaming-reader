@@ -767,6 +767,7 @@ public class StreamingReaderTest {
   @Test
   public void testClosingFiles() throws Exception {
     OPCPackage o = OPCPackage.open(new File("src/test/resources/blank_cell_StringCellValue.xlsx"), PackageAccess.READ);
+    assertNotNull(o);
     o.close();
   }
 
@@ -778,7 +779,7 @@ public class StreamingReaderTest {
     ) {
       Iterator<Row> iterator = wb.getSheetAt(0).iterator();
       while (iterator.hasNext()) {
-        iterator.next();
+        assertNotNull(iterator.next());
       }
     }
   }
@@ -820,7 +821,7 @@ public class StreamingReaderTest {
     ) {
       Iterator<Row> iterator = wb.getSheetAt(0).iterator();
       while (iterator.hasNext()) {
-        iterator.next();
+        assertNotNull(iterator.next());
       }
     }
   }

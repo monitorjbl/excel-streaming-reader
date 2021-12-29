@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import org.apache.poi.util.TempFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ public class TempFileUtil {
 
   public static File writeInputStreamToFile(InputStream is, int bufferSize) throws IOException {
     if (is == null) throw new NullPointerException("InputStream is null");
-    File f = Files.createTempFile("tmp-", ".xlsx").toFile();
+    File f = TempFile.createTempFile("tmp-", ".xlsx");
     try (FileOutputStream fos = new FileOutputStream(f)) {
       int read;
       byte[] bytes = new byte[bufferSize];
@@ -24,7 +25,9 @@ public class TempFileUtil {
       return f;
     } catch (IOException | RuntimeException | Error e) {
       try {
-        f.delete();
+        if(!f.delete()) {
+          log.debug("failed to delete temp file");
+        }
       } catch (Throwable t) {
         log.warn("Failed to delete temp file {}: {}", f.getAbsolutePath(), t.toString());
       }

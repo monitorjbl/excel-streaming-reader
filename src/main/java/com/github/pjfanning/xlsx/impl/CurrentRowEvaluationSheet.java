@@ -60,5 +60,6 @@ final class CurrentRowEvaluationSheet implements EvaluationSheet {
    */
   @Override
   public void clearAllCachedResultValues() {
+    //this class does not cache results
   }
 }
