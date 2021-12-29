@@ -304,9 +304,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     if (xmlInputFactory == null) {
       try {
         xmlInputFactory = XMLHelper.newXMLInputFactory();
-      } catch (Throwable t) {
-        log.error("Issue creating XMLInputFactory", t);
-        throw t;
+      } catch (Exception e) {
+        log.error("Issue creating XMLInputFactory", e);
+        throw e;
       }
     }
     return xmlInputFactory;

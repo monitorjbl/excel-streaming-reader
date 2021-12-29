@@ -69,7 +69,7 @@ public class XmlUtils {
       if (prefixesByURI.containsKey(namespaceURI)) {
         (prefixesByURI.get(namespaceURI)).add(prefix);
       } else {
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add(prefix);
         prefixesByURI.put(namespaceURI, set);
       }
@@ -97,7 +97,7 @@ public class XmlUtils {
       if (prefixesByURI.containsKey(namespaceURI)) {
         return (prefixesByURI.get(namespaceURI)).iterator();
       } else {
-        return Collections.EMPTY_SET.iterator();
+        return Collections.emptySet().iterator();
       }
     }
   }

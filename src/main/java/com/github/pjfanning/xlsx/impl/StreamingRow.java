@@ -127,7 +127,7 @@ public class StreamingRow implements Row {
     StreamingCell cell = (StreamingCell) cellMap.get(cellnum);
     if(policy == MissingCellPolicy.CREATE_NULL_AS_BLANK) {
       if(cell == null) {
-        boolean use1904Dates = streamingSheetReader == null ? false : streamingSheetReader.isUse1904Dates();
+        boolean use1904Dates = streamingSheetReader != null && streamingSheetReader.isUse1904Dates();
         return new StreamingCell(sheet, cellnum, this, use1904Dates);
       }
     } else if(policy == MissingCellPolicy.RETURN_BLANK_AS_NULL) {

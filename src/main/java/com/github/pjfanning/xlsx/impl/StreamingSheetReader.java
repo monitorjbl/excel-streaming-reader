@@ -172,7 +172,6 @@ public class StreamingSheetReader implements Iterable<Row> {
         contentBuilder.append(event.asCharacters().getData());
       }
       if (insideFormulaElement) {
-        Characters c = event.asCharacters();
         formulaBuilder.append(event.asCharacters().getData());
       }
     } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
@@ -295,9 +294,9 @@ public class StreamingSheetReader implements Iterable<Row> {
           mergedCells.add(CellRangeAddress.valueOf(ref.getValue()));
         }
       } else if("selection".equals(tagLocalName)) {
-      Attribute activeCell = startElement.getAttributeByName(QName.valueOf("activeCell"));
-      if(activeCell != null) {
-        String activeCellRef = getAttributeValue(activeCell);
+      Attribute activeCellAttr = startElement.getAttributeByName(QName.valueOf("activeCell"));
+      if(activeCellAttr != null) {
+        String activeCellRef = getAttributeValue(activeCellAttr);
         try {
           this.activeCell = new CellAddress(activeCellRef);
         } catch (Exception e) {
