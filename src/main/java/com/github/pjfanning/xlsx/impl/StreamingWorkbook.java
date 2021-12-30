@@ -26,7 +26,8 @@ public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseab
   }
 
   int findSheetByName(String name) {
-    for(int i = 0; i < reader.getSheetProperties().size(); i++) {
+    final int size = reader.getSheetProperties().size();
+    for(int i = 0; i < size; i++) {
       if(reader.getSheetProperties().get(i).get("name").equals(name)) {
         return i;
       }
