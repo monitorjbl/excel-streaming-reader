@@ -24,7 +24,7 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    //maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 dependencies {
@@ -42,6 +42,12 @@ dependencies {
 test {
     options {
         systemProperties(System.getProperties())
+    }
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes('Automatic-Module-Name': 'com.github.pjfanning.excel-streaming-reader')
     }
 }
 
