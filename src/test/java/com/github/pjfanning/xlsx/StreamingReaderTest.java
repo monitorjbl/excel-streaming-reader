@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.apache.poi.ss.usermodel.CellType.*;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
@@ -1265,6 +1266,27 @@ public class StreamingReaderTest {
           }
         }
       }
+    }
+  }
+
+  @Test
+  public void testSpliterator() throws Exception {
+    try (
+            InputStream is = new FileInputStream("src/test/resources/data_types.xlsx");
+            Workbook wb = StreamingReader.builder().open(is);
+    ) {
+      Map<String, Integer> map = new HashMap<>();
+      wb.spliterator().forEachRemaining(sheet -> {
+        AtomicInteger count = new AtomicInteger();
+        sheet.spliterator().forEachRemaining(row -> {
+          row.spliterator().forEachRemaining(cell -> {
+            count.incrementAndGet();
+          });
+        });
+        map.put(sheet.getSheetName(), count.get());
+      });
+      assertEquals(1, map.size());
+      assertEquals(new Integer(20), map.get("TestSheet1"));
     }
   }
 
