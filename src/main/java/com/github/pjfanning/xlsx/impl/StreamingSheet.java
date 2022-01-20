@@ -55,6 +55,15 @@ public class StreamingSheet implements Sheet {
    * {@inheritDoc}
    */
   @Override
+  public Spliterator<Row> spliterator() {
+    // Long.MAX_VALUE is the documented value to use if the size is unknown
+    return Spliterators.spliterator(rowIterator(),  Long.MAX_VALUE, Spliterator.ORDERED);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String getSheetName() {
     return name;
   }
