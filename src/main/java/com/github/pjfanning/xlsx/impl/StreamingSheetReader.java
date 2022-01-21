@@ -469,7 +469,7 @@ public class StreamingSheetReader implements Iterable<Row> {
    * Tries to format the contents of the last contents appropriately based on
    * the type of cell and the discovered numeric format.
    */
-  Supplier formattedContents() {
+  private Supplier formattedContents() {
     return getFormatterForType(currentCell.getType());
   }
 
@@ -564,7 +564,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   /**
    * Returns the contents of the cell, with no formatting applied
    */
-  String unformattedContents() {
+  private String unformattedContents() {
     final String lastContents = contentBuilder.toString();
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
