@@ -313,8 +313,9 @@ public class StreamingSheetReader implements Iterable<Row> {
 
       if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         insideCharElement = false;
-        currentCell.setRawContents(unformattedContents());
-        currentCell.setContentSupplier(formattedContents());
+        Supplier formattedContentSupplier = formattedContents();
+        currentCell.setRawContents(unformattedContents(formattedContentSupplier));
+        currentCell.setContentSupplier(formattedContentSupplier);
       } else if("row".equals(tagLocalName) && currentRow != null) {
         rowCache.add(currentRow);
         currentRowNum++;
@@ -564,18 +565,22 @@ public class StreamingSheetReader implements Iterable<Row> {
   /**
    * Returns the contents of the cell, with no formatting applied
    */
-  private String unformattedContents() {
+  private String unformattedContents(Supplier formattedContentSupplier) {
     final String lastContents = contentBuilder.toString();
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
+        Object formattedContent = formattedContentSupplier.getContent();
+        if (formattedContent instanceof RichTextString) {
+          return ((RichTextString) formattedContent).getString();
+        }
         if (!lastContents.isEmpty()) {
           int idx = Integer.parseInt(lastContents);
           if (sst == null) throw new NullPointerException("sst is null");
-          return sst.getItemAt(idx).toString();
+          return sst.getItemAt(idx).getString();
         }
         return lastContents;
       case "inlineStr":   //inline string (not in sst)
-        return new XSSFRichTextString(lastContents).toString();
+        return new XSSFRichTextString(lastContents).getString();
       default:
         return lastContents;
     }
