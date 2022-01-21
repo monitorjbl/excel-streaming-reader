@@ -141,25 +141,6 @@ public class StreamingSheetReader implements Iterable<Row> {
     }
   }
 
-  private String[] splitCellRef(String ref) {
-    int splitPos = -1;
-
-    // start at pos 1, since the first char is expected to always be a letter
-    for(int i=1;i<ref.length();i++) {
-      char c = ref.charAt(i);
-
-      if (c >= '0' && c <= '9') {
-        splitPos = i;
-        break;
-      }
-    }
-
-    return new String[] {
-            ref.substring(0, splitPos),
-            ref.substring(splitPos)
-    };
-  }
-
   /**
    * Handles a SAX event.
    *
@@ -206,12 +187,12 @@ public class StreamingSheetReader implements Iterable<Row> {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
         if (ref != null) {
-          String[] coord = splitCellRef(ref.getValue());
-          currentColNum = CellReference.convertColStringToIndex(coord[0]);
+          CellAddress cellAddress = new CellAddress(ref.getValue());
+          currentColNum = cellAddress.getColumn();
           if (currentRow.getRowNum() == currentRowNum) {
             currentCell = new StreamingCell(sheet, currentColNum, currentRow, use1904Dates);
           } else {
-            currentCell = new StreamingCell(sheet, currentColNum, Integer.parseInt(coord[1]) - 1, use1904Dates);
+            currentCell = new StreamingCell(sheet, currentColNum, cellAddress.getRow(), use1904Dates);
           }
         } else if (currentRow != null) {
           currentCell = new StreamingCell(sheet, currentColNum, currentRow, use1904Dates);
@@ -501,8 +482,8 @@ public class StreamingSheetReader implements Iterable<Row> {
     switch(type) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
-            int idx = Integer.parseInt(lastContents);
-            return new RichTextStringSupplier(sst.getItemAt(idx));
+          int idx = Integer.parseInt(lastContents);
+          return new RichTextStringSupplier(sst.getItemAt(idx));
         }
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
@@ -588,9 +569,9 @@ public class StreamingSheetReader implements Iterable<Row> {
     switch(currentCell.getType()) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
-            int idx = Integer.parseInt(lastContents);
-            if (sst == null) throw new NullPointerException("sst is null");
-            return sst.getItemAt(idx).toString();
+          int idx = Integer.parseInt(lastContents);
+          if (sst == null) throw new NullPointerException("sst is null");
+          return sst.getItemAt(idx).toString();
         }
         return lastContents;
       case "inlineStr":   //inline string (not in sst)
