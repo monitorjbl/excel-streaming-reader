@@ -24,13 +24,13 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    //maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 dependencies {
     api 'org.apache.poi:poi:5.2.0'
     api 'org.apache.poi:poi-ooxml:5.2.0'
-    implementation 'com.github.pjfanning:poi-shared-strings:2.4.1'
+    implementation 'com.github.pjfanning:poi-shared-strings:2.4.2-SNAPSHOT'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'commons-io:commons-io:2.11.0'
     testImplementation 'junit:junit:4.13.2'
@@ -47,7 +47,7 @@ test {
 
 tasks.named('jar') {
     manifest {
-        attributes('Automatic-Module-Name': 'com.github.pjfanning.excel-streaming-reader')
+        attributes('Automatic-Module-Name': 'com.github.pjfanning.excelstreamingreader')
     }
 }
 
