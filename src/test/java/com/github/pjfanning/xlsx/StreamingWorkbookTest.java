@@ -354,9 +354,14 @@ public class StreamingWorkbookTest {
   }
 
   @Test(expected = OpenException.class)
-  public void testEntityExpansion() throws Exception {
+  public void testEntityExpansionWithPoiDefaultSst() throws Exception {
     ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
-      try(Workbook workbook = openWorkbook("entity-expansion-exploit-poc-file.xlsx")) {
+      try(
+              InputStream stream = getInputStream("entity-expansion-exploit-poc-file.xlsx");
+              Workbook workbook = StreamingReader.builder()
+                      .setSharedStringsImplementationType(SharedStringsImplementationType.POI_DEFAULT)
+                      .open(stream)
+      ) {
         Sheet sheet = workbook.getSheetAt(0);
         for(Row row : sheet) {
           for(Cell cell : row) {

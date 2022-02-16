@@ -37,8 +37,7 @@ public class StreamingReader implements AutoCloseable {
     private int rowCacheSize = 10;
     private int bufferSize = 1024;
     private boolean avoidTempFiles = false;
-    private boolean useSstTempFile = false;
-    private boolean useSstReadOnly = false;
+    private SharedStringsImplementationType sharedStringsImplementationType = SharedStringsImplementationType.POI_READ_ONLY;
     private boolean encryptSstTempFile = false;
     private boolean useCommentsTempFile = false;
     private boolean encryptCommentsTempFile = false;
@@ -75,11 +74,21 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
+     * @return the type of shared string table implementation (default is <code>POI_READ_ONLY</code>).
+     * @see #setSharedStringsImplementationType(SharedStringsImplementationType)
+     * @since v3.5.0
+     */
+    public SharedStringsImplementationType getSharedStringsImplementationType() {
+      return sharedStringsImplementationType;
+    }
+
+    /**
      * @return Whether to use a temp file for the Shared Strings data. If false, no
      * temp file will be used and the entire table will be loaded into memory.
+     * @deprecated use #getSharedStringsImplementationType()
      */
     public boolean useSstTempFile() {
-      return useSstTempFile;
+      return getSharedStringsImplementationType() == SharedStringsImplementationType.TEMP_FILE_BACKED;
     }
 
     /**
@@ -89,9 +98,10 @@ public class StreamingReader implements AutoCloseable {
      *
      * @see #useSstTempFile()
      * @since v3.3.0
+     * @deprecated use #getSharedStringsImplementationType()
      */
     public boolean useSstReadOnly() {
-      return useSstReadOnly;
+      return getSharedStringsImplementationType() == SharedStringsImplementationType.POI_READ_ONLY;
     }
 
     /**
@@ -241,6 +251,21 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
+     * Set the type of Shared Strings Table to use. The default is <code>POI_READ_ONLY</code>.
+     * <p>
+     * If you enable this feature, you may also want to enable <code>fullFormatRichText</code>.
+     *
+     * @param sharedStringsImplementationType type of Shared Strings Table to use
+     * @return reference to current {@code Builder}
+     * @see #getSharedStringsImplementationType()
+     * @since v3.5.0
+     */
+    public Builder setSharedStringsImplementationType(SharedStringsImplementationType sharedStringsImplementationType) {
+      this.sharedStringsImplementationType = sharedStringsImplementationType;
+      return this;
+    }
+
+    /**
      * Enables use of Shared Strings Table temp file. This option exists to accommodate
      * extremely large workbooks with millions of unique strings. Normally, the SST is entirely
      * loaded into memory, but with large workbooks with high cardinality (i.e., very few
@@ -257,10 +282,10 @@ public class StreamingReader implements AutoCloseable {
      * @see #setEncryptSstTempFile(boolean)
      * @see #setFullFormatRichText(boolean)
      * @see #setUseSstReadOnly(boolean)
+     * @deprecated use {@link #setSharedStringsImplementationType(SharedStringsImplementationType)}
      */
     public Builder setUseSstTempFile(boolean useSstTempFile) {
-      this.useSstTempFile = useSstTempFile;
-      return this;
+      return setSharedStringsImplementationType(SharedStringsImplementationType.TEMP_FILE_BACKED);
     }
 
     /**
@@ -275,10 +300,10 @@ public class StreamingReader implements AutoCloseable {
      * @return reference to current {@code Builder}
      * @see #setUseSstTempFile(boolean)
      * @since v3.3.0
+     * @deprecated use {@link #setSharedStringsImplementationType(SharedStringsImplementationType)}
      */
     public Builder setUseSstReadOnly(boolean useSstReadOnly) {
-      this.useSstReadOnly = useSstReadOnly;
-      return this;
+      return setSharedStringsImplementationType(SharedStringsImplementationType.POI_READ_ONLY);
     }
 
     /**
