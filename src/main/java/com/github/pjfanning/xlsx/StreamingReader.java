@@ -39,7 +39,7 @@ public class StreamingReader implements AutoCloseable {
     private boolean avoidTempFiles = false;
     private SharedStringsImplementationType sharedStringsImplementationType = SharedStringsImplementationType.POI_READ_ONLY;
     private boolean encryptSstTempFile = false;
-    private boolean useCommentsTempFile = false;
+    private CommentsImplementationType commentsImplementationType = CommentsImplementationType.POI_DEFAULT;
     private boolean encryptCommentsTempFile = false;
     private boolean adjustLegacyComments = false;
     private boolean readComments = false;
@@ -80,6 +80,15 @@ public class StreamingReader implements AutoCloseable {
      */
     public SharedStringsImplementationType getSharedStringsImplementationType() {
       return sharedStringsImplementationType;
+    }
+
+    /**
+     * @return the type of comments table implementation (default is <code>POI_DEFAULT</code>).
+     * @see #setCommentsImplementationType(CommentsImplementationType)
+     * @since v3.5.0
+     */
+    public CommentsImplementationType getCommentsImplementationType() {
+      return commentsImplementationType;
     }
 
     /**
@@ -132,9 +141,11 @@ public class StreamingReader implements AutoCloseable {
     /**
      * @return Whether to use a temp file for the Comments data. If false, no
      * temp file will be used and the entire table will be loaded into memory.
+     * @deprecated use {@link #getCommentsImplementationType()}
      */
+    @Deprecated
     public boolean useCommentsTempFile() {
-      return useCommentsTempFile;
+      return getCommentsImplementationType() == CommentsImplementationType.TEMP_FILE_BACKED;
     }
 
     /**
@@ -257,13 +268,36 @@ public class StreamingReader implements AutoCloseable {
      * <p>
      * If you enable this feature, you may also want to enable <code>fullFormatRichText</code>.
      *
-     * @param sharedStringsImplementationType type of Shared Strings Table to use
+     * @param sharedStringsImplementationType type of Shared Strings Table to use (must not be null)
      * @return reference to current {@code Builder}
+     * @throws NullPointerException if null is passed as a param
      * @see #getSharedStringsImplementationType()
      * @since v3.5.0
      */
     public Builder setSharedStringsImplementationType(SharedStringsImplementationType sharedStringsImplementationType) {
+      if (sharedStringsImplementationType == null) {
+        throw new NullPointerException("sharedStringsImplementationType must not be null");
+      }
       this.sharedStringsImplementationType = sharedStringsImplementationType;
+      return this;
+    }
+
+    /**
+     * Set the type of Comments Table to use. The default is <code>POI_DEFAULT</code>.
+     * <p>
+     * If you enable this feature, you may also want to enable <code>fullFormatRichText</code>.
+     *
+     * @param commentsImplementationType type of Comments Table to use (must not be null)
+     * @return reference to current {@code Builder}
+     * @throws NullPointerException if null is passed as a param
+     * @see #getCommentsImplementationType()
+     * @since v3.5.0
+     */
+    public Builder setCommentsImplementationType(CommentsImplementationType commentsImplementationType) {
+      if (commentsImplementationType == null) {
+        throw new NullPointerException("commentsImplementationType must not be null");
+      }
+      this.commentsImplementationType = commentsImplementationType;
       return this;
     }
 
@@ -288,7 +322,11 @@ public class StreamingReader implements AutoCloseable {
      */
     @Deprecated
     public Builder setUseSstTempFile(boolean useSstTempFile) {
-      return setSharedStringsImplementationType(SharedStringsImplementationType.TEMP_FILE_BACKED);
+      if (useSstTempFile) {
+        return setSharedStringsImplementationType(SharedStringsImplementationType.TEMP_FILE_BACKED);
+      } else {
+        return setSharedStringsImplementationType(SharedStringsImplementationType.POI_READ_ONLY);
+      }
     }
 
     /**
@@ -298,8 +336,7 @@ public class StreamingReader implements AutoCloseable {
      * text as well.
      *
      * @param useSstReadOnly Whether to use {@link org.apache.poi.xssf.eventusermodel.ReadOnlySharedStringsTable} instead
-     *                       of {@link org.apache.poi.xssf.model.SharedStringsTable}. If you use {@link #setUseSstTempFile(boolean)}
-     *                       and set to <code>true</code>, then this setting is ignored.
+     *                       of {@link org.apache.poi.xssf.model.SharedStringsTable}.
      * @return reference to current {@code Builder}
      * @see #setUseSstTempFile(boolean)
      * @since v3.3.0
@@ -307,7 +344,11 @@ public class StreamingReader implements AutoCloseable {
      */
     @Deprecated
     public Builder setUseSstReadOnly(boolean useSstReadOnly) {
-      return setSharedStringsImplementationType(SharedStringsImplementationType.POI_READ_ONLY);
+      if (useSstReadOnly) {
+        return setSharedStringsImplementationType(SharedStringsImplementationType.POI_READ_ONLY);
+      } else {
+        return setSharedStringsImplementationType(SharedStringsImplementationType.POI_DEFAULT);
+      }
     }
 
     /**
@@ -341,11 +382,16 @@ public class StreamingReader implements AutoCloseable {
      * @return reference to current {@code Builder}
      * @see #setReadComments(boolean)
      * @see #setEncryptCommentsTempFile(boolean)
-     * @see #setFullFormatRichText(boolean) 
+     * @see #setFullFormatRichText(boolean)
+     * @deprecated use {@link #setCommentsImplementationType(CommentsImplementationType)}
      */
+    @Deprecated
     public Builder setUseCommentsTempFile(boolean useCommentsTempFile) {
-      this.useCommentsTempFile = useCommentsTempFile;
-      return this;
+      if (useCommentsTempFile) {
+        return setCommentsImplementationType(CommentsImplementationType.TEMP_FILE_BACKED);
+      } else {
+        return setCommentsImplementationType(CommentsImplementationType.POI_DEFAULT);
+      }
     }
 
     /**

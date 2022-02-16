@@ -8,7 +8,6 @@ import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +25,7 @@ public class XmlUtils {
 
   private XmlUtils() {}
 
-  public static Document readDocument(InputStream inp) throws IOException, SAXException, ParserConfigurationException {
+  public static Document readDocument(InputStream inp) throws IOException, SAXException {
     return DocumentHelper.readDocument(inp);
   }
 
