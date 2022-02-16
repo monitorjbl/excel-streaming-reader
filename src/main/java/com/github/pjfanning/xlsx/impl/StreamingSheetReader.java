@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.poi.xssf.streaming.SharedStringsTableBase;
 import com.github.pjfanning.xlsx.SharedFormula;
 import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.XmlUtils;
@@ -484,6 +485,9 @@ public class StreamingSheetReader implements Iterable<Row> {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
           int idx = Integer.parseInt(lastContents);
+          if (!getBuilder().fullFormatRichText() && sst instanceof SharedStringsTableBase) {
+            return new StringSupplier(((SharedStringsTableBase)sst).getString(idx));
+          }
           return new RichTextStringSupplier(sst.getItemAt(idx));
         }
         return new StringSupplier(lastContents);
@@ -576,6 +580,9 @@ public class StreamingSheetReader implements Iterable<Row> {
         if (!lastContents.isEmpty()) {
           int idx = Integer.parseInt(lastContents);
           if (sst == null) throw new NullPointerException("sst is null");
+          if (sst instanceof SharedStringsTableBase) {
+            return ((SharedStringsTableBase)sst).getString(idx);
+          }
           return sst.getItemAt(idx).getString();
         }
         return lastContents;

@@ -69,7 +69,7 @@ final class OoxmlEvaluationCell implements EvaluationCell {
 
   @Override
   public String getStringCellValue() {
-    return _cell.getRichStringCellValue().getString();
+    return _cell.getStringCellValue();
   }
 
   @Override

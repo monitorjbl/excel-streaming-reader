@@ -49,7 +49,7 @@ public class WrappedComment implements Comment {
   public XSSFRichTextString getString() {
     XSSFRichTextString rts = xssfComment.getString();
     String text = rts.getString();
-    if(rts.getString().contains("Your version of Excel allows you to read this threaded comment")) {
+    if(text.contains("Your version of Excel allows you to read this threaded comment")) {
       String splitText = "Comment:";
       int pos = text.lastIndexOf(splitText);
       if (pos != -1) {
