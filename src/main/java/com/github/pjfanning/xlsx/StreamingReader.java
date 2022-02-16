@@ -87,6 +87,7 @@ public class StreamingReader implements AutoCloseable {
      * temp file will be used and the entire table will be loaded into memory.
      * @deprecated use #getSharedStringsImplementationType()
      */
+    @Deprecated
     public boolean useSstTempFile() {
       return getSharedStringsImplementationType() == SharedStringsImplementationType.TEMP_FILE_BACKED;
     }
@@ -100,6 +101,7 @@ public class StreamingReader implements AutoCloseable {
      * @since v3.3.0
      * @deprecated use #getSharedStringsImplementationType()
      */
+    @Deprecated
     public boolean useSstReadOnly() {
       return getSharedStringsImplementationType() == SharedStringsImplementationType.POI_READ_ONLY;
     }
@@ -284,6 +286,7 @@ public class StreamingReader implements AutoCloseable {
      * @see #setUseSstReadOnly(boolean)
      * @deprecated use {@link #setSharedStringsImplementationType(SharedStringsImplementationType)}
      */
+    @Deprecated
     public Builder setUseSstTempFile(boolean useSstTempFile) {
       return setSharedStringsImplementationType(SharedStringsImplementationType.TEMP_FILE_BACKED);
     }
@@ -302,6 +305,7 @@ public class StreamingReader implements AutoCloseable {
      * @since v3.3.0
      * @deprecated use {@link #setSharedStringsImplementationType(SharedStringsImplementationType)}
      */
+    @Deprecated
     public Builder setUseSstReadOnly(boolean useSstReadOnly) {
       return setSharedStringsImplementationType(SharedStringsImplementationType.POI_READ_ONLY);
     }

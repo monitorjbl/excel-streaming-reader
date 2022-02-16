@@ -25,6 +25,7 @@ public class WorkbookUtil {
    * @throws SAXException
    * @deprecated use {@link #use1904Dates(Document)}
    */
+  @Deprecated
   public static boolean use1904Dates(OoxmlReader reader) throws IOException, InvalidFormatException, ParserConfigurationException, SAXException {
     return use1904Dates(readDocument(reader.getWorkbookData()));
   }
