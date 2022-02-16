@@ -16,7 +16,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -1378,7 +1378,7 @@ public class StreamingReaderTest {
       assertNotNull("CoreProperties should not be null", swb.getCoreProperties());
       assertNull(swb.getCoreProperties().getCreator());
       assertNotNull("created date set", swb.getCoreProperties().getCreated());
-      assertEquals(2007, swb.getCoreProperties().getCreated().toInstant().atZone(ZoneId.of("UTC")).getYear());
+      assertEquals(2007, swb.getCoreProperties().getCreated().toInstant().atZone(ZoneOffset.UTC).getYear());
       DataFormatter formatter = new DataFormatter();
 
       Sheet sheet1 = wb.getSheet("Sheet1");
