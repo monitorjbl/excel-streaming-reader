@@ -576,6 +576,8 @@ public class StreamingSheetReader implements Iterable<Row> {
         Object formattedContent = formattedContentSupplier.getContent();
         if (formattedContent instanceof RichTextString) {
           return ((RichTextString) formattedContent).getString();
+        } else if (formattedContent != null) {
+          return formattedContent.toString();
         }
         if (!lastContents.isEmpty()) {
           int idx = Integer.parseInt(lastContents);
