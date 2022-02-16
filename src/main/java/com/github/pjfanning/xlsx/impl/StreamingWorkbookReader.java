@@ -26,6 +26,7 @@ import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -41,6 +42,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
+import static com.github.pjfanning.xlsx.XmlUtils.readDocument;
 import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support, AutoCloseable {
@@ -176,9 +178,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
       }
     }
 
-    use1904Dates = WorkbookUtil.use1904Dates(reader);
+    Document workbookDoc = readDocument(reader.getWorkbookData());
+    use1904Dates = WorkbookUtil.use1904Dates(workbookDoc);
 
-    loadSheets(reader, sst, styles);
+    loadSheets(workbookDoc, reader, sst, styles);
   }
 
   void setWorkbook(StreamingWorkbook workbook) {
@@ -190,9 +193,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     return workbook;
   }
 
-  private void loadSheets(OoxmlReader reader, SharedStrings sst, StylesTable stylesTable)
-          throws IOException, InvalidFormatException, XMLStreamException {
-    lookupSheetNames(reader);
+  private void loadSheets(Document workbookDoc, OoxmlReader reader, SharedStrings sst, StylesTable stylesTable)
+          throws IOException, XMLStreamException {
+    lookupSheetNames(workbookDoc);
 
     //Some workbooks have multiple references to the same sheet. Need to filter
     //them out before creating the XMLEventReader by keeping track of their URIs.
@@ -223,20 +226,16 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     }
   }
 
-  private void lookupSheetNames(OoxmlReader reader) throws IOException, InvalidFormatException {
+  private void lookupSheetNames(Document workbookDoc) {
     sheetProperties.clear();
-    try {
-      NodeList nl = searchForNodeList(XmlUtils.readDocument(reader.getWorkbookData()), "/ss:workbook/ss:sheets/ss:sheet");
-      for(int i = 0; i < nl.getLength(); i++) {
-        Map<String, String> props = new HashMap<>();
-        props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
+    NodeList nl = searchForNodeList(workbookDoc, "/ss:workbook/ss:sheets/ss:sheet");
+    for(int i = 0; i < nl.getLength(); i++) {
+      Map<String, String> props = new HashMap<>();
+      props.put("name", nl.item(i).getAttributes().getNamedItem("name").getTextContent());
 
-        Node state = nl.item(i).getAttributes().getNamedItem("state");
-        props.put("state", state == null ? "visible" : state.getTextContent());
-        sheetProperties.add(props);
-      }
-    } catch (SAXException|ParserConfigurationException e) {
-      throw new ParseException("Failed to parse file", e);
+      Node state = nl.item(i).getAttributes().getNamedItem("state");
+      props.put("state", state == null ? "visible" : state.getTextContent());
+      sheetProperties.add(props);
     }
   }
 
