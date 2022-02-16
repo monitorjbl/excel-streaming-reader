@@ -2,7 +2,6 @@ package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
 import com.github.pjfanning.xlsx.StreamingReader.Builder;
-import com.github.pjfanning.xlsx.XmlUtils;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
