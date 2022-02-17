@@ -1009,12 +1009,22 @@ public class StreamingReaderTest {
 
   @Test
   public void testStrictOOMXLWithTempFileSST() throws Exception {
-    testStrictOOMXLWithTempFileSST(false);
+    testStrictOOMXLWithCustomSST(SharedStringsImplementationType.TEMP_FILE_BACKED, false);
   }
 
   @Test
   public void testStrictOOMXLWithTempFileSSTFullFormat() throws Exception {
-    testStrictOOMXLWithTempFileSST(true);
+    testStrictOOMXLWithCustomSST(SharedStringsImplementationType.TEMP_FILE_BACKED, true);
+  }
+
+  @Test
+  public void testStrictOOMXLWithMapBackedSST() throws Exception {
+    testStrictOOMXLWithCustomSST(SharedStringsImplementationType.CUSTOM_MAP_BACKED, false);
+  }
+
+  @Test
+  public void testStrictOOMXLWithMapBackedSSTFullFormat() throws Exception {
+    testStrictOOMXLWithCustomSST(SharedStringsImplementationType.CUSTOM_MAP_BACKED, true);
   }
 
   @Test
@@ -1376,10 +1386,12 @@ public class StreamingReaderTest {
     }
   }
 
-  private void testStrictOOMXLWithTempFileSST(boolean fullFormat) throws Exception {
+  private void testStrictOOMXLWithCustomSST(SharedStringsImplementationType sharedStringsImplementationType,
+                                            boolean fullFormat) throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/sample.strict.xlsx");
-            Workbook wb = StreamingReader.builder().setUseSstTempFile(true)
+            Workbook wb = StreamingReader.builder()
+                    .setSharedStringsImplementationType(sharedStringsImplementationType)
                     .setFullFormatRichText(fullFormat)
                     .setReadCoreProperties(true)
                     .open(inputStream)
