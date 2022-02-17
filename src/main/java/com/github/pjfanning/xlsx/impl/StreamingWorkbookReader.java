@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -74,7 +73,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
           pkg = OPCPackage.open(is);
         }
         loadPackage(pkg);
-      } catch(SAXException | ParserConfigurationException e) {
+      } catch(SAXException e) {
         IOUtils.closeQuietly(pkg);
         throw new ParseException("Failed to parse stream", e);
       } catch(IOException e) {
@@ -119,7 +118,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
         pkg = OPCPackage.open(f);
       }
       loadPackage(pkg);
-    } catch(SAXException | ParserConfigurationException e) {
+    } catch(SAXException e) {
       IOUtils.closeQuietly(pkg);
       throw new ParseException("Failed to parse file", e);
     } catch(IOException e) {
@@ -142,7 +141,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     return OPCPackage.open(d.getDataStream(poifs));
   }
 
-  private void loadPackage(OPCPackage pkg) throws IOException, OpenXML4JException, ParserConfigurationException, SAXException, XMLStreamException {
+  private void loadPackage(OPCPackage pkg) throws IOException, OpenXML4JException, SAXException, XMLStreamException {
     boolean strictFormat = pkg.isStrictOoxmlFormat();
     OoxmlReader reader = new OoxmlReader(this, pkg, strictFormat);
     if (strictFormat) {

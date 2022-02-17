@@ -29,7 +29,6 @@ import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -137,18 +136,12 @@ public class StreamingSheetReader implements Iterable<Row> {
       }
       rowCacheIterator = rowCache.iterator();
       return rowCacheIterator.hasNext();
-    } catch(XMLStreamException | SAXException e) {
+    } catch(XMLStreamException e) {
       throw new ParseException("Error reading XML stream", e);
     }
   }
 
-  /**
-   * Handles a SAX event.
-   *
-   * @param event
-   * @throws SAXException
-   */
-  private void handleEvent(XMLEvent event) throws SAXException {
+  private void handleEvent(XMLEvent event) {
     if(event.getEventType() == XMLStreamConstants.CHARACTERS) {
       if (insideCharElement) {
         contentBuilder.append(event.asCharacters().getData());
