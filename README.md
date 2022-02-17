@@ -93,6 +93,7 @@ You may access cells randomly within a row, as the entire row is cached. **Howev
 ## Javadocs
 
 * [latest](https://pjfanning.github.io/excel-streaming-reader/)
+* [v3.3.0](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.3.0/)
 * [v3.1.6](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.1.6/)
 
 ## Temp File Shared Strings
