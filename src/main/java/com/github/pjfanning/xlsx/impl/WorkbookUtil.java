@@ -21,7 +21,6 @@ public class WorkbookUtil {
    * @return whether the stored xlsx has 1904 date format
    * @throws IOException
    * @throws InvalidFormatException
-   * @throws ParserConfigurationException
    * @throws SAXException
    * @deprecated use {@link #use1904Dates(Document)}
    */
