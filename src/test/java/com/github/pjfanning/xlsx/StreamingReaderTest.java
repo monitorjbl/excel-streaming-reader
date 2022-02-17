@@ -1117,27 +1117,27 @@ public class StreamingReaderTest {
 
   @Test
   public void testReadCommentsWithInMemoryComments() throws Exception {
-    testReadComments(false, false, false);
+    testReadComments(CommentsImplementationType.POI_DEFAULT, false, false);
   }
 
   @Test
   public void testReadCommentsWithTempFileComments() throws Exception {
-    testReadComments(true, false, false);
+    testReadComments(CommentsImplementationType.TEMP_FILE_BACKED, false, false);
   }
 
   @Test
   public void testReadCommentsWithTempFileCommentsFullFormat() throws Exception {
-    testReadComments(true, false, true);
+    testReadComments(CommentsImplementationType.TEMP_FILE_BACKED, false, true);
   }
 
   @Test
   public void testReadCommentsWithEncryptedTempFileComments() throws Exception {
-    testReadComments(true, true, false);
+    testReadComments(CommentsImplementationType.TEMP_FILE_BACKED, true, false);
   }
 
   @Test
   public void testReadCommentsWithEncryptedTempFileCommentsFullFormat() throws Exception {
-    testReadComments(true, true, true);
+    testReadComments(CommentsImplementationType.TEMP_FILE_BACKED, true, true);
   }
 
   @Test
@@ -1322,18 +1322,18 @@ public class StreamingReaderTest {
     }
   }
 
-  private void testReadComments(boolean tempFileEnabled, boolean encrypt,
+  private void testReadComments(CommentsImplementationType commentsImplementationType, boolean encrypt,
                                 boolean fullFormat) throws Exception {
     try(
             InputStream inputStream = new FileInputStream("src/test/resources/commentTest.xlsx");
             Workbook wb = StreamingReader.builder()
                     .setReadComments(true)
-                    .setUseCommentsTempFile(tempFileEnabled)
+                    .setCommentsImplementationType(commentsImplementationType)
                     .setEncryptCommentsTempFile(encrypt)
                     .setFullFormatRichText(fullFormat)
                     .open(inputStream)
     ) {
-      int expectedRuns = tempFileEnabled && !fullFormat ? 0 : 2;
+      int expectedRuns = commentsImplementationType == CommentsImplementationType.TEMP_FILE_BACKED && !fullFormat ? 0 : 2;
       Sheet sheet = wb.getSheetAt(0);
       assertEquals(14, sheet.getCellComments().size());
       Comment comment00 = sheet.getCellComment(new CellAddress(0, 0));

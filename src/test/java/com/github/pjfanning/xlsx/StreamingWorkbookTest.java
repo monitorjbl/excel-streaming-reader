@@ -243,8 +243,34 @@ public class StreamingWorkbookTest {
       Cell B4 = getCellFromNextRow(rowIterator, 1);
 
       expectType(B4, FORMULA);
-//      expectCachedType(B4, STRING); // this can't return FUNCTION as cached type as per javadoc ! fix in future work
-//      expectFormula(B4, "B2"); // returning wrong formula type? this needs to be fixed in future work
+      expectCachedType(B4, STRING);
+      try {
+        expectFormula(B4, "B2");
+      } catch (IllegalStateException ise) {
+        //expected
+      }
+      expectSameStringContent(B2, B4);
+      expectStringContent(B4, "\"a\"");
+    }
+  }
+
+  @Test
+  public void testQuotedStringFormattedFormulaCellWithSharedFormulaSupport() throws Exception {
+    try (
+            InputStream stream = getInputStream("formula_cell.xlsx");
+            Workbook workbook = StreamingReader.builder().setReadSharedFormulas(true).open(stream)
+    ) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      nextRow(rowIterator);
+      Cell B2 = getCellFromNextRow(rowIterator, 1);
+      nextRow(rowIterator);
+      Cell B4 = getCellFromNextRow(rowIterator, 1);
+
+      expectType(B4, FORMULA);
+      expectCachedType(B4, STRING);
+      expectFormula(B4, "B2"); // this only works if setReadSharedFormulas(true) set on builder
       expectSameStringContent(B2, B4);
       expectStringContent(B4, "\"a\"");
     }
