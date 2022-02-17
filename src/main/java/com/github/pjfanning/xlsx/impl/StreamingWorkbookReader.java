@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
+import com.github.pjfanning.xlsx.SharedStringsImplementationType;
 import com.github.pjfanning.xlsx.StreamingReader.Builder;
 import com.github.pjfanning.xlsx.exceptions.NotSupportedException;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
@@ -147,8 +148,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     if (strictFormat) {
       log.info("file is in strict OOXML format");
     }
-    if (builder.useSstTempFile()) {
-      log.debug("Created sst cache file");
+    if (builder.getSharedStringsImplementationType() == SharedStringsImplementationType.TEMP_FILE_BACKED) {
+      log.info("Created sst cache file");
       sst = new TempFileSharedStringsTable(pkg, builder.encryptSstTempFile(), builder.fullFormatRichText());
     } else if (strictFormat) {
       sst = OoxmlStrictHelper.getSharedStringsTable(builder, pkg);

@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl.ooxml;
 
+import com.github.pjfanning.poi.xssf.streaming.MapBackedSharedStringsTable;
 import com.github.pjfanning.xlsx.StreamingReader;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
@@ -82,17 +83,27 @@ public class OoxmlStrictHelper {
           }
         }
         try(InputStream is = tempData.getInputStream()) {
-          if (builder.useSstReadOnly()) {
-            return new ReadOnlySharedStringsTable(is);
-          } else {
-            SharedStringsTable sst = new SharedStringsTable();
-            try {
-              sst.readFrom(is);
-            } catch (IOException|RuntimeException e) {
-              sst.close();
-              throw e;
-            }
-            return sst;
+          switch (builder.getSharedStringsImplementationType()) {
+            case POI_DEFAULT:
+              SharedStringsTable sst = new SharedStringsTable();
+              try {
+                sst.readFrom(is);
+              } catch (IOException|RuntimeException e) {
+                sst.close();
+                throw e;
+              }
+              return sst;
+            case CUSTOM_MAP_BACKED:
+              MapBackedSharedStringsTable mbst = new MapBackedSharedStringsTable();
+              try {
+                mbst.readFrom(is);
+              } catch (IOException|RuntimeException e) {
+                mbst.close();
+                throw e;
+              }
+              return mbst;
+            default:
+              return new ReadOnlySharedStringsTable(is);
           }
         }
       }

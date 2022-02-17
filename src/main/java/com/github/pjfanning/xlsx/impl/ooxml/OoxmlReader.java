@@ -16,7 +16,9 @@
 ==================================================================== */
 package com.github.pjfanning.xlsx.impl.ooxml;
 
+import com.github.pjfanning.poi.xssf.streaming.MapBackedSharedStringsTable;
 import com.github.pjfanning.poi.xssf.streaming.TempFileCommentsTable;
+import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
 import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
 import org.apache.poi.ooxml.POIXMLException;
@@ -106,9 +108,20 @@ public class OoxmlReader extends XSSFReader {
    */
   public SharedStrings getSharedStrings(StreamingReader.Builder builder) throws IOException, SAXException {
     ArrayList<PackagePart> parts = pkg.getPartsByContentType(XSSFRelation.SHARED_STRINGS.getContentType());
-    return parts.isEmpty() ? null :
-            builder.useSstReadOnly() ? new ReadOnlySharedStringsTable(parts.get(0)) :
-              new SharedStringsTable(parts.get(0));
+    if (parts.isEmpty()) {
+      return null;
+    } else {
+      switch (builder.getSharedStringsImplementationType()) {
+        case POI_DEFAULT:
+          return new SharedStringsTable(parts.get(0));
+        case CUSTOM_MAP_BACKED:
+          return new MapBackedSharedStringsTable(parts.get(0).getPackage());
+        case TEMP_FILE_BACKED:
+          return new TempFileSharedStringsTable(parts.get(0).getPackage(), builder.encryptSstTempFile());
+        default:
+          return new ReadOnlySharedStringsTable(parts.get(0));
+      }
+    }
   }
 
   /**
