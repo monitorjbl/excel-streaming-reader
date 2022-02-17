@@ -268,8 +268,9 @@ public class StreamingCell implements Cell {
       case ERROR:   return "error";
       case NUMERIC: return "numeric";
       case FORMULA: return "formula";
+      default:
+        return "#unknown cell type (" + cellType + ")#";
     }
-    return "#unknown cell type (" + cellType + ")#";
   }
 
   /**

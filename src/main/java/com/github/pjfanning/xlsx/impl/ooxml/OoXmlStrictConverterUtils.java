@@ -3,6 +3,7 @@ package com.github.pjfanning.xlsx.impl.ooxml;
 import org.apache.poi.util.Beta;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 @Beta
@@ -21,7 +22,7 @@ public class OoXmlStrictConverterUtils {
     public static Properties readMappings() {
         Properties props = new Properties();
         try(InputStream is = OoXmlStrictConverterUtils.class.getResourceAsStream("/ooxml-strict-mappings.properties");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, "ISO-8859-1"))) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1))) {
             String line;
             while((line = reader.readLine()) != null) {
                 String[] vals = line.split("=");
