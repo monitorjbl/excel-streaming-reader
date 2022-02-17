@@ -1121,6 +1121,16 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testReadCommentsWithMapBackedComments() throws Exception {
+    testReadComments(CommentsImplementationType.CUSTOM_MAP_BACKED, false, false);
+  }
+
+  @Test
+  public void testReadCommentsWithMapBackedCommentsFullFormat() throws Exception {
+    testReadComments(CommentsImplementationType.CUSTOM_MAP_BACKED, false, true);
+  }
+
+  @Test
   public void testReadCommentsWithTempFileComments() throws Exception {
     testReadComments(CommentsImplementationType.TEMP_FILE_BACKED, false, false);
   }
@@ -1333,7 +1343,7 @@ public class StreamingReaderTest {
                     .setFullFormatRichText(fullFormat)
                     .open(inputStream)
     ) {
-      int expectedRuns = commentsImplementationType == CommentsImplementationType.TEMP_FILE_BACKED && !fullFormat ? 0 : 2;
+      int expectedRuns = commentsImplementationType != CommentsImplementationType.POI_DEFAULT && !fullFormat ? 0 : 2;
       Sheet sheet = wb.getSheetAt(0);
       assertEquals(14, sheet.getCellComments().size());
       Comment comment00 = sheet.getCellComment(new CellAddress(0, 0));
