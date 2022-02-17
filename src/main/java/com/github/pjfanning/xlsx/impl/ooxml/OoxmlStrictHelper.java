@@ -1,6 +1,9 @@
 package com.github.pjfanning.xlsx.impl.ooxml;
 
+import com.github.pjfanning.poi.xssf.streaming.MapBackedCommentsTable;
 import com.github.pjfanning.poi.xssf.streaming.MapBackedSharedStringsTable;
+import com.github.pjfanning.poi.xssf.streaming.TempFileCommentsTable;
+import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
 import com.github.pjfanning.xlsx.StreamingReader;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
@@ -93,8 +96,18 @@ public class OoxmlStrictHelper {
                 throw e;
               }
               return sst;
+            case TEMP_FILE_BACKED:
+              TempFileSharedStringsTable tfst = new TempFileSharedStringsTable(
+                      builder.encryptSstTempFile(), builder.fullFormatRichText());
+              try {
+                tfst.readFrom(is);
+              } catch (IOException|RuntimeException e) {
+                tfst.close();
+                throw e;
+              }
+              return tfst;
             case CUSTOM_MAP_BACKED:
-              MapBackedSharedStringsTable mbst = new MapBackedSharedStringsTable();
+              MapBackedSharedStringsTable mbst = new MapBackedSharedStringsTable(builder.fullFormatRichText());
               try {
                 mbst.readFrom(is);
               } catch (IOException|RuntimeException e) {
@@ -110,7 +123,7 @@ public class OoxmlStrictHelper {
     }
   }
 
-  public static CommentsTable getCommentsTable(StreamingReader.Builder builder, PackagePart part)
+  public static Comments getCommentsTable(StreamingReader.Builder builder, PackagePart part)
           throws IOException, XMLStreamException {
     try(TempDataStore tempData = createTempDataStore(builder)) {
       try(
@@ -123,9 +136,32 @@ public class OoxmlStrictHelper {
         }
       }
       try(InputStream is = tempData.getInputStream()) {
-        CommentsTable commentsTable = new CommentsTable();
-        commentsTable.readFrom(is);
-        return commentsTable;
+        switch (builder.getCommentsImplementationType()) {
+          case TEMP_FILE_BACKED:
+            TempFileCommentsTable tfct = new TempFileCommentsTable(
+                    builder.encryptCommentsTempFile(),
+                    builder.fullFormatRichText());
+            try {
+              tfct.readFrom(is);
+            } catch (IOException|RuntimeException e) {
+              tfct.close();
+              throw e;
+            }
+            return tfct;
+          case CUSTOM_MAP_BACKED:
+            MapBackedCommentsTable mbct = new MapBackedCommentsTable(builder.fullFormatRichText());
+            try {
+              mbct.readFrom(is);
+            } catch (IOException|RuntimeException e) {
+              mbct.close();
+              throw e;
+            }
+            return mbct;
+          default:
+            CommentsTable commentsTable = new CommentsTable();
+            commentsTable.readFrom(is);
+            return commentsTable;
+        }
       }
     }
   }

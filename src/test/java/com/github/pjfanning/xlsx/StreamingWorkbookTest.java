@@ -439,6 +439,35 @@ public class StreamingWorkbookTest {
   }
 
   @Test
+  public void testRightToLeftMapBackedSst() throws IOException {
+    try(
+            InputStream stream = getInputStream("right-to-left.xlsx");
+            Workbook workbook = StreamingReader.builder()
+                    .setSharedStringsImplementationType(SharedStringsImplementationType.CUSTOM_MAP_BACKED)
+                    .setReadComments(true)
+                    .setAdjustLegacyComments(true)
+                    .open(stream)
+    ){
+      Sheet sheet = workbook.getSheet("عربى");
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Cell A1 = getCellFromNextRow(rowIterator, 0);
+      Cell A2 = getCellFromNextRow(rowIterator, 0);
+      Cell A3 = getCellFromNextRow(rowIterator, 0);
+      Cell A4 = getCellFromNextRow(rowIterator, 0);
+
+      expectFormattedContent(A1, "نص");
+      expectFormattedContent(A2, "123"); //this should really be ۱۲۳
+      expectFormattedContent(A3, "text with comment");
+      expectFormattedContent(A4, " עִבְרִית and اَلْعَرَبِيَّةُ");
+
+      Comment a3Comment = sheet.getCellComment(new CellAddress("A3"));
+      assertEquals(0, a3Comment.getString().numFormattingRuns());
+      assertEquals("تعليق الاختبار", a3Comment.getString().getString());
+    }
+  }
+
+  @Test
   public void testAdjustLegacyCommentsDisabled() throws IOException {
     try(
             InputStream stream = getInputStream("right-to-left.xlsx");

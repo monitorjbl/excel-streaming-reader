@@ -16,9 +16,11 @@
 ==================================================================== */
 package com.github.pjfanning.xlsx.impl.ooxml;
 
+import com.github.pjfanning.poi.xssf.streaming.MapBackedCommentsTable;
 import com.github.pjfanning.poi.xssf.streaming.MapBackedSharedStringsTable;
 import com.github.pjfanning.poi.xssf.streaming.TempFileCommentsTable;
 import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
+import com.github.pjfanning.xlsx.CommentsImplementationType;
 import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
 import org.apache.poi.ooxml.POIXMLException;
@@ -242,10 +244,22 @@ public class OoxmlReader extends XSSFReader {
     }
 
     private Comments parseComments(StreamingReader.Builder builder, PackagePart commentsPart) throws IOException, XMLStreamException, InvalidFormatException {
-      if (builder.useCommentsTempFile()) {
+      if (builder.getCommentsImplementationType() == CommentsImplementationType.TEMP_FILE_BACKED) {
         try (InputStream is = commentsPart.getInputStream()) {
           TempFileCommentsTable ct = new TempFileCommentsTable(
                   builder.encryptCommentsTempFile(),
+                  builder.fullFormatRichText());
+          try {
+            ct.readFrom(is);
+          } catch (IOException | RuntimeException e) {
+            ct.close();
+            throw e;
+          }
+          return ct;
+        }
+      } else if (builder.getCommentsImplementationType() == CommentsImplementationType.CUSTOM_MAP_BACKED) {
+        try (InputStream is = commentsPart.getInputStream()) {
+          MapBackedCommentsTable ct = new MapBackedCommentsTable(
                   builder.fullFormatRichText());
           try {
             ct.readFrom(is);
