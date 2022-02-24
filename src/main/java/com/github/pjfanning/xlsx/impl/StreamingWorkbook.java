@@ -558,4 +558,20 @@ public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseab
   public EvaluationWorkbook createEvaluationWorkbook() {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public CellReferenceType getCellReferenceType() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void setCellReferenceType(CellReferenceType cellReferenceType) {
+    throw new UnsupportedOperationException();
+  }
 }

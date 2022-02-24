@@ -18,18 +18,19 @@ sonarqube {
 }
 
 group = 'com.github.pjfanning'
-version = '3.5.1-SNAPSHOT'
+version = '3.6.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
     //maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://repository.apache.org/content/repositories/staging/' }
 }
 
 dependencies {
-    api 'org.apache.poi:poi:5.2.0'
-    api 'org.apache.poi:poi-ooxml:5.2.0'
+    api 'org.apache.poi:poi:5.2.1'
+    api 'org.apache.poi:poi-ooxml:5.2.1'
     implementation 'com.github.pjfanning:poi-shared-strings:2.5.0'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'commons-io:commons-io:2.11.0'
