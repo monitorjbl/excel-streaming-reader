@@ -319,7 +319,8 @@ public class StreamingSheetReader implements Iterable<Row> {
         currentRowNum++;
       } else if ("c".equals(tagLocalName)) {
         if (currentRow == null) {
-          log.warn("failed to add cell {} to cell map because currentRow is null", currentCell.getAddress().formatAsString());
+          final CellAddress cellAddress = currentCell == null ? null : currentCell.getAddress();
+          log.warn("failed to add cell {} to cell map because currentRow is null", cellAddress);
         } else {
           currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
         }
