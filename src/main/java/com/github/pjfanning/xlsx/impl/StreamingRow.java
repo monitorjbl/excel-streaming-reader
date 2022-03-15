@@ -8,7 +8,8 @@ import java.util.*;
 public class StreamingRow implements Row {
   private final Sheet sheet;
   private final int rowIndex;
-  private boolean isHidden;
+  private final boolean isHidden;
+  private float height = -1.0f;
   private TreeMap<Integer, Cell> cellMap = new TreeMap<>();
   private StreamingSheetReader streamingSheetReader;
 
@@ -20,6 +21,10 @@ public class StreamingRow implements Row {
 
   void setStreamingSheetReader(StreamingSheetReader streamingSheetReader) {
     this.streamingSheetReader = streamingSheetReader;
+  }
+
+  void setHeight(float height) {
+    this.height = height;
   }
 
   public Map<Integer, Cell> getCellMap() {
@@ -95,6 +100,16 @@ public class StreamingRow implements Row {
   @Override
   public boolean getZeroHeight() {
     return isHidden;
+  }
+
+  @Override
+  public short getHeight() {
+    return (short)(getHeightInPoints()*20);
+  }
+
+  @Override
+  public float getHeightInPoints() {
+    return height;
   }
 
   /**
@@ -192,22 +207,6 @@ public class StreamingRow implements Row {
   @Override
   public void setHeightInPoints(float height) {
     throw new NotSupportedException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public short getHeight() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public float getHeightInPoints() {
-    throw new NotSupportedException();
   }
 
   /**
