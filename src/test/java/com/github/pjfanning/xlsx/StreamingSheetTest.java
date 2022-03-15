@@ -103,7 +103,7 @@ public class StreamingSheetTest {
   public void testRowIteratorNext() throws Exception {
     try(
             InputStream is = getInputStream("large.xlsx");
-            Workbook workbook = StreamingReader.builder().rowCacheSize(5).open(is);
+            Workbook workbook = StreamingReader.builder().rowCacheSize(5).open(is)
     ) {
       assertEquals(1, workbook.getNumberOfSheets());
       Sheet sheet = workbook.getSheetAt(0);
@@ -121,7 +121,7 @@ public class StreamingSheetTest {
   public void testHyperlinksEnabled() throws Exception {
     try (
             InputStream is = getInputStream("59775.xlsx");
-            Workbook workbook = StreamingReader.builder().setReadHyperlinks(true).open(is);
+            Workbook workbook = StreamingReader.builder().setReadHyperlinks(true).open(is)
     ) {
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
@@ -187,7 +187,7 @@ public class StreamingSheetTest {
   public void testHyperlinksDisabled() throws Exception {
     try (
             InputStream is = getInputStream("59775.xlsx");
-            Workbook workbook = StreamingReader.builder().open(is);
+            Workbook workbook = StreamingReader.builder().open(is)
     ) {
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
@@ -208,7 +208,7 @@ public class StreamingSheetTest {
   public void testSharedHyperlink() throws Exception {
     try (
             InputStream is = getInputStream("sharedhyperlink.xlsx");
-            Workbook workbook = StreamingReader.builder().setReadHyperlinks(true).open(is);
+            Workbook workbook = StreamingReader.builder().setReadHyperlinks(true).open(is)
     ) {
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
@@ -225,16 +225,59 @@ public class StreamingSheetTest {
     }
   }
 
-
   @Test
   public void testGetActiveCell() throws Exception {
     try (
             InputStream is = getInputStream("59775.xlsx");
-            Workbook workbook = StreamingReader.builder().open(is);
+            Workbook workbook = StreamingReader.builder().open(is)
     ) {
       Sheet sheet = workbook.getSheetAt(0);
       nextRow(sheet.rowIterator()); //need to force a read of first row before getActiveCell works
       assertEquals(new CellAddress("A1"), sheet.getActiveCell());
+    }
+  }
+
+  @Test
+  public void testCustomWidthAndHeight() throws IOException {
+    try (
+            InputStream is = getInputStream("WidthsAndHeights.xlsx");
+            Workbook wb = StreamingReader.builder().open(is)
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+      Row row0 = null, row1 = null, row2 = null;
+      for (Row row : sheet) {
+        if (row.getRowNum() == 0) {
+          row0 = row;
+        } else if (row.getRowNum() == 1) {
+          row1 = row;
+        } else if (row.getRowNum() == 2) {
+          row2 = row;
+        }
+      }
+      assertEquals(8, sheet.getDefaultColumnWidth());
+      assertEquals(300, sheet.getDefaultRowHeight());
+      assertEquals(15.0, sheet.getDefaultRowHeightInPoints(), 0.00001);
+      assertEquals(5120, sheet.getColumnWidth(0));
+      assertEquals(2048, sheet.getColumnWidth(1));
+      assertEquals(0, sheet.getColumnWidth(2));
+      assertEquals(140.034, sheet.getColumnWidthInPixels(0), 0.00001);
+      assertEquals(56.0136, sheet.getColumnWidthInPixels(1), 0.00001);
+      assertEquals(0.0, sheet.getColumnWidthInPixels(2), 0.00001);
+      assertFalse(sheet.isColumnHidden(0));
+      assertFalse(sheet.isColumnHidden(1));
+      assertTrue(sheet.isColumnHidden(2));
+      assertNotNull(row0);
+      assertNotNull(row1);
+      assertNotNull(row2);
+      assertEquals(750, row0.getHeight());
+      assertEquals(37.5, row0.getHeightInPoints(), 0.00001);
+      assertFalse(row0.getZeroHeight());
+      assertEquals(300, row1.getHeight());
+      assertEquals(15.0, row1.getHeightInPoints(), 0.00001);
+      assertFalse(row1.getZeroHeight());
+      assertEquals(15, row2.getHeight());
+      assertEquals(0.75, row2.getHeightInPoints(), 0.00001);
+      assertTrue(row2.getZeroHeight());
     }
   }
 }

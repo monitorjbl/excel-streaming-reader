@@ -42,7 +42,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class StreamingSheetReader implements Iterable<Row> {
-  private static final Logger log = LoggerFactory.getLogger(StreamingSheetReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamingSheetReader.class);
+  private static final QName QNAME_HIDDEN = QName.valueOf("hidden");
+  private static final QName QNAME_HT = QName.valueOf("ht");
+  private static final QName QNAME_MAX = QName.valueOf("max");
+  private static final QName QNAME_MIN = QName.valueOf("min");
+  private static final QName QNAME_R = QName.valueOf("r");
+  private static final QName QNAME_REF = QName.valueOf("ref");
+  private static final QName QNAME_S = QName.valueOf("s");
+  private static final QName QNAME_T = QName.valueOf("t");
+  private static final QName QNAME_WIDTH = QName.valueOf("width");
 
   private final StreamingWorkbookReader streamingWorkbookReader;
   private final PackagePart packagePart;
@@ -52,6 +61,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private final XMLEventReader parser;
   private final DataFormatter dataFormatter = new DataFormatter();
   private final Set<Integer> hiddenColumns = new HashSet<>();
+  private final Map<Integer, Float> columnWidths = new HashMap<>();
   private final List<CellRangeAddress> mergedCells = new ArrayList<>();
   private final List<HyperlinkData> hyperlinks = new ArrayList<>();
   private List<XlsxHyperlink> xlsxHyperlinks;
@@ -63,6 +73,8 @@ public class StreamingSheetReader implements Iterable<Row> {
   private int firstColNum = 0;
   private int currentColNum;
   private int rowCacheSize;
+  private float defaultRowHeight = 0.0f;
+  private int baseColWidth = 8; //POI XSSFSheet default
   private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
 
@@ -126,6 +138,14 @@ public class StreamingSheetReader implements Iterable<Row> {
     return use1904Dates;
   }
 
+  float getDefaultRowHeight() {
+    return defaultRowHeight;
+  }
+
+  int getBaseColWidth() {
+    return baseColWidth;
+  }
+
   /**
    * Read through a number of rows equal to the rowCacheSize field or until there is no more data to read
    *
@@ -158,30 +178,51 @@ public class StreamingSheetReader implements Iterable<Row> {
       String tagLocalName = startElement.getName().getLocalPart();
 
       if ("row".equals(tagLocalName)) {
-        Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
+        Attribute rowNumAttr = startElement.getAttributeByName(QNAME_R);
         int rowIndex = currentRowNum;
         if (rowNumAttr != null) {
           rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
           currentRowNum = rowIndex;
         }
-        Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
+        Attribute isHiddenAttr = startElement.getAttributeByName(QNAME_HIDDEN);
+        Attribute htAttr = startElement.getAttributeByName(QNAME_HT);
+        float height = getDefaultRowHeight();
+        if (htAttr != null) {
+          try {
+            height = Float.parseFloat(htAttr.getValue());
+          } catch (Exception e) {
+            LOG.warn("unable to parse row {} height {}", rowIndex, htAttr.getValue());
+          }
+        }
         boolean isHidden = isHiddenAttr != null && XmlUtils.evaluateBoolean(isHiddenAttr.getValue());
         currentRow = new StreamingRow(sheet, rowIndex, isHidden);
         currentRow.setStreamingSheetReader(this);
+        currentRow.setHeight(height);
         currentColNum = firstColNum;
       } else if ("col".equals(tagLocalName)) {
-        Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
+        Attribute isHiddenAttr = startElement.getAttributeByName(QNAME_HIDDEN);
+        Attribute widthAttr = startElement.getAttributeByName(QNAME_WIDTH);
+        float width = -1;
+        if (widthAttr != null) {
+          try {
+            width = Float.parseFloat(widthAttr.getValue());
+          } catch (Exception e) {
+            LOG.warn("Failed to parse column width {}", width);
+          }
+        }
         boolean isHidden = isHiddenAttr != null && XmlUtils.evaluateBoolean(isHiddenAttr.getValue());
-        if (isHidden) {
-          Attribute minAttr = startElement.getAttributeByName(new QName("min"));
-          Attribute maxAttr = startElement.getAttributeByName(new QName("max"));
+        if (isHidden || width >= 0) {
+          Attribute minAttr = startElement.getAttributeByName(QNAME_MIN);
+          Attribute maxAttr = startElement.getAttributeByName(QNAME_MAX);
           int min = Integer.parseInt(minAttr.getValue()) - 1;
           int max = Integer.parseInt(maxAttr.getValue()) - 1;
-          for (int columnIndex = min; columnIndex <= max; columnIndex++)
-            hiddenColumns.add(columnIndex);
+          for (int columnIndex = min; columnIndex <= max; columnIndex++) {
+            if (isHidden) hiddenColumns.add(columnIndex);
+            if (width >= 0) columnWidths.put(columnIndex, width);
+          }
         }
       } else if ("c".equals(tagLocalName)) {
-        Attribute ref = startElement.getAttributeByName(new QName("r"));
+        Attribute ref = startElement.getAttributeByName(QNAME_R);
 
         if (ref != null) {
           CellAddress cellAddress = new CellAddress(ref.getValue());
@@ -198,7 +239,7 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
         setFormatString(startElement, currentCell);
 
-        Attribute type = startElement.getAttributeByName(new QName("t"));
+        Attribute type = startElement.getAttributeByName(QNAME_T);
         if (type != null) {
           currentCell.setType(type.getValue());
         } else {
@@ -206,14 +247,14 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
 
         if (stylesTable != null) {
-          Attribute style = startElement.getAttributeByName(new QName("s"));
+          Attribute style = startElement.getAttributeByName(QNAME_S);
           if (style != null) {
             String indexStr = style.getValue();
             try {
               int index = Integer.parseInt(indexStr);
               currentCell.setCellStyle(stylesTable.getStyleAt(index));
             } catch (NumberFormatException nfe) {
-              log.warn("Ignoring invalid style index {}", indexStr);
+              LOG.warn("Ignoring invalid style index {}", indexStr);
             }
           } else {
             currentCell.setCellStyle(stylesTable.getStyleAt(0));
@@ -224,7 +265,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if ("is".equals(tagLocalName)) {
         insideIS = true;
       } else if ("dimension".equals(tagLocalName)) {
-        Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
+        Attribute refAttr = startElement.getAttributeByName(QNAME_REF);
         String ref = refAttr != null ? refAttr.getValue() : null;
         if (ref != null) {
           // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
@@ -244,7 +285,7 @@ public class StreamingSheetReader implements Iterable<Row> {
               CellReference cellReference = new CellReference(firstPart);
               firstRowNum = cellReference.getRow();
             } catch (Exception e) {
-              log.warn("Failed to parse cell reference {}", firstPart);
+              LOG.warn("Failed to parse cell reference {}", firstPart);
             }
           }
           for (int i = 0; i < ref.length(); i++) {
@@ -268,7 +309,7 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
         }
       } else if ("mergeCell".equals(tagLocalName)) {
-        Attribute ref = startElement.getAttributeByName(QName.valueOf("ref"));
+        Attribute ref = startElement.getAttributeByName(QNAME_REF);
         if (ref != null) {
           mergedCells.add(CellRangeAddress.valueOf(ref.getValue()));
         }
@@ -279,7 +320,7 @@ public class StreamingSheetReader implements Iterable<Row> {
           try {
             this.activeCell = new CellAddress(activeCellRef);
           } catch (Exception e) {
-            log.warn("unable to parse active cell reference {}", activeCellRef);
+            LOG.warn("unable to parse active cell reference {}", activeCellRef);
           }
         }
       } else if ("hyperlink".equals(tagLocalName)) {
@@ -292,12 +333,29 @@ public class StreamingSheetReader implements Iterable<Row> {
             id = att.getValue();
           }
         }
-        Attribute ref = startElement.getAttributeByName(QName.valueOf("ref"));
+        Attribute ref = startElement.getAttributeByName(QNAME_REF);
         Attribute location = startElement.getAttributeByName(QName.valueOf("location"));
         Attribute display = startElement.getAttributeByName(QName.valueOf("display"));
         Attribute tooltip = startElement.getAttributeByName(QName.valueOf("tooltip"));
         hyperlinks.add(new HyperlinkData(id, getAttributeValue(ref), getAttributeValue(location),
                 getAttributeValue(display), getAttributeValue(tooltip)));
+      } else if ("sheetFormatPr".equals(tagLocalName)) {
+        Attribute defaultRowHeightAtt = startElement.getAttributeByName(QName.valueOf("defaultRowHeight"));
+        if (defaultRowHeightAtt != null) {
+          try {
+            defaultRowHeight = Float.parseFloat(defaultRowHeightAtt.getValue());
+          } catch (Exception e) {
+            LOG.warn("unable to parse defaultRowHeight {}", defaultRowHeightAtt.getValue());
+          }
+        }
+        Attribute baseColWidthAtt = startElement.getAttributeByName(QName.valueOf("baseColWidth"));
+        if (baseColWidthAtt != null) {
+          try {
+            baseColWidth = Integer.parseInt(baseColWidthAtt.getValue());
+          } catch (Exception e) {
+            LOG.warn("unable to parse baseColWidth {}", baseColWidthAtt.getValue());
+          }
+        }
       }
 
       if (!insideIS) {
@@ -320,7 +378,7 @@ public class StreamingSheetReader implements Iterable<Row> {
       } else if ("c".equals(tagLocalName)) {
         if (currentRow == null) {
           final CellAddress cellAddress = currentCell == null ? null : currentCell.getAddress();
-          log.warn("failed to add cell {} to cell map because currentRow is null", cellAddress);
+          LOG.warn("failed to add cell {} to cell map because currentRow is null", cellAddress);
         } else {
           currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
         }
@@ -344,13 +402,13 @@ public class StreamingSheetReader implements Iterable<Row> {
               if (wb != null) {
                 SharedFormula sf = sharedFormulaMap.get(currentCell.getFormulaSI());
                 if (sf == null) {
-                  log.warn("No SharedFormula found for si={}", currentCell.getFormulaSI());
+                  LOG.warn("No SharedFormula found for si={}", currentCell.getFormulaSI());
                 } else {
                   CurrentRowEvaluationWorkbook evaluationWorkbook =
                           new CurrentRowEvaluationWorkbook(wb, currentRow);
                   int sheetIndex = wb.getSheetIndex(sheet);
                   if (sheetIndex < 0) {
-                    log.warn("Failed to find correct sheet index; defaulting to zero");
+                    LOG.warn("Failed to find correct sheet index; defaulting to zero");
                     sheetIndex = 0;
                   }
                   try {
@@ -362,17 +420,17 @@ public class StreamingSheetReader implements Iterable<Row> {
                     if (formulaShifter.adjustFormula(ptgs, sheetIndex)) {
                       shiftedFmla = FormulaRenderer.toFormulaString(evaluationWorkbook, ptgs);
                     }
-                    log.debug("cell {} should have formula {} based on shared formula {} (rowsToMove={})",
+                    LOG.debug("cell {} should have formula {} based on shared formula {} (rowsToMove={})",
                             currentCell.getAddress(), shiftedFmla, sf.getFormula(), rowsToMove);
                     currentCell.setFormula(shiftedFmla);
                   } catch (Exception e) {
-                    log.warn("cell {} should has a shared formula but excel-streaming-reader has an issue parsing it - will ignore the formula",
+                    LOG.warn("cell {} should has a shared formula but excel-streaming-reader has an issue parsing it - will ignore the formula",
                             currentCell.getAddress(), e);
                   }
                 }
               }
             } else {
-              log.error("No eval workbook found");
+              LOG.error("No eval workbook found");
             }
           }
         }
@@ -404,6 +462,14 @@ public class StreamingSheetReader implements Iterable<Row> {
       getRow();
     }
     return hiddenColumns.contains(columnIndex);
+  }
+
+  float getColumnWidth(int columnIndex) {
+    if(rowCacheIterator == null) {
+      getRow();
+    }
+    Float width = columnWidths.get(columnIndex);
+    return width == null ? getBaseColWidth() : width;
   }
 
   /**
@@ -549,7 +615,7 @@ public class StreamingSheetReader implements Iterable<Row> {
                           currentNumericFormatIndex,
                           currentNumericFormat);
                 } catch (Exception e) {
-                  log.warn("cannot format strict format date/time {}", currentLastContents);
+                  LOG.warn("cannot format strict format date/time {}", currentLastContents);
                   cachedContent = currentLastContents;
                 }
               }
@@ -694,7 +760,7 @@ public class StreamingSheetReader implements Iterable<Row> {
     public StreamingRowIterator() {
       if(rowCacheIterator == null) {
         if(!hasNext()) {
-          log.debug("there appear to be no rows");
+          LOG.debug("there appear to be no rows");
         }
       }
     }

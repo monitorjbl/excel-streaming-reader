@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.PaneInformation;
+import org.apache.poi.util.Units;
 import org.apache.poi.xssf.model.Comments;
 import org.apache.poi.xssf.usermodel.XSSFComment;
 
@@ -57,7 +58,7 @@ public class StreamingSheet implements Sheet {
   @Override
   public Spliterator<Row> spliterator() {
     // Long.MAX_VALUE is the documented value to use if the size is unknown
-    return Spliterators.spliterator(rowIterator(),  Long.MAX_VALUE, Spliterator.ORDERED);
+    return Spliterators.spliterator(rowIterator(), Long.MAX_VALUE, Spliterator.ORDERED);
   }
 
   /**
@@ -238,6 +239,61 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
+   * Get the default column width for the sheet (if the columns do not define their own width) in
+   * characters.
+   * <p>
+   * Note, this value is different from {@link #getColumnWidth(int)}. The latter is always greater and includes
+   * 4 pixels of margin padding (two on each side), plus 1 pixel padding for the gridlines.
+   * </p>
+   * <p>
+   * This value is only available after the first row is read (due to the way excel-streaming-reader streams the data).
+   * </p>
+   * @return column width, default value is 8
+   */
+  @Override
+  public int getDefaultColumnWidth() {
+    return reader.getBaseColWidth();
+  }
+
+  /**
+   * Get the default row height for the sheet (if the rows do not define their own height) in
+   * twips (1/20 of a point)
+   * <p>
+   * This value is only available after the first row is read (due to the way excel-streaming-reader streams the data).
+   * </p>
+   *
+   * @return  default row height
+   */
+  @Override
+  public short getDefaultRowHeight() {
+    return (short)(getDefaultRowHeightInPoints() * Font.TWIPS_PER_POINT);
+  }
+
+  /**
+   * Get the default row height for the sheet measured in point size (if the rows do not define their own height).
+   * <p>
+   * This value is only available after the first row is read (due to the way excel-streaming-reader streams the data).
+   * </p>
+   *
+   * @return  default row height in points
+   */
+  @Override
+  public float getDefaultRowHeightInPoints() {
+    return reader.getDefaultRowHeight();
+  }
+
+  @Override
+  public int getColumnWidth(final int columnIndex) {
+    return Math.round(reader.getColumnWidth(columnIndex)*256);
+  }
+
+  @Override
+  public float getColumnWidthInPixels(final int columnIndex) {
+    float widthIn256 = getColumnWidth(columnIndex);
+    return (float)(widthIn256/256.0 * Units.DEFAULT_CHARACTER_WIDTH);
+  }
+
+  /**
    * @return immutable copy of the shared formula map for this sheet
    */
   public Map<String, SharedFormula> getSharedFormulaMap() {
@@ -328,51 +384,11 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
-   * Not supported
-   */
-  @Override
-  public int getColumnWidth(int columnIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public float getColumnWidthInPixels(int columnIndex) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Update operations are not supported
    */
   @Override
   public void setDefaultColumnWidth(int width) {
     throw new UnsupportedOperationException("update operations are not supported");
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public int getDefaultColumnWidth() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public short getDefaultRowHeight() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public float getDefaultRowHeightInPoints() {
-    throw new UnsupportedOperationException();
   }
 
   /**
