@@ -34,7 +34,10 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.*;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -142,22 +145,22 @@ public class StreamingSheetReader implements Iterable<Row> {
   }
 
   private void handleEvent(XMLEvent event) {
-    if(event.getEventType() == XMLStreamConstants.CHARACTERS) {
+    if (event.getEventType() == XMLStreamConstants.CHARACTERS) {
       if (insideCharElement) {
         contentBuilder.append(event.asCharacters().getData());
       }
       if (insideFormulaElement) {
         formulaBuilder.append(event.asCharacters().getData());
       }
-    } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
-        && isSpreadsheetTag(event.asStartElement().getName())) {
+    } else if (event.getEventType() == XMLStreamConstants.START_ELEMENT
+            && isSpreadsheetTag(event.asStartElement().getName())) {
       StartElement startElement = event.asStartElement();
       String tagLocalName = startElement.getName().getLocalPart();
 
-      if("row".equals(tagLocalName)) {
+      if ("row".equals(tagLocalName)) {
         Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
         int rowIndex = currentRowNum;
-        if(rowNumAttr != null) {
+        if (rowNumAttr != null) {
           rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
           currentRowNum = rowIndex;
         }
@@ -166,18 +169,18 @@ public class StreamingSheetReader implements Iterable<Row> {
         currentRow = new StreamingRow(sheet, rowIndex, isHidden);
         currentRow.setStreamingSheetReader(this);
         currentColNum = firstColNum;
-      } else if("col".equals(tagLocalName)) {
+      } else if ("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
         boolean isHidden = isHiddenAttr != null && XmlUtils.evaluateBoolean(isHiddenAttr.getValue());
-        if(isHidden) {
+        if (isHidden) {
           Attribute minAttr = startElement.getAttributeByName(new QName("min"));
           Attribute maxAttr = startElement.getAttributeByName(new QName("max"));
           int min = Integer.parseInt(minAttr.getValue()) - 1;
           int max = Integer.parseInt(maxAttr.getValue()) - 1;
-          for(int columnIndex = min; columnIndex <= max; columnIndex++)
+          for (int columnIndex = min; columnIndex <= max; columnIndex++)
             hiddenColumns.add(columnIndex);
         }
-      } else if("c".equals(tagLocalName)) {
+      } else if ("c".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(new QName("r"));
 
         if (ref != null) {
@@ -216,20 +219,21 @@ public class StreamingSheetReader implements Iterable<Row> {
             currentCell.setCellStyle(stylesTable.getStyleAt(0));
           }
         }
-      } else if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
+      } else if ("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         insideCharElement = true;
-      } else if("is".equals(tagLocalName)) {
+      } else if ("is".equals(tagLocalName)) {
         insideIS = true;
-      } else if("dimension".equals(tagLocalName)) {
+      } else if ("dimension".equals(tagLocalName)) {
         Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
         String ref = refAttr != null ? refAttr.getValue() : null;
-        if(ref != null) {
+        if (ref != null) {
           // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
-          for(int i = ref.length() - 1; i >= 0; i--) {
-            if(!Character.isDigit(ref.charAt(i))) {
+          for (int i = ref.length() - 1; i >= 0; i--) {
+            if (!Character.isDigit(ref.charAt(i))) {
               try {
                 lastRowNum = Integer.parseInt(ref.substring(i + 1)) - 1;
-              } catch(NumberFormatException ignore) { }
+              } catch (NumberFormatException ignore) {
+              }
               break;
             }
           }
@@ -239,18 +243,18 @@ public class StreamingSheetReader implements Iterable<Row> {
             try {
               CellReference cellReference = new CellReference(firstPart);
               firstRowNum = cellReference.getRow();
-            } catch(Exception e) {
+            } catch (Exception e) {
               log.warn("Failed to parse cell reference {}", firstPart);
             }
           }
-          for(int i = 0; i < ref.length(); i++) {
-            if(!Character.isAlphabetic(ref.charAt(i))) {
+          for (int i = 0; i < ref.length(); i++) {
+            if (!Character.isAlphabetic(ref.charAt(i))) {
               firstColNum = CellReference.convertColStringToIndex(ref.substring(0, i));
               break;
             }
           }
         }
-      } else if("f".equals(tagLocalName)) {
+      } else if ("f".equals(tagLocalName)) {
         insideFormulaElement = true;
         if (currentCell != null) {
           currentCell.setFormulaType(true);
@@ -263,22 +267,22 @@ public class StreamingSheetReader implements Iterable<Row> {
             currentCell.setFormulaSI(siAttr.getValue());
           }
         }
-      } else if("mergeCell".equals(tagLocalName)) {
+      } else if ("mergeCell".equals(tagLocalName)) {
         Attribute ref = startElement.getAttributeByName(QName.valueOf("ref"));
-        if(ref != null) {
+        if (ref != null) {
           mergedCells.add(CellRangeAddress.valueOf(ref.getValue()));
         }
-      } else if("selection".equals(tagLocalName)) {
-      Attribute activeCellAttr = startElement.getAttributeByName(QName.valueOf("activeCell"));
-      if(activeCellAttr != null) {
-        String activeCellRef = getAttributeValue(activeCellAttr);
-        try {
-          this.activeCell = new CellAddress(activeCellRef);
-        } catch (Exception e) {
-          log.warn("unable to parse active cell reference {}", activeCellRef);
+      } else if ("selection".equals(tagLocalName)) {
+        Attribute activeCellAttr = startElement.getAttributeByName(QName.valueOf("activeCell"));
+        if (activeCellAttr != null) {
+          String activeCellRef = getAttributeValue(activeCellAttr);
+          try {
+            this.activeCell = new CellAddress(activeCellRef);
+          } catch (Exception e) {
+            log.warn("unable to parse active cell reference {}", activeCellRef);
+          }
         }
-      }
-    } else if("hyperlink".equals(tagLocalName)) {
+      } else if ("hyperlink".equals(tagLocalName)) {
         String id = null;
         Iterator<Attribute> attributeIterator = startElement.getAttributes();
         while (attributeIterator.hasNext()) {
@@ -300,20 +304,20 @@ public class StreamingSheetReader implements Iterable<Row> {
         contentBuilder.setLength(0);
       }
       formulaBuilder.setLength(0);
-    } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT
-        && isSpreadsheetTag(event.asEndElement().getName())) {
+    } else if (event.getEventType() == XMLStreamConstants.END_ELEMENT
+            && isSpreadsheetTag(event.asEndElement().getName())) {
       EndElement endElement = event.asEndElement();
       String tagLocalName = endElement.getName().getLocalPart();
 
-      if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
+      if ("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         insideCharElement = false;
         Supplier formattedContentSupplier = formattedContents();
         currentCell.setRawContents(unformattedContents(formattedContentSupplier));
         currentCell.setContentSupplier(formattedContentSupplier);
-      } else if("row".equals(tagLocalName) && currentRow != null) {
+      } else if ("row".equals(tagLocalName) && currentRow != null) {
         rowCache.add(currentRow);
         currentRowNum++;
-      } else if("c".equals(tagLocalName)) {
+      } else if ("c".equals(tagLocalName)) {
         if (currentRow == null) {
           log.warn("failed to add cell {} to cell map because currentRow is null", currentCell.getAddress().formatAsString());
         } else {
@@ -321,9 +325,9 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
         currentCell = null;
         currentColNum++;
-      } else if("is".equals(tagLocalName)) {
+      } else if ("is".equals(tagLocalName)) {
         insideIS = false;
-      } else if("f".equals(tagLocalName)) {
+      } else if ("f".equals(tagLocalName)) {
         insideFormulaElement = false;
         if (currentCell != null) {
           final String formula = formulaBuilder.toString();
