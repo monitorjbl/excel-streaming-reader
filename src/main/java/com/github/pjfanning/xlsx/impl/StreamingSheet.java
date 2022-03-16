@@ -293,6 +293,11 @@ public class StreamingSheet implements Sheet {
     return (float)(widthIn256/256.0 * Units.DEFAULT_CHARACTER_WIDTH);
   }
 
+  @Override
+  public PaneInformation getPaneInformation() {
+    return reader.getPane();
+  }
+
   /**
    * @return immutable copy of the shared formula map for this sheet
    */
@@ -780,14 +785,6 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public void createSplitPane(int xSplitPos, int ySplitPos, int leftmostColumn, int topRow, int activePane) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public PaneInformation getPaneInformation() {
     throw new UnsupportedOperationException();
   }
 

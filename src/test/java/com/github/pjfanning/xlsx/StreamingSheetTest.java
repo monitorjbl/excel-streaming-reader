@@ -6,6 +6,7 @@ import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.PaneInformation;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
@@ -278,6 +279,56 @@ public class StreamingSheetTest {
       assertEquals(15, row2.getHeight());
       assertEquals(0.75, row2.getHeightInPoints(), 0.00001);
       assertTrue(row2.getZeroHeight());
+    }
+  }
+
+  @Test
+  public void testPaneInformation() throws IOException {
+    try (
+            XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
+            UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()
+    ) {
+      int leftmostColumn = 3;
+      int topRow = 4;
+
+      Sheet s = xssfWorkbook.createSheet();
+
+      // Populate
+      for (int rn = 0; rn <= topRow; rn++) {
+        Row r = s.createRow(rn);
+        for (int cn = 0; cn < leftmostColumn; cn++) {
+          Cell c = r.createCell(cn, CellType.NUMERIC);
+          c.setCellValue(100 * rn + cn);
+        }
+      }
+
+      // Now a column only freezepane
+      s.createFreezePane(4, 0);
+      PaneInformation paneInfo = s.getPaneInformation();
+
+      assertEquals(4, paneInfo.getVerticalSplitPosition());
+      assertEquals(0, paneInfo.getHorizontalSplitPosition());
+      assertEquals(4, paneInfo.getVerticalSplitLeftColumn());
+      assertEquals(0, paneInfo.getHorizontalSplitTopRow());
+      assertTrue(paneInfo.isFreezePane());
+      assertEquals(1, paneInfo.getActivePane());
+
+      xssfWorkbook.write(bos);
+
+      try (Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        Sheet sheet = wb.getSheetAt(0);
+        PaneInformation streamPane = sheet.getPaneInformation();
+        assertEquals(4, streamPane.getVerticalSplitPosition());
+        assertEquals(0, streamPane.getHorizontalSplitPosition());
+        assertEquals(4, streamPane.getVerticalSplitLeftColumn());
+        assertEquals(0, streamPane.getHorizontalSplitTopRow());
+        assertTrue(streamPane.isFreezePane());
+        assertEquals(1, streamPane.getActivePane());
+        Iterator<Row> rowIterator = sheet.rowIterator();
+        if (rowIterator.hasNext()) {
+          rowIterator.next();
+        }
+      }
     }
   }
 }

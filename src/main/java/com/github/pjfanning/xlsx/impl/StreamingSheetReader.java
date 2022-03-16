@@ -23,10 +23,12 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.ss.util.PaneInformation;
 import org.apache.poi.xssf.model.Comments;
 import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.*;
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.STPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +90,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private boolean insideCharElement = false;
   private boolean insideFormulaElement = false;
   private boolean insideIS = false;
+  private PaneInformation pane;
 
   StreamingSheetReader(StreamingWorkbookReader streamingWorkbookReader,
                        PackagePart packagePart,
@@ -260,6 +263,8 @@ public class StreamingSheetReader implements Iterable<Row> {
             currentCell.setCellStyle(stylesTable.getStyleAt(0));
           }
         }
+      } else if ("pane".equals(tagLocalName)) {
+        parsePane(startElement);
       } else if ("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
         insideCharElement = true;
       } else if ("is".equals(tagLocalName)) {
@@ -309,10 +314,7 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
         }
       } else if ("mergeCell".equals(tagLocalName)) {
-        Attribute ref = startElement.getAttributeByName(QNAME_REF);
-        if (ref != null) {
-          mergedCells.add(CellRangeAddress.valueOf(ref.getValue()));
-        }
+        parseMergeCell(startElement);
       } else if ("selection".equals(tagLocalName)) {
         Attribute activeCellAttr = startElement.getAttributeByName(QName.valueOf("activeCell"));
         if (activeCellAttr != null) {
@@ -324,38 +326,9 @@ public class StreamingSheetReader implements Iterable<Row> {
           }
         }
       } else if ("hyperlink".equals(tagLocalName)) {
-        String id = null;
-        Iterator<Attribute> attributeIterator = startElement.getAttributes();
-        while (attributeIterator.hasNext()) {
-          Attribute att = attributeIterator.next();
-          QName qn = att.getName();
-          if ("id".equals(qn.getLocalPart()) && qn.getNamespaceURI().endsWith("relationships")) {
-            id = att.getValue();
-          }
-        }
-        Attribute ref = startElement.getAttributeByName(QNAME_REF);
-        Attribute location = startElement.getAttributeByName(QName.valueOf("location"));
-        Attribute display = startElement.getAttributeByName(QName.valueOf("display"));
-        Attribute tooltip = startElement.getAttributeByName(QName.valueOf("tooltip"));
-        hyperlinks.add(new HyperlinkData(id, getAttributeValue(ref), getAttributeValue(location),
-                getAttributeValue(display), getAttributeValue(tooltip)));
+        parseHyperlink(startElement);
       } else if ("sheetFormatPr".equals(tagLocalName)) {
-        Attribute defaultRowHeightAtt = startElement.getAttributeByName(QName.valueOf("defaultRowHeight"));
-        if (defaultRowHeightAtt != null) {
-          try {
-            defaultRowHeight = Float.parseFloat(defaultRowHeightAtt.getValue());
-          } catch (Exception e) {
-            LOG.warn("unable to parse defaultRowHeight {}", defaultRowHeightAtt.getValue());
-          }
-        }
-        Attribute baseColWidthAtt = startElement.getAttributeByName(QName.valueOf("baseColWidth"));
-        if (baseColWidthAtt != null) {
-          try {
-            baseColWidth = Integer.parseInt(baseColWidthAtt.getValue());
-          } catch (Exception e) {
-            LOG.warn("unable to parse baseColWidth {}", baseColWidthAtt.getValue());
-          }
-        }
+        parseSheetFormatPr(startElement);
       }
 
       if (!insideIS) {
@@ -434,6 +407,94 @@ public class StreamingSheetReader implements Iterable<Row> {
             }
           }
         }
+      }
+    }
+  }
+
+  private void parseHyperlink(StartElement startElement) {
+    String id = null;
+    Iterator<Attribute> attributeIterator = startElement.getAttributes();
+    while (attributeIterator.hasNext()) {
+      Attribute att = attributeIterator.next();
+      QName qn = att.getName();
+      if ("id".equals(qn.getLocalPart()) && qn.getNamespaceURI().endsWith("relationships")) {
+        id = att.getValue();
+      }
+    }
+    Attribute ref = startElement.getAttributeByName(QNAME_REF);
+    Attribute location = startElement.getAttributeByName(QName.valueOf("location"));
+    Attribute display = startElement.getAttributeByName(QName.valueOf("display"));
+    Attribute tooltip = startElement.getAttributeByName(QName.valueOf("tooltip"));
+    hyperlinks.add(new HyperlinkData(id, getAttributeValue(ref), getAttributeValue(location),
+            getAttributeValue(display), getAttributeValue(tooltip)));
+  }
+
+  private void parseMergeCell(StartElement startElement) {
+    Attribute ref = startElement.getAttributeByName(QNAME_REF);
+    if (ref != null) {
+      mergedCells.add(CellRangeAddress.valueOf(ref.getValue()));
+    }
+  }
+
+  private void parsePane(final StartElement startElement) {
+    final Attribute stateAtt = startElement.getAttributeByName(QName.valueOf("state"));
+    final Attribute activePaneAtt = startElement.getAttributeByName(QName.valueOf("activePane"));
+    final Attribute topLeftCellAtt = startElement.getAttributeByName(QName.valueOf("topLeftCell"));
+    final Float xValue = parseAttValueAsFloat("xSplit", startElement);
+    final short x = xValue == null ? 0 : xValue.shortValue();
+    final Float yValue = parseAttValueAsFloat("ySplit", startElement);
+    final short y = yValue == null ? 0 : yValue.shortValue();
+    short row = 0;
+    short col = 0;
+    if (topLeftCellAtt != null) {
+      try {
+        final CellReference cellRef = new CellReference(topLeftCellAtt.getValue());
+        row = (short)cellRef.getRow();
+        col = cellRef.getCol();
+      } catch (Exception e) {
+        LOG.warn("unable to parse topLeftCell {}", topLeftCellAtt.getValue());
+      }
+    }
+    final boolean frozen = stateAtt != null && "frozen".equals(stateAtt.getValue());
+    byte active = 0;
+    if (activePaneAtt != null) {
+      try {
+        STPane.Enum stPaneEnum = STPane.Enum.forString(activePaneAtt.getValue());
+        active = (byte)(stPaneEnum.intValue() - 1);
+      } catch (Exception e) {
+        LOG.warn("unable to parse activePane {}", activePaneAtt.getValue());
+      }
+    }
+    pane = new PaneInformation(x, y, row, col, active, frozen);
+  }
+
+  private Float parseAttValueAsFloat(final String name, final StartElement startElement) {
+    final Attribute att = startElement.getAttributeByName(QName.valueOf(name));
+    if (att != null) {
+      try {
+        return Float.parseFloat(att.getValue());
+      } catch (Exception e) {
+        LOG.warn("unable to parse {} {}", name, att.getValue());
+      }
+    }
+    return null;
+  }
+
+  private void parseSheetFormatPr(final StartElement startElement) {
+    final Attribute defaultRowHeightAtt = startElement.getAttributeByName(QName.valueOf("defaultRowHeight"));
+    if (defaultRowHeightAtt != null) {
+      try {
+        defaultRowHeight = Float.parseFloat(defaultRowHeightAtt.getValue());
+      } catch (Exception e) {
+        LOG.warn("unable to parse defaultRowHeight {}", defaultRowHeightAtt.getValue());
+      }
+    }
+    final Attribute baseColWidthAtt = startElement.getAttributeByName(QName.valueOf("baseColWidth"));
+    if (baseColWidthAtt != null) {
+      try {
+        baseColWidth = Integer.parseInt(baseColWidthAtt.getValue());
+      } catch (Exception e) {
+        LOG.warn("unable to parse baseColWidth {}", baseColWidthAtt.getValue());
       }
     }
   }
@@ -529,6 +590,13 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   CellAddress getActiveCell() {
     return activeCell;
+  }
+
+  PaneInformation getPane() {
+    if(rowCacheIterator == null) {
+      getRow();
+    }
+    return pane;
   }
 
   /**
