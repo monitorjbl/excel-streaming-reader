@@ -28,8 +28,8 @@ repositories {
 }
 
 dependencies {
-    api 'org.apache.poi:poi:5.2.1'
-    api 'org.apache.poi:poi-ooxml:5.2.1'
+    api 'org.apache.poi:poi:5.2.2'
+    api 'org.apache.poi:poi-ooxml:5.2.2'
     implementation 'com.github.pjfanning:poi-shared-strings:2.5.1'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'commons-io:commons-io:2.11.0'
