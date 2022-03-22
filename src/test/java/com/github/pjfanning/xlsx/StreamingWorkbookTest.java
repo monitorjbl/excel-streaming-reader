@@ -2,6 +2,7 @@ package com.github.pjfanning.xlsx;
 
 import com.github.pjfanning.xlsx.exceptions.OpenException;
 import com.github.pjfanning.xlsx.exceptions.ParseException;
+import com.github.pjfanning.xlsx.impl.StreamingWorkbookReader;
 import com.github.pjfanning.xlsx.impl.XlsxPictureData;
 import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
@@ -561,6 +562,50 @@ public class StreamingWorkbookTest {
         assertNotNull("b1 should be found", b1);
         assertEquals(1.2, a1.getNumericCellValue(), 0.00000001);
         assertEquals("ABC", b1.getStringCellValue());
+      }
+    }
+  }
+
+  @Test
+  public void testSheetNameCaseInsensitivity() throws IOException {
+    final String sheetName1 = "sheetWithCamelCaseName";
+    final String sheetName2 = "SHEET_WITH_CAPS_NAME";
+    try (
+            XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
+            UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()
+    ) {
+      XSSFSheet xssfSheet1 = xssfWorkbook.createSheet(sheetName1);
+      xssfSheet1.createRow(0).createCell(0).setCellValue(sheetName1);
+      XSSFSheet xssfSheet2 = xssfWorkbook.createSheet(sheetName2);
+      xssfSheet2.createRow(0).createCell(0).setCellValue(sheetName2);
+      xssfWorkbook.write(bos);
+      try (Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        Sheet sheet1a = wb.getSheet(sheetName1);
+        Sheet sheet1b = wb.getSheet(sheetName1.toLowerCase(Locale.ROOT));
+        Sheet sheet1c = wb.getSheet(sheetName1.toUpperCase(Locale.ROOT));
+        assertNotNull(sheet1a);
+        assertEquals(sheet1a, sheet1b);
+        assertEquals(sheet1a, sheet1c);
+        assertEquals(sheetName1, sheet1a.getSheetName());
+        assertEquals(sheetName1, sheet1a.rowIterator().next().getCell(0).getStringCellValue());
+        assertEquals(0, wb.getSheetIndex(sheet1c));
+        assertEquals(0, wb.getSheetIndex(sheetName1));
+        assertEquals(0, wb.getSheetIndex(sheetName1.toLowerCase(Locale.ROOT)));
+        assertEquals(0, wb.getSheetIndex(sheetName1.toUpperCase(Locale.ROOT)));
+
+        Sheet sheet2a = wb.getSheet(sheetName2);
+        Sheet sheet2b = wb.getSheet(sheetName2.toLowerCase(Locale.ROOT));
+        Sheet sheet2c = wb.getSheet(sheetName2.toUpperCase(Locale.ROOT));
+        assertNotNull(sheet2a);
+        assertNotEquals(sheet1a, sheet2a);
+        assertEquals(sheet2a, sheet2b);
+        assertEquals(sheet2a, sheet2c);
+        assertEquals(sheetName2, sheet2a.getSheetName());
+        assertEquals(sheetName2, sheet2a.rowIterator().next().getCell(0).getStringCellValue());
+        assertEquals(1, wb.getSheetIndex(sheet2c));
+        assertEquals(1, wb.getSheetIndex(sheetName2));
+        assertEquals(1, wb.getSheetIndex(sheetName2.toLowerCase(Locale.ROOT)));
+        assertEquals(1, wb.getSheetIndex(sheetName2.toUpperCase(Locale.ROOT)));
       }
     }
   }
