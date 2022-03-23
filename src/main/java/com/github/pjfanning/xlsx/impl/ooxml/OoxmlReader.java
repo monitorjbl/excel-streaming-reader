@@ -22,6 +22,7 @@ import com.github.pjfanning.poi.xssf.streaming.TempFileCommentsTable;
 import com.github.pjfanning.poi.xssf.streaming.TempFileSharedStringsTable;
 import com.github.pjfanning.xlsx.CommentsImplementationType;
 import com.github.pjfanning.xlsx.StreamingReader;
+import com.github.pjfanning.xlsx.exceptions.OpenException;
 import org.apache.poi.ooxml.POIXMLException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -63,7 +64,7 @@ public class OoxmlReader extends XSSFReader {
           ));
 
   private final StreamingReader.Builder builder;
-  private final boolean strictOoxmlChecksNeeded;
+  private final OoxmlSheetReader ooxmlSheetReader;
 
   /**
    * Creates a new XSSFReader, for the given package
@@ -73,7 +74,6 @@ public class OoxmlReader extends XSSFReader {
                      OPCPackage pkg, boolean strictOoxmlChecksNeeded) throws IOException, OpenXML4JException {
     super(pkg, true);
     this.builder = builder;
-    this.strictOoxmlChecksNeeded = strictOoxmlChecksNeeded;
 
     PackageRelationship coreDocRelationship = this.pkg.getRelationshipsByType(
             PackageRelationshipTypes.CORE_DOCUMENT).getRelationship(0);
@@ -92,6 +92,7 @@ public class OoxmlReader extends XSSFReader {
 
     // Get the part that holds the workbook
     workbookPart = this.pkg.getPart(coreDocRelationship);
+    ooxmlSheetReader = new OoxmlSheetReader(builder, workbookPart, strictOoxmlChecksNeeded);
   }
 
 
@@ -155,7 +156,7 @@ public class OoxmlReader extends XSSFReader {
    * InputStreams when done with each one.
    */
   public Iterator<SheetData> sheetIterator() throws IOException {
-    return new OoxmlSheetReader(builder, workbookPart, strictOoxmlChecksNeeded).iterator();
+    return ooxmlSheetReader.iterator();
   }
 
   static class OoxmlSheetReader {
@@ -224,7 +225,7 @@ public class OoxmlReader extends XSSFReader {
       try (InputStream stream = wb.getInputStream()) {
         xmlReader.parse(new InputSource(stream));
       } catch (SAXException e) {
-        throw new POIXMLException(e);
+        throw new OpenException(e);
       }
 
       final ArrayList<XSSFSheetRef> validSheets = new ArrayList<>();

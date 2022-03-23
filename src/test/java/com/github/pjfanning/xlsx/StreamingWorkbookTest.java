@@ -400,7 +400,7 @@ public class StreamingWorkbookTest {
     });
   }
 
-  @Test(expected = ParseException.class)
+  @Test(expected = OpenException.class)
   public void testEntityExpansionWithReadOnlySst() throws Exception {
     ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
       try (
