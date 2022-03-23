@@ -19,10 +19,7 @@ import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static com.github.pjfanning.xlsx.TestUtils.*;
@@ -465,6 +462,25 @@ public class StreamingWorkbookTest {
       validateFormatsSheet(sheetList1.get(0));
 
       Iterator<Sheet> iter2 = workbook.sheetIterator();
+      List<Sheet> sheetList2 = new ArrayList<>();
+      iter2.forEachRemaining(sheetList2::add);
+      assertEquals(1, sheetList2.size());
+      assertEquals(sheetList1.get(0).hashCode(), sheetList2.get(0).hashCode());
+      //the next line fails because current code does not let you iterate the rows on a sheet more than once
+      //validateFormatsSheet(sheetList2.get(0));
+    }
+  }
+
+  @Test
+  public void testCallingSheetSpliteratorTwice() throws IOException {
+    try(Workbook workbook = openWorkbook("formats.xlsx")) {
+      Spliterator<Sheet> iter1 = workbook.spliterator();
+      List<Sheet> sheetList1 = new ArrayList<>();
+      iter1.forEachRemaining(sheetList1::add);
+      assertEquals(1, sheetList1.size());
+      validateFormatsSheet(sheetList1.get(0));
+
+      Spliterator<Sheet> iter2 = workbook.spliterator();
       List<Sheet> sheetList2 = new ArrayList<>();
       iter2.forEachRemaining(sheetList2::add);
       assertEquals(1, sheetList2.size());
