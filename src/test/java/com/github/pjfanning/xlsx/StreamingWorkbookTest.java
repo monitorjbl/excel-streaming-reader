@@ -427,15 +427,7 @@ public class StreamingWorkbookTest {
   public void testDataFormatter() throws IOException {
     try(Workbook workbook = openWorkbook("formats.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
-      Iterator<Row> rowIterator = sheet.rowIterator();
-
-      Cell A1 = getCellFromNextRow(rowIterator, 0);
-      Cell A2 = getCellFromNextRow(rowIterator, 0);
-      Cell A3 = getCellFromNextRow(rowIterator, 0);
-
-      expectFormattedContent(A1, "1234.6");
-      expectFormattedContent(A2, "1918-11-11");
-      expectFormattedContent(A3, "50%");
+      validateFormatsSheet(sheet);
     }
   }
 
@@ -445,15 +437,7 @@ public class StreamingWorkbookTest {
     ZipInputStreamZipEntrySource.setThresholdBytesForTempFiles(0);
     try(Workbook workbook = openWorkbook("formats.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
-      Iterator<Row> rowIterator = sheet.rowIterator();
-
-      Cell A1 = getCellFromNextRow(rowIterator, 0);
-      Cell A2 = getCellFromNextRow(rowIterator, 0);
-      Cell A3 = getCellFromNextRow(rowIterator, 0);
-
-      expectFormattedContent(A1, "1234.6");
-      expectFormattedContent(A2, "1918-11-11");
-      expectFormattedContent(A3, "50%");
+      validateFormatsSheet(sheet);
     } finally {
       ZipInputStreamZipEntrySource.setThresholdBytesForTempFiles(-1);
     }
@@ -465,17 +449,28 @@ public class StreamingWorkbookTest {
     ZipPackage.setUseTempFilePackageParts(true);
     try(Workbook workbook = openWorkbook("formats.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
-      Iterator<Row> rowIterator = sheet.rowIterator();
-
-      Cell A1 = getCellFromNextRow(rowIterator, 0);
-      Cell A2 = getCellFromNextRow(rowIterator, 0);
-      Cell A3 = getCellFromNextRow(rowIterator, 0);
-
-      expectFormattedContent(A1, "1234.6");
-      expectFormattedContent(A2, "1918-11-11");
-      expectFormattedContent(A3, "50%");
+      validateFormatsSheet(sheet);
     } finally {
       ZipPackage.setUseTempFilePackageParts(false);
+    }
+  }
+
+  @Test
+  public void testCallingSheetIteratorTwice() throws IOException {
+    try(Workbook workbook = openWorkbook("formats.xlsx")) {
+      Iterator<Sheet> iter1 = workbook.sheetIterator();
+      List<Sheet> sheetList1 = new ArrayList<>();
+      iter1.forEachRemaining(sheetList1::add);
+      assertEquals(1, sheetList1.size());
+      validateFormatsSheet(sheetList1.get(0));
+
+      Iterator<Sheet> iter2 = workbook.sheetIterator();
+      List<Sheet> sheetList2 = new ArrayList<>();
+      iter2.forEachRemaining(sheetList2::add);
+      assertEquals(1, sheetList2.size());
+      assertEquals(sheetList1.get(0).hashCode(), sheetList2.get(0).hashCode());
+      //the next line fails because current code does not let you iterate the rows on a sheet more than once
+      //validateFormatsSheet(sheetList2.get(0));
     }
   }
 
@@ -650,6 +645,18 @@ public class StreamingWorkbookTest {
         assertEquals(1, wb.getSheetIndex(sheetName2.toUpperCase(Locale.ROOT)));
       }
     }
+  }
+
+  private void validateFormatsSheet(Sheet sheet) {
+    Iterator<Row> rowIterator = sheet.rowIterator();
+
+    Cell A1 = getCellFromNextRow(rowIterator, 0);
+    Cell A2 = getCellFromNextRow(rowIterator, 0);
+    Cell A3 = getCellFromNextRow(rowIterator, 0);
+
+    expectFormattedContent(A1, "1234.6");
+    expectFormattedContent(A2, "1918-11-11");
+    expectFormattedContent(A3, "50%");
   }
 
   private static class ExploitServer extends NanoHTTPD implements AutoCloseable {
