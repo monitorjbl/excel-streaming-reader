@@ -35,7 +35,7 @@ public class WorkbookUtilTest {
   }
 
   private OoxmlReader open(OPCPackage pkg) throws Exception {
-    return new OoxmlReader(new StreamingWorkbookReader(StreamingReader.builder()), pkg, false);
+    return new OoxmlReader(StreamingReader.builder(), pkg, false);
   }
 
 }

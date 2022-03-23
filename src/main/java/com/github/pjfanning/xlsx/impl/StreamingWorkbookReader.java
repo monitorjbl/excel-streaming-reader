@@ -22,7 +22,6 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Date1904Support;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.model.*;
 import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.slf4j.Logger;
@@ -32,8 +31,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import java.io.Closeable;
 import java.io.File;
@@ -47,7 +44,6 @@ import static com.github.pjfanning.xlsx.XmlUtils.searchForNodeList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
-  private static XMLInputFactory xmlInputFactory;
 
   private final List<StreamingSheet> sheets;
   private final List<Map<String, String>> sheetProperties = new ArrayList<>();
@@ -145,7 +141,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
   private void loadPackage(OPCPackage pkg) throws IOException, OpenXML4JException, SAXException, XMLStreamException {
     boolean strictFormat = pkg.isStrictOoxmlFormat();
-    OoxmlReader reader = new OoxmlReader(this, pkg, strictFormat);
+    OoxmlReader reader = new OoxmlReader(builder, pkg, strictFormat);
     if (strictFormat) {
       log.info("file is in strict OOXML format");
     }
@@ -202,29 +198,28 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     //Some workbooks have multiple references to the same sheet. Need to filter
     //them out before creating the XMLEventReader by keeping track of their URIs.
     //The sheets are listed in order, so we must keep track of insertion order.
-    OoxmlReader.OoxmlSheetIterator iter = reader.getSheetsData();
-    Map<PackagePart, InputStream> sheetStreams = new LinkedHashMap<>();
+    Iterator<OoxmlReader.SheetData> iter = reader.sheetIterator();
+    List<PackagePart> sheetParts = new ArrayList<>();
     Map<PackagePart, Comments> sheetComments = new HashMap<>();
     while(iter.hasNext()) {
-      InputStream is = iter.next();
+      OoxmlReader.SheetData sheetData = iter.next();
       if (builder.readShapes()) {
-        shapeMap.put(iter.getSheetName(), iter.getShapes());
+        shapeMap.put(sheetData.getSheetName(), sheetData.getShapes());
       }
-      PackagePart part = iter.getSheetPart();
-      sheetStreams.put(part, is);
+      PackagePart part = sheetData.getSheetPart();
+      sheetParts.add(part);
       if (builder.readComments()) {
-        sheetComments.put(part, iter.getSheetComments(builder));
+        sheetComments.put(part, sheetData.getComments());
       }
     }
 
     //Iterate over the loaded streams
     int i = 0;
-    for(Map.Entry<PackagePart, InputStream> entry : sheetStreams.entrySet()) {
-      XMLEventReader parser = getXmlInputFactory().createXMLEventReader(entry.getValue());
+    for(PackagePart part : sheetParts) {
       sheets.add(new StreamingSheet(
               sheetProperties.get(i++).get("name"),
-              new StreamingSheetReader(this, entry.getKey(), sst, stylesTable,
-                      sheetComments.get(entry.getKey()), parser, use1904Dates, builder.getRowCacheSize())));
+              new StreamingSheetReader(this, part, sst, stylesTable,
+                      sheetComments.get(part), use1904Dates, builder.getRowCacheSize())));
     }
   }
 
@@ -299,18 +294,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
   List<XSSFShape> getShapes(String sheetName) {
     return shapeMap.get(sheetName);
-  }
-
-  private static XMLInputFactory getXmlInputFactory() {
-    if (xmlInputFactory == null) {
-      try {
-        xmlInputFactory = XMLHelper.newXMLInputFactory();
-      } catch (Exception e) {
-        log.error("Issue creating XMLInputFactory", e);
-        throw e;
-      }
-    }
-    return xmlInputFactory;
   }
 
   static class StreamingSheetIterator implements Iterator<Sheet> {

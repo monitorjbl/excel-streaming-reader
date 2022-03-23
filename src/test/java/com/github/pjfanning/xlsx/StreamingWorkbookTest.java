@@ -491,6 +491,17 @@ public class StreamingWorkbookTest {
   }
 
   @Test
+  public void testNoSuchElementExceptionOnSheetIterator() throws IOException {
+    try (Workbook workbook = openWorkbook("formats.xlsx")) {
+      Iterator<Sheet> iter1 = workbook.sheetIterator();
+      assertTrue(iter1.hasNext());
+      assertNotNull(iter1.next());
+      assertFalse(iter1.hasNext());
+      assertThrows(NoSuchElementException.class, () -> iter1.next());
+    }
+  }
+
+  @Test
   public void testRightToLeft() throws IOException {
     try(
             InputStream stream = getInputStream("right-to-left.xlsx");

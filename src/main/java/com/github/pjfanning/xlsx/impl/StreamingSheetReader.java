@@ -24,6 +24,7 @@ import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.ss.util.PaneInformation;
+import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.model.Comments;
 import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
@@ -34,12 +35,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -54,6 +57,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private static final QName QNAME_S = QName.valueOf("s");
   private static final QName QNAME_T = QName.valueOf("t");
   private static final QName QNAME_WIDTH = QName.valueOf("width");
+  private static XMLInputFactory xmlInputFactory;
 
   private final StreamingWorkbookReader streamingWorkbookReader;
   private final PackagePart packagePart;
@@ -74,7 +78,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   private int currentRowNum;
   private int firstColNum = 0;
   private int currentColNum;
-  private int rowCacheSize;
+  private final int rowCacheSize;
   private float defaultRowHeight = 0.0f;
   private int baseColWidth = 8; //POI XSSFSheet default
   private List<Row> rowCache = new ArrayList<>();
@@ -86,22 +90,23 @@ public class StreamingSheetReader implements Iterable<Row> {
   private StreamingRow currentRow;
   private StreamingCell currentCell;
   private CellAddress activeCell;
-  private boolean use1904Dates;
+  private final boolean use1904Dates;
   private boolean insideCharElement = false;
   private boolean insideFormulaElement = false;
   private boolean insideIS = false;
   private PaneInformation pane;
 
-  StreamingSheetReader(StreamingWorkbookReader streamingWorkbookReader,
-                       PackagePart packagePart,
-                       SharedStrings sst, StylesTable stylesTable, Comments commentsTable,
-                       XMLEventReader parser, final boolean use1904Dates, int rowCacheSize) {
+  StreamingSheetReader(final StreamingWorkbookReader streamingWorkbookReader,
+                       final PackagePart packagePart,
+                       final SharedStrings sst, final StylesTable stylesTable, final Comments commentsTable,
+                       final boolean use1904Dates, final int rowCacheSize) throws IOException, XMLStreamException {
     this.streamingWorkbookReader = streamingWorkbookReader;
     this.packagePart = packagePart;
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.commentsTable = commentsTable;
-    this.parser = parser;
+    this.parser = getXmlInputFactory().createXMLEventReader(packagePart.getInputStream());
+
     this.use1904Dates = use1904Dates;
     this.rowCacheSize = rowCacheSize;
   }
@@ -855,5 +860,17 @@ public class StreamingSheetReader implements Iterable<Row> {
     public void remove() {
       throw new NotSupportedException();
     }
+  }
+
+  private static XMLInputFactory getXmlInputFactory() {
+    if (xmlInputFactory == null) {
+      try {
+        xmlInputFactory = XMLHelper.newXMLInputFactory();
+      } catch (Exception e) {
+        LOG.error("Issue creating XMLInputFactory", e);
+        throw e;
+      }
+    }
+    return xmlInputFactory;
   }
 }

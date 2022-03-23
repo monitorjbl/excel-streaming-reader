@@ -1,23 +1,24 @@
 package com.github.pjfanning.xlsx.impl;
 
+import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.util.XMLHelper;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import javax.xml.stream.XMLEventReader;
 import java.io.FileInputStream;
 import java.time.LocalDate;
 
 public class StreamingSheetReaderTest {
   @Test
   public void testStrictDates() throws Exception {
-    XMLEventReader xer = XMLHelper.newXMLInputFactory().createXMLEventReader(
+    PackagePart packagePart = Mockito.mock(PackagePart.class);
+    Mockito.when(packagePart.getInputStream()).thenReturn(
             new FileInputStream("src/test/resources/strict.dates.xml"));
     StreamingSheetReader reader = new StreamingSheetReader(
-            null, null, null, null, null, xer, true, 100);
+            null, packagePart, null, null, null, true, 100);
     try {
       Assert.assertEquals(0, reader.getFirstRowNum());
       Assert.assertEquals(0, reader.getLastRowNum());
@@ -32,7 +33,6 @@ public class StreamingSheetReaderTest {
       Assert.assertEquals("12:00:00.000", firstRow.getCell(1).getStringCellValue());
       Assert.assertEquals(DateUtil.convertTime("12:00"), firstRow.getCell(1).getNumericCellValue(), 0.001);
     } finally {
-      xer.close();
       reader.close();
     }
   }
