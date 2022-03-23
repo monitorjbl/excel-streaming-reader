@@ -63,7 +63,6 @@ public class OoxmlReader extends XSSFReader {
                           XSSFRelation.MACRO_SHEET_BIN.getRelation())
           ));
 
-  private final StreamingReader.Builder builder;
   private final OoxmlSheetReader ooxmlSheetReader;
 
   /**
@@ -73,7 +72,6 @@ public class OoxmlReader extends XSSFReader {
   public OoxmlReader(StreamingReader.Builder builder,
                      OPCPackage pkg, boolean strictOoxmlChecksNeeded) throws IOException, OpenXML4JException {
     super(pkg, true);
-    this.builder = builder;
 
     PackageRelationship coreDocRelationship = this.pkg.getRelationshipsByType(
             PackageRelationshipTypes.CORE_DOCUMENT).getRelationship(0);
