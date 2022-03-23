@@ -7,6 +7,8 @@ import com.github.pjfanning.xlsx.impl.XlsxPictureData;
 import fi.iki.elonen.NanoHTTPD;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
+import org.apache.poi.openxml4j.opc.ZipPackage;
+import org.apache.poi.openxml4j.util.ZipInputStreamZipEntrySource;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -434,6 +436,46 @@ public class StreamingWorkbookTest {
       expectFormattedContent(A1, "1234.6");
       expectFormattedContent(A2, "1918-11-11");
       expectFormattedContent(A3, "50%");
+    }
+  }
+
+  @Test
+  public void testWithTempFileZipInputStream() throws IOException {
+    //this test cannot be ru in parallel with other tests because it changes static configs
+    ZipInputStreamZipEntrySource.setThresholdBytesForTempFiles(0);
+    try(Workbook workbook = openWorkbook("formats.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Cell A1 = getCellFromNextRow(rowIterator, 0);
+      Cell A2 = getCellFromNextRow(rowIterator, 0);
+      Cell A3 = getCellFromNextRow(rowIterator, 0);
+
+      expectFormattedContent(A1, "1234.6");
+      expectFormattedContent(A2, "1918-11-11");
+      expectFormattedContent(A3, "50%");
+    } finally {
+      ZipInputStreamZipEntrySource.setThresholdBytesForTempFiles(-1);
+    }
+  }
+
+  @Test
+  public void testWithTempFileZipPackage() throws IOException {
+    //this test cannot be ru in parallel with other tests because it changes static configs
+    ZipPackage.setUseTempFilePackageParts(true);
+    try(Workbook workbook = openWorkbook("formats.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      Cell A1 = getCellFromNextRow(rowIterator, 0);
+      Cell A2 = getCellFromNextRow(rowIterator, 0);
+      Cell A3 = getCellFromNextRow(rowIterator, 0);
+
+      expectFormattedContent(A1, "1234.6");
+      expectFormattedContent(A2, "1918-11-11");
+      expectFormattedContent(A3, "50%");
+    } finally {
+      ZipPackage.setUseTempFilePackageParts(false);
     }
   }
 
