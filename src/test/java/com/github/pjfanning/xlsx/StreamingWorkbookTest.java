@@ -178,6 +178,7 @@ public class StreamingWorkbookTest {
   @Test
   public void testNumericFormattedFormulaCell() throws Exception {
     try(Workbook workbook = openWorkbook("formula_cell.xlsx")) {
+      assertEquals(1, workbook.getNumberOfSheets());
       Sheet sheet = workbook.getSheetAt(0);
       Iterator<Row> rowIterator = sheet.rowIterator();
 
