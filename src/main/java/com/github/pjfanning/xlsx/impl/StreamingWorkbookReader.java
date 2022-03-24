@@ -195,10 +195,6 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
 
   private List<StreamingSheet> loadSheets() throws IOException, XMLStreamException {
     final ArrayList<StreamingSheet> sheetList = new ArrayList<>();
-
-    //Some workbooks have multiple references to the same sheet. Need to filter
-    //them out before creating the XMLEventReader by keeping track of their URIs.
-    //The sheets are listed in order, so we must keep track of insertion order.
     final int numSheets = ooxmlReader.getNumberOfSheets();
     for(int i = 0; i < numSheets; i++) {
       final StreamingSheet maybeSheet = sheetMap.get(i);
