@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: ['**']
   push:
-    branches: ['main','4.0-prep']
+    branches: ['main', 'v3.x']
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
   publish:
     name: Publish Artifacts
     needs: [build]
-    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/4.0-prep')
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/v3.x')
     runs-on: ubuntu-latest
 
     steps:
