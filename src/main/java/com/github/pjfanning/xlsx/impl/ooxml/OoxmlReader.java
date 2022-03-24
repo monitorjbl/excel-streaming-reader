@@ -146,19 +146,8 @@ public class OoxmlReader extends XSSFReader {
     return styles;
   }
 
-  /**
-   * Returns an Iterator which will let you get at all the
-   * different Sheets in turn.
-   * Each sheet's InputStream is only opened when fetched
-   * from the Iterator. It's up to you to close the
-   * InputStreams when done with each one.
-   */
-  public Iterator<SheetData> sheetIterator() {
-    return ooxmlSheetReader.iterator();
-  }
-
-  public SheetData getSheetData(final String name) {
-    return ooxmlSheetReader.getSheetData(name);
+  public int getSheetIndex(final String name) {
+    return ooxmlSheetReader.getSheetIndex(name);
   }
 
   public SheetData getSheetDataAt(final int idx) {
@@ -228,18 +217,15 @@ public class OoxmlReader extends XSSFReader {
       return new OoxmlSheetIterator(this, sheetRefList);
     }
 
-    SheetData getSheetData(final String name) {
-      XSSFSheetRef matchedSheetRef = null;
+    int getSheetIndex(final String name) {
+      int i = 0;
       for (XSSFSheetRef sheetRef : sheetRefList) {
         if (name.equalsIgnoreCase(sheetRef.getName())) {
-          matchedSheetRef = sheetRef;
-          break;
+          return i;
         }
+        i++;
       }
-      if (matchedSheetRef == null) {
-        throw new NoSuchElementException("Failed to find sheet " + name);
-      }
-      return getSheetData(matchedSheetRef);
+      throw new NoSuchElementException("Failed to find sheet " + name);
     }
 
     SheetData getSheetData(final int idx) {

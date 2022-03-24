@@ -193,7 +193,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     return workbook;
   }
 
-  private List<StreamingSheet> loadSheets() throws IOException, XMLStreamException {
+  private List<StreamingSheet> loadSheets() {
     final ArrayList<StreamingSheet> sheetList = new ArrayList<>();
     final int numSheets = ooxmlReader.getNumberOfSheets();
     for(int i = 0; i < numSheets; i++) {
@@ -208,13 +208,21 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, Date1904Support
     if (sheets != null && sheets.size() > idx) {
       return sheets.get(idx);
     } else {
-      final StreamingSheet sheet = createSheet(idx);
-      sheetMap.put(idx, sheet);
+      StreamingSheet sheet = sheetMap.get(idx);
+      if (sheet == null) {
+        sheet = createSheet(idx);
+        sheetMap.put(idx, sheet);
+      }
       return sheet;
     }
   }
 
-  private StreamingSheet createSheet(final int idx) throws IOException, XMLStreamException {
+  public StreamingSheet getSheet(final String name) throws IOException, XMLStreamException {
+    final int idx = ooxmlReader.getSheetIndex(name);
+    return getSheetAt(idx);
+  }
+
+  private StreamingSheet createSheet(final int idx) {
     final OoxmlReader.SheetData sheetData = ooxmlReader.getSheetDataAt(idx);
     final Map<PackagePart, Comments> sheetComments = new HashMap<>();
     if (builder.readShapes()) {

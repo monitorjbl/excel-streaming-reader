@@ -118,14 +118,12 @@ public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseab
    */
   @Override
   public Sheet getSheet(String name) {
-    int index = getSheetIndex(name);
-    if (index == -1) {
-      throw new MissingSheetException("Sheet '" + name + "' does not exist");
-    }
     try {
-      return reader.getSheets().get(index);
+      return reader.getSheet(name);
     } catch (XMLStreamException|IOException e) {
       throw new ReadException(e);
+    } catch (NoSuchElementException nse) {
+      throw new MissingSheetException("Failed to find sheet: " + name);
     }
   }
 

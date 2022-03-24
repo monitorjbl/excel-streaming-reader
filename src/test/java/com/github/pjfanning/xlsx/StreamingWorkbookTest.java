@@ -664,12 +664,14 @@ public class StreamingWorkbookTest {
       xssfSheet2.createRow(0).createCell(0).setCellValue(sheetName2);
       xssfWorkbook.write(bos);
       try (Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        Sheet sheet1 = wb.getSheetAt(0);
         Sheet sheet1a = wb.getSheet(sheetName1);
         Sheet sheet1b = wb.getSheet(sheetName1.toLowerCase(Locale.ROOT));
         Sheet sheet1c = wb.getSheet(sheetName1.toUpperCase(Locale.ROOT));
-        assertNotNull(sheet1a);
-        assertEquals(sheet1a, sheet1b);
-        assertEquals(sheet1a, sheet1c);
+        assertNotNull(sheet1);
+        assertEquals(sheet1, sheet1a);
+        assertEquals(sheet1, sheet1b);
+        assertEquals(sheet1, sheet1c);
         assertEquals(sheetName1, sheet1a.getSheetName());
         assertEquals(sheetName1, sheet1a.rowIterator().next().getCell(0).getStringCellValue());
         assertEquals(0, wb.getSheetIndex(sheet1c));
@@ -677,13 +679,15 @@ public class StreamingWorkbookTest {
         assertEquals(0, wb.getSheetIndex(sheetName1.toLowerCase(Locale.ROOT)));
         assertEquals(0, wb.getSheetIndex(sheetName1.toUpperCase(Locale.ROOT)));
 
+        Sheet sheet2 = wb.getSheetAt(1);
         Sheet sheet2a = wb.getSheet(sheetName2);
         Sheet sheet2b = wb.getSheet(sheetName2.toLowerCase(Locale.ROOT));
         Sheet sheet2c = wb.getSheet(sheetName2.toUpperCase(Locale.ROOT));
-        assertNotNull(sheet2a);
+        assertNotNull(sheet2);
         assertNotEquals(sheet1a, sheet2a);
-        assertEquals(sheet2a, sheet2b);
-        assertEquals(sheet2a, sheet2c);
+        assertEquals(sheet2, sheet2a);
+        assertEquals(sheet2, sheet2b);
+        assertEquals(sheet2, sheet2c);
         assertEquals(sheetName2, sheet2a.getSheetName());
         assertEquals(sheetName2, sheet2a.rowIterator().next().getCell(0).getStringCellValue());
         assertEquals(1, wb.getSheetIndex(sheet2c));
