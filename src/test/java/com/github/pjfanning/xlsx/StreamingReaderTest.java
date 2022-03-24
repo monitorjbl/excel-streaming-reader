@@ -1369,8 +1369,9 @@ public class StreamingReaderTest {
       assertEquals(expectedRuns, comment31.getString().numFormattingRuns());
       assertEquals("Shaun Kalley", comment00.getAuthor());
 
-      Row firstRow = sheet.rowIterator().next();
-      Row secondRow = sheet.rowIterator().next();
+      Iterator<Row> rowIterator = sheet.rowIterator();
+      Row firstRow = rowIterator.next();
+      Row secondRow = rowIterator.next();
       Cell cellA2 = secondRow.cellIterator().next();
       Comment cellA2Comment = cellA2.getCellComment();
       assertEquals(comment10.toString(), cellA2Comment.toString());

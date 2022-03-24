@@ -131,9 +131,11 @@ public class StreamingWorkbookTest {
       assertTrue("Column 1 should be hidden", sheet.isColumnHidden(1));
       assertFalse("Column 2 should not be hidden", sheet.isColumnHidden(2));
 
-      assertFalse("Row 0 should not be hidden", sheet.rowIterator().next().getZeroHeight());
-      assertTrue("Row 1 should be hidden", sheet.rowIterator().next().getZeroHeight());
-      assertFalse("Row 2 should not be hidden", sheet.rowIterator().next().getZeroHeight());
+      Iterator<Row> rowIterator = sheet.rowIterator();
+
+      assertFalse("Row 0 should not be hidden", rowIterator.next().getZeroHeight());
+      assertTrue("Row 1 should be hidden", rowIterator.next().getZeroHeight());
+      assertFalse("Row 2 should not be hidden", rowIterator.next().getZeroHeight());
     }
   }
 

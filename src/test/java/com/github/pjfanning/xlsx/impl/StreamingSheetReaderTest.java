@@ -15,7 +15,7 @@ public class StreamingSheetReaderTest {
   @Test
   public void testStrictDates() throws Exception {
     PackagePart packagePart = Mockito.mock(PackagePart.class);
-    Mockito.when(packagePart.getInputStream()).thenReturn(
+    Mockito.when(packagePart.getInputStream()).thenAnswer(I ->
             new FileInputStream("src/test/resources/strict.dates.xml"));
     StreamingSheetReader reader = new StreamingSheetReader(
             null, packagePart, null, null, null, true, 100);
