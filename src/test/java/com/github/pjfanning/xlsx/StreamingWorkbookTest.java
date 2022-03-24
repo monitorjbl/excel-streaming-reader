@@ -20,6 +20,11 @@ import org.xml.sax.SAXException;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static com.github.pjfanning.xlsx.TestUtils.*;
@@ -685,6 +690,69 @@ public class StreamingWorkbookTest {
         assertEquals(1, wb.getSheetIndex(sheetName2));
         assertEquals(1, wb.getSheetIndex(sheetName2.toLowerCase(Locale.ROOT)));
         assertEquals(1, wb.getSheetIndex(sheetName2.toUpperCase(Locale.ROOT)));
+      }
+    }
+  }
+
+  @Test
+  public void testConcurrentSheetRead() throws Exception {
+    try (
+            XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
+            UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()
+    ) {
+      Sheet sheet1 = xssfWorkbook.createSheet("s1");
+      Sheet sheet2 = xssfWorkbook.createSheet("s2");
+      Random rnd = new Random();
+      final int rowCount1 = rnd.nextInt(20);
+      final int rowCount2 = rnd.nextInt(20);
+      final AtomicInteger total1 = new AtomicInteger();
+      final AtomicInteger total2 = new AtomicInteger();
+      for (int i = 0; i < rowCount1; i++) {
+        int value = rnd.nextInt(1000);
+        total1.addAndGet(value);
+        sheet1.createRow(i).createCell(0).setCellValue(value);
+      }
+      for (int i = 0; i < rowCount2; i++) {
+        int value = rnd.nextInt(1000);
+        total2.addAndGet(value);
+        sheet2.createRow(i).createCell(0).setCellValue(value);
+      }
+      xssfWorkbook.write(bos);
+
+      try (Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        assertEquals(2, wb.getNumberOfSheets());
+        final Sheet wbSheet1 = wb.getSheet("s1");
+        final Sheet wbSheet2 = wb.getSheet("s2");
+        final ExecutorService executorService = Executors.newCachedThreadPool();
+        final CompletableFuture<Boolean> cf1 = new CompletableFuture<>();
+        final CompletableFuture<Boolean> cf2 = new CompletableFuture<>();
+
+        executorService.submit(() -> {
+          int rowCount = 0;
+          double total = 0.0;
+          for (Row row : wbSheet1) {
+            rowCount++;
+            total += row.getCell(0).getNumericCellValue();
+          }
+          assertEquals(rowCount1, rowCount);
+          assertEquals(total1.get(), (int)total);
+          cf1.complete(Boolean.TRUE);
+        });
+
+        executorService.submit(() -> {
+          int rowCount = 0;
+          double total = 0.0;
+          for (Row row : wbSheet2) {
+            rowCount++;
+            total += row.getCell(0).getNumericCellValue();
+          }
+          assertEquals(rowCount2, rowCount);
+          assertEquals(total2.get(), (int)total);
+          cf2.complete(Boolean.TRUE);
+        });
+
+        assertTrue(cf1.get(30, TimeUnit.SECONDS));
+        assertTrue(cf2.get(30, TimeUnit.SECONDS));
       }
     }
   }
