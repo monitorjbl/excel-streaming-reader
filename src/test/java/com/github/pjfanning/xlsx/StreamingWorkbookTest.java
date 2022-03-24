@@ -431,7 +431,7 @@ public class StreamingWorkbookTest {
 
   @Test
   public void testWithTempFileZipInputStream() throws IOException {
-    //this test cannot be ru in parallel with other tests because it changes static configs
+    //this test cannot be run in parallel with other tests because it changes static configs
     ZipInputStreamZipEntrySource.setThresholdBytesForTempFiles(0);
     try(Workbook workbook = openWorkbook("formats.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
@@ -443,7 +443,7 @@ public class StreamingWorkbookTest {
 
   @Test
   public void testWithTempFileZipPackage() throws IOException {
-    //this test cannot be ru in parallel with other tests because it changes static configs
+    //this test cannot be run in parallel with other tests because it changes static configs
     ZipPackage.setUseTempFilePackageParts(true);
     try(Workbook workbook = openWorkbook("formats.xlsx")) {
       Sheet sheet = workbook.getSheetAt(0);
