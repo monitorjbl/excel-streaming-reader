@@ -469,8 +469,7 @@ public class StreamingWorkbookTest {
       iter2.forEachRemaining(sheetList2::add);
       assertEquals(1, sheetList2.size());
       assertEquals(sheetList1.get(0).hashCode(), sheetList2.get(0).hashCode());
-      //the next line fails because current code does not let you iterate the rows on a sheet more than once
-      //validateFormatsSheet(sheetList2.get(0));
+      validateFormatsSheet(sheetList2.get(0));
     }
   }
 
@@ -488,8 +487,7 @@ public class StreamingWorkbookTest {
       iter2.forEachRemaining(sheetList2::add);
       assertEquals(1, sheetList2.size());
       assertEquals(sheetList1.get(0).hashCode(), sheetList2.get(0).hashCode());
-      //the next line fails because current code does not let you iterate the rows on a sheet more than once
-      //validateFormatsSheet(sheetList2.get(0));
+      validateFormatsSheet(sheetList2.get(0));
     }
   }
 
@@ -503,8 +501,7 @@ public class StreamingWorkbookTest {
       iter1.forEachRemaining(sheetList1::add);
       assertEquals(1, sheetList1.size());
       assertEquals(sheet.hashCode(), sheetList1.get(0).hashCode());
-      //the next line fails because current code does not let you iterate the rows on a sheet more than once
-      //validateFormatsSheet(sheetList1.get(0));
+      validateFormatsSheet(sheetList1.get(0));
     }
   }
 
