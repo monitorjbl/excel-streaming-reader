@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
+import com.github.pjfanning.xlsx.exceptions.ReadException;
 import org.apache.poi.ooxml.POIXMLProperties;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -10,6 +11,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.xssf.usermodel.XSSFPictureData;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -99,8 +101,12 @@ public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseab
    * {@inheritDoc}
    */
   @Override
-  public Sheet getSheetAt(int index) {
-    return reader.getSheets().get(index);
+  public Sheet getSheetAt(final int index) {
+    try {
+      return reader.getSheetAt(index);
+    } catch (XMLStreamException|IOException e) {
+      throw new ReadException(e);
+    }
   }
 
   /**
@@ -113,10 +119,14 @@ public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseab
   @Override
   public Sheet getSheet(String name) {
     int index = getSheetIndex(name);
-    if(index == -1) {
+    if (index == -1) {
       throw new MissingSheetException("Sheet '" + name + "' does not exist");
     }
-    return reader.getSheets().get(index);
+    try {
+      return reader.getSheets().get(index);
+    } catch (XMLStreamException|IOException e) {
+      throw new ReadException(e);
+    }
   }
 
   /**

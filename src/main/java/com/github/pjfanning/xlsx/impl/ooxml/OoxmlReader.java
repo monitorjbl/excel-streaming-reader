@@ -153,8 +153,20 @@ public class OoxmlReader extends XSSFReader {
    * from the Iterator. It's up to you to close the
    * InputStreams when done with each one.
    */
-  public Iterator<SheetData> sheetIterator() throws IOException {
+  public Iterator<SheetData> sheetIterator() {
     return ooxmlSheetReader.iterator();
+  }
+
+  public SheetData getSheetData(final String name) {
+    return ooxmlSheetReader.getSheetData(name);
+  }
+
+  public SheetData getSheetDataAt(final int idx) {
+    return ooxmlSheetReader.getSheetData(idx);
+  }
+
+  public int getNumberOfSheets() {
+    return ooxmlSheetReader.size();
   }
 
   static class OoxmlSheetReader {
@@ -174,6 +186,8 @@ public class OoxmlReader extends XSSFReader {
     private final ArrayList<XSSFSheetRef> sheetRefList;
 
     private final boolean strictOoxmlChecksNeeded;
+
+    private final Map<XSSFSheetRef, SheetData> sheetDataMap = new HashMap<>();
 
     /**
      * Construct a new SheetIterator
@@ -206,8 +220,43 @@ public class OoxmlReader extends XSSFReader {
       }
     }
 
-    public OoxmlSheetIterator iterator() {
-      return new OoxmlSheetIterator(builder, sheetMap, sheetRefList, strictOoxmlChecksNeeded);
+    int size() {
+      return sheetRefList.size();
+    }
+
+    OoxmlSheetIterator iterator() {
+      return new OoxmlSheetIterator(this, sheetRefList);
+    }
+
+    SheetData getSheetData(final String name) {
+      XSSFSheetRef matchedSheetRef = null;
+      for (XSSFSheetRef sheetRef : sheetRefList) {
+        if (name.equalsIgnoreCase(sheetRef.getName())) {
+          matchedSheetRef = sheetRef;
+          break;
+        }
+      }
+      if (matchedSheetRef == null) {
+        throw new NoSuchElementException("Failed to find sheet " + name);
+      }
+      return getSheetData(matchedSheetRef);
+    }
+
+    SheetData getSheetData(final int idx) {
+      XSSFSheetRef matchedSheetRef = sheetRefList.get(idx);
+      if (matchedSheetRef == null) {
+        throw new NoSuchElementException("Failed to find sheet with id " + idx);
+      }
+      return getSheetData(matchedSheetRef);
+    }
+
+    SheetData getSheetData(final XSSFSheetRef sheetRef) {
+      SheetData sd = sheetDataMap.get(sheetRef);
+      if (sd == null) {
+        sd = createSheetData(builder, sheetRef, sheetMap, strictOoxmlChecksNeeded);
+        sheetDataMap.put(sheetRef, sd);
+      }
+      return sd;
     }
 
     private ArrayList<XSSFSheetRef> createSheetListFromWB(PackagePart wb) throws IOException {
@@ -255,13 +304,6 @@ public class OoxmlReader extends XSSFReader {
    */
   static class OoxmlSheetIterator implements Iterator<SheetData> {
 
-    private final StreamingReader.Builder builder;
-
-    /**
-     * Maps relId and the corresponding PackagePart
-     */
-    private final Map<String, PackagePart> sheetMap;
-
     /**
      * List over CTSheet objects, returns sheets in {@code logical} order.
      * We can't rely on the Ooxml4J's relationship iterator because it returns objects in physical order,
@@ -269,19 +311,15 @@ public class OoxmlReader extends XSSFReader {
      */
     private final ArrayList<XSSFSheetRef> sheetRefList;
 
-    private final boolean strictOoxmlChecksNeeded;
+    private final OoxmlSheetReader ooxmlSheetReader;
 
     private int sheetRefPosition;
     private SheetData sheetData;
 
-    OoxmlSheetIterator(final StreamingReader.Builder builder,
-                       final Map<String, PackagePart> sheetMap,
-                       final ArrayList<XSSFSheetRef> sheetRefList,
-                       final boolean strictOoxmlChecksNeeded) {
-      this.builder = builder;
-      this.sheetMap = sheetMap;
+    OoxmlSheetIterator(final OoxmlSheetReader ooxmlSheetReader,
+                       final ArrayList<XSSFSheetRef> sheetRefList) {
+      this.ooxmlSheetReader = ooxmlSheetReader;
       this.sheetRefList = sheetRefList;
-      this.strictOoxmlChecksNeeded = strictOoxmlChecksNeeded;
     }
 
     /**
@@ -303,10 +341,7 @@ public class OoxmlReader extends XSSFReader {
     public SheetData next() {
       try {
         XSSFSheetRef xssfSheetRef = sheetRefList.get(sheetRefPosition++);
-        final PackagePart sheetPart = sheetMap.get(xssfSheetRef.getId());
-        final List<XSSFShape> shapes = builder.readShapes() ? getShapes(sheetPart) : null;
-        final Comments comments = builder.readComments() ? getSheetComments(builder, sheetPart) : null;
-        sheetData = new SheetData(sheetPart, xssfSheetRef.getName(), comments, shapes);
+        sheetData = ooxmlSheetReader.getSheetData(xssfSheetRef);
         return sheetData;
       } catch (IndexOutOfBoundsException e) {
         throw new NoSuchElementException("Sheet iterator has no more elements");
@@ -321,62 +356,6 @@ public class OoxmlReader extends XSSFReader {
     @Override
     public void remove() {
       throw new IllegalStateException("Not supported");
-    }
-
-    /**
-     * Returns the comments associated with this sheet,
-     * or null if there aren't any
-     */
-    private Comments getSheetComments(final StreamingReader.Builder builder, final PackagePart sheetPkg) {
-      // Do we have a comments relationship? (Only ever one if so)
-      try {
-        PackageRelationshipCollection commentsList =
-                sheetPkg.getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
-        if (commentsList.size() == 0 && strictOoxmlChecksNeeded) {
-          commentsList =
-                  sheetPkg.getRelationshipsByType(OoxmlReader.PURL_COMMENTS_RELATIONSHIP_URL);
-        }
-        if (commentsList.size() > 0) {
-          PackageRelationship comments = commentsList.getRelationship(0);
-          PackagePartName commentsName = PackagingURIHelper.createPartName(comments.getTargetURI());
-          PackagePart commentsPart = sheetPkg.getPackage().getPart(commentsName);
-          return parseComments(builder, commentsPart, strictOoxmlChecksNeeded);
-        }
-      } catch (InvalidFormatException | IOException | XMLStreamException e) {
-        LOGGER.warn("issue getting sheet comments", e);
-        return null;
-      }
-      return null;
-    }
-
-    /**
-     * Returns the shapes associated with this sheet,
-     * an empty list or null if there is an exception
-     */
-    private List<XSSFShape> getShapes(final PackagePart sheetPkg) {
-      final List<XSSFShape> shapes = new LinkedList<>();
-      try {
-        PackageRelationshipCollection drawingsList = sheetPkg.getRelationshipsByType(XSSFRelation.DRAWINGS.getRelation());
-        if (drawingsList.size() == 0 && strictOoxmlChecksNeeded) {
-          drawingsList = sheetPkg.getRelationshipsByType(PURL_DRAWING_RELATIONSHIP_URL);
-        }
-        for (int i = 0; i < drawingsList.size(); i++) {
-          PackageRelationship drawings = drawingsList.getRelationship(i);
-          PackagePartName drawingsName = PackagingURIHelper.createPartName(drawings.getTargetURI());
-          PackagePart drawingsPart = sheetPkg.getPackage().getPart(drawingsName);
-          if (drawingsPart == null) {
-            //parts can go missing; Excel ignores them silently -- TIKA-2134
-            LOGGER.warn("Missing drawing: {}. Skipping it.", drawingsName);
-            continue;
-          }
-          XSSFDrawing drawing = new XSSFDrawing(drawingsPart);
-          shapes.addAll(drawing.getShapes());
-        }
-      } catch (XmlException | InvalidFormatException | IOException e) {
-        LOGGER.warn("issue getting shapes", e);
-        return null;
-      }
-      return shapes;
     }
   }
 
@@ -408,6 +387,44 @@ public class OoxmlReader extends XSSFReader {
     public List<XSSFShape> getShapes() {
       return shapes;
     }
+  }
+
+  private static SheetData createSheetData(final StreamingReader.Builder builder,
+                                           final XSSFSheetRef xssfSheetRef,
+                                           final Map<String, PackagePart> sheetMap,
+                                           final boolean strictOoxmlChecksNeeded) {
+    final PackagePart sheetPart = sheetMap.get(xssfSheetRef.getId());
+    final List<XSSFShape> shapes = builder.readShapes() ? getShapes(sheetPart, strictOoxmlChecksNeeded) : null;
+    final Comments comments = builder.readComments() ? getSheetComments(builder, sheetPart, strictOoxmlChecksNeeded) : null;
+    return new SheetData(sheetPart, xssfSheetRef.getName(), comments, shapes);
+  }
+
+  /**
+   * Returns the comments associated with this sheet,
+   * or null if there aren't any
+   */
+  private static Comments getSheetComments(final StreamingReader.Builder builder,
+                                           final PackagePart sheetPkg,
+                                           final boolean strictOoxmlChecksNeeded) {
+    // Do we have a comments relationship? (Only ever one if so)
+    try {
+      PackageRelationshipCollection commentsList =
+              sheetPkg.getRelationshipsByType(XSSFRelation.SHEET_COMMENTS.getRelation());
+      if (commentsList.size() == 0 && strictOoxmlChecksNeeded) {
+        commentsList =
+                sheetPkg.getRelationshipsByType(OoxmlReader.PURL_COMMENTS_RELATIONSHIP_URL);
+      }
+      if (commentsList.size() > 0) {
+        PackageRelationship comments = commentsList.getRelationship(0);
+        PackagePartName commentsName = PackagingURIHelper.createPartName(comments.getTargetURI());
+        PackagePart commentsPart = sheetPkg.getPackage().getPart(commentsName);
+        return parseComments(builder, commentsPart, strictOoxmlChecksNeeded);
+      }
+    } catch (InvalidFormatException | IOException | XMLStreamException e) {
+      LOGGER.warn("issue getting sheet comments", e);
+      return null;
+    }
+    return null;
   }
 
   private static Comments parseComments(final StreamingReader.Builder builder,
@@ -444,6 +461,36 @@ public class OoxmlReader extends XSSFReader {
     } else {
       return new CommentsTable(commentsPart);
     }
+  }
+
+  /**
+   * Returns the shapes associated with this sheet,
+   * an empty list or null if there is an exception
+   */
+  private static List<XSSFShape> getShapes(final PackagePart sheetPkg, final boolean strictOoxmlChecksNeeded) {
+    final List<XSSFShape> shapes = new LinkedList<>();
+    try {
+      PackageRelationshipCollection drawingsList = sheetPkg.getRelationshipsByType(XSSFRelation.DRAWINGS.getRelation());
+      if (drawingsList.size() == 0 && strictOoxmlChecksNeeded) {
+        drawingsList = sheetPkg.getRelationshipsByType(PURL_DRAWING_RELATIONSHIP_URL);
+      }
+      for (int i = 0; i < drawingsList.size(); i++) {
+        PackageRelationship drawings = drawingsList.getRelationship(i);
+        PackagePartName drawingsName = PackagingURIHelper.createPartName(drawings.getTargetURI());
+        PackagePart drawingsPart = sheetPkg.getPackage().getPart(drawingsName);
+        if (drawingsPart == null) {
+          //parts can go missing; Excel ignores them silently -- TIKA-2134
+          LOGGER.warn("Missing drawing: {}. Skipping it.", drawingsName);
+          continue;
+        }
+        XSSFDrawing drawing = new XSSFDrawing(drawingsPart);
+        shapes.addAll(drawing.getShapes());
+      }
+    } catch (XmlException | InvalidFormatException | IOException e) {
+      LOGGER.warn("issue getting shapes", e);
+      return null;
+    }
+    return shapes;
   }
 
 }

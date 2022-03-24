@@ -492,6 +492,21 @@ public class StreamingWorkbookTest {
   }
 
   @Test
+  public void testWithGetSheetAtAndThenIterator() throws IOException {
+    try(Workbook workbook = openWorkbook("formats.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      validateFormatsSheet(sheet);
+      Iterator<Sheet> iter1 = workbook.sheetIterator();
+      List<Sheet> sheetList1 = new ArrayList<>();
+      iter1.forEachRemaining(sheetList1::add);
+      assertEquals(1, sheetList1.size());
+      assertEquals(sheet.hashCode(), sheetList1.get(0).hashCode());
+      //the next line fails because current code does not let you iterate the rows on a sheet more than once
+      //validateFormatsSheet(sheetList1.get(0));
+    }
+  }
+
+  @Test
   public void testNoSuchElementExceptionOnSheetIterator() throws IOException {
     try (Workbook workbook = openWorkbook("formats.xlsx")) {
       Iterator<Sheet> iter1 = workbook.sheetIterator();
