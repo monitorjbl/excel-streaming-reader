@@ -31,6 +31,30 @@ public class HyperlinkDataTest {
   }
 
   @Test
+  public void testEqualsWithNullLocation() {
+    HyperlinkData hd1 = new HyperlinkData("id1", "ref1", null, "disp1", "tip1");
+    HyperlinkData hd2 = new HyperlinkData("id1", "ref1", null, "disp1", "tip1");
+    assertEquals(hd1, hd2);
+    assertEquals(hd1.hashCode(), hd2.hashCode());
+  }
+
+  @Test
+  public void testEqualsWithNullRef() {
+    HyperlinkData hd1 = new HyperlinkData("id1", null, "locn1", "disp1", "tip1");
+    HyperlinkData hd2 = new HyperlinkData("id1", null, "locn1", "disp1", "tip1");
+    assertEquals(hd1, hd2);
+    assertEquals(hd1.hashCode(), hd2.hashCode());
+  }
+
+  @Test
+  public void testEqualsWithNullId() {
+    HyperlinkData hd1 = new HyperlinkData(null, "ref1", "locn1", "disp1", "tip1");
+    HyperlinkData hd2 = new HyperlinkData(null, "ref1", "locn1", "disp1", "tip1");
+    assertEquals(hd1, hd2);
+    assertEquals(hd1.hashCode(), hd2.hashCode());
+  }
+
+  @Test
   public void testNotEquals() {
     HyperlinkData hd1 = new HyperlinkData("id1", "ref1", "locn1", "disp1", "tip1");
     HyperlinkData hd2 = new HyperlinkData("id1", "ref1", "locn1", "disp1", null);
