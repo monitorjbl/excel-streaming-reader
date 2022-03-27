@@ -2,6 +2,9 @@ package com.github.pjfanning.xlsx.impl.ooxml;
 
 import java.util.Objects;
 
+/**
+ * An immutable JavaBean representing hyperlink data
+ */
 public class HyperlinkData {
 
   private final String id;

@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.xlsx.impl.ooxml.HyperlinkData;
+import org.apache.poi.common.Duplicatable;
 import org.apache.poi.common.usermodel.HyperlinkType;
 import org.apache.poi.openxml4j.opc.PackageRelationship;
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -13,7 +14,7 @@ import java.net.URI;
 /**
  * A read-only implementation of Hyperlink
  */
-public class XlsxHyperlink implements Hyperlink {
+public class XlsxHyperlink implements Hyperlink, Duplicatable {
   private final HyperlinkType _type;
   private final PackageRelationship _externalRel;
   private final HyperlinkData hyperlinkData; //contains a reference to the cell where the hyperlink is anchored, getRef()
@@ -230,4 +231,8 @@ public class XlsxHyperlink implements Hyperlink {
     throw new UnsupportedOperationException("update operations are not supported");
   }
 
+  @Override
+  public Duplicatable copy() {
+    return new XlsxHyperlink(hyperlinkData, _externalRel);
+  }
 }
