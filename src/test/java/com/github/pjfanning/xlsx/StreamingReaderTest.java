@@ -1245,6 +1245,37 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testPresetSharedFormulas() throws Exception {
+    try (
+            Workbook wb = StreamingReader.builder()
+                    .setReadSharedFormulas(true)
+                    .open(new File("src/test/resources/bug65464.xlsx"))
+    ) {
+      StreamingSheet sheet = (StreamingSheet) wb.getSheet("SheetWithSharedFormula");
+      sheet.addSharedFormula("0", new SharedFormula(new CellAddress("V15"), "U15/R15"));
+
+      Cell v15 = null;
+      Cell v16 = null;
+      Cell v17 = null;
+      for (Row row : sheet) {
+        if (row.getRowNum() == 14) {
+          v15 = row.getCell(21);
+        } else if (row.getRowNum() == 15) {
+          v16 = row.getCell(21);
+        } else if (row.getRowNum() == 16) {
+          v17 = row.getCell(21);
+        }
+      }
+      assertNotNull("v15 found", v15);
+      assertNotNull("v16 found", v16);
+      assertNotNull("v17 found", v17);
+      assertEquals("U15/R15", v15.getCellFormula());
+      assertEquals("U16/R16", v16.getCellFormula());
+      assertEquals("U17/R17", v17.getCellFormula());
+    }
+  }
+
+  @Test
   public void testReadSharedFormulasDisabledByDefault() throws Exception {
     testReadSharedFormulasDisabled(StreamingReader.builder());
   }
@@ -1255,7 +1286,7 @@ public class StreamingReaderTest {
   }
 
   @Test
-  public void testReadSharedFormulasStrictFomat() throws Exception {
+  public void testReadSharedFormulasStrictFormat() throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/sharedformula-strict-format.xlsx");
             Workbook wb = StreamingReader.builder().setReadSharedFormulas(true)

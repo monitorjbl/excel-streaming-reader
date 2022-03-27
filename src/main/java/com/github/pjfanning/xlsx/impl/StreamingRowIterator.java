@@ -359,7 +359,7 @@ class StreamingRowIterator implements Iterator<Row> {
                             currentCell.getAddress(), shiftedFmla, sf.getFormula(), rowsToMove);
                     currentCell.setFormula(shiftedFmla);
                   } catch (Exception e) {
-                    LOG.warn("cell {} should has a shared formula but excel-streaming-reader has an issue parsing it - will ignore the formula",
+                    LOG.warn("cell {} has a shared formula but excel-streaming-reader has an issue parsing it - will ignore the formula",
                             currentCell.getAddress(), e);
                   }
                 }
