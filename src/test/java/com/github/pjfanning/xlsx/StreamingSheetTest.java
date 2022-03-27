@@ -185,6 +185,10 @@ public class StreamingSheetTest {
       assertTrue(hps.contains(link4));
 
       assertEquals(hps, sheet.getHyperlinkList());
+
+      XlsxHyperlink link1a = (XlsxHyperlink) link1.copy();
+      assertEquals(link1, link1a);
+      assertEquals(link1.hashCode(), link1a.hashCode());
     }
   }
 
