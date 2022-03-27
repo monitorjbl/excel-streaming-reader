@@ -148,6 +148,10 @@ public class StreamingSheetTest {
       assertEquals("https://en.wikipedia.org/wiki/Apache_POI#See_also", a4.getStringCellValue());
       assertEquals("#Sheet1", a7.getStringCellValue());
 
+      for (Row row : sheet) {
+        //iterate again to make sure we don't duplicate the hyperlink data
+      }
+
       List<? extends Hyperlink> hps = sheet.getHyperlinkList();
       assertEquals(4, hps.size());
 

@@ -1212,30 +1212,20 @@ public class StreamingReaderTest {
 
   @Test
   public void testIteratingRowsOnSheetTwice() throws Exception {
-    Map<String, SharedFormula> sharedFormulaMap = null;
     try (
             Workbook wb = StreamingReader.builder()
                     .setReadSharedFormulas(true)
                     .open(new File("src/test/resources/bug65464.xlsx"))
     ) {
-      Sheet sheet = wb.getSheet("SheetWithSharedFormula");
+      StreamingSheet sheet = (StreamingSheet) wb.getSheet("SheetWithSharedFormula");
       for (Row row : sheet) {
         //iterate through rows to ensure all state is loaded for the sheet
       }
-      sharedFormulaMap = ((StreamingSheet)sheet).getSharedFormulaMap();
-    }
-    assertEquals(1, sharedFormulaMap.size());
+      Map<String, SharedFormula> sharedFormulaMap = sheet.getSharedFormulaMap();
 
-    //the only way to do a 2nd pass on the row data is to create a new workbook and iterate over its sheet
-    try (
-            Workbook wb = StreamingReader.builder()
-                    .setReadSharedFormulas(true)
-                    .open(new File("src/test/resources/bug65464.xlsx"))
-    ) {
-      StreamingSheet sheet = (StreamingSheet)wb.getSheet("SheetWithSharedFormula");
-      sharedFormulaMap.entrySet().forEach( entry ->
-              sheet.addSharedFormula(entry.getKey(), entry.getValue())
-      );
+      assertEquals(1, sharedFormulaMap.size());
+
+      sharedFormulaMap.forEach(sheet::addSharedFormula);
       Cell v15 = null;
       Cell v16 = null;
       Cell v17 = null;
