@@ -10,6 +10,7 @@ import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellReference;
 
 import java.net.URI;
+import java.util.Objects;
 
 /**
  * A read-only implementation of Hyperlink
@@ -229,6 +230,19 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
   @Override
   public void setLastRow(int row) {
     throw new UnsupportedOperationException("update operations are not supported");
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    XlsxHyperlink that = (XlsxHyperlink) o;
+    return _type == that._type && Objects.equals(_externalRel, that._externalRel) && Objects.equals(hyperlinkData, that.hyperlinkData) && Objects.equals(_location, that._location);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(_type, _externalRel, hyperlinkData, _location);
   }
 
   @Override
