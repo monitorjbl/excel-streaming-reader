@@ -1221,11 +1221,8 @@ public class StreamingReaderTest {
       for (Row row : sheet) {
         //iterate through rows to ensure all state is loaded for the sheet
       }
-      Map<String, SharedFormula> sharedFormulaMap = sheet.getSharedFormulaMap();
+      assertEquals(1, sheet.getSharedFormulaMap().size());
 
-      assertEquals(1, sharedFormulaMap.size());
-
-      sharedFormulaMap.forEach(sheet::addSharedFormula);
       Cell v15 = null;
       Cell v16 = null;
       Cell v17 = null;
