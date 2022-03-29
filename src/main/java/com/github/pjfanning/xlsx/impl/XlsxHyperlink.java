@@ -8,6 +8,7 @@ import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Hyperlink;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 
 import java.net.URI;
 import java.util.Objects;
@@ -245,8 +246,28 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
     return Objects.hash(_type, _externalRel, hyperlinkData, _location);
   }
 
+  /**
+   * @return a copy of this XlsxHyperlink instance
+   * @since 4.0.0
+   */
   @Override
   public Duplicatable copy() {
     return new XlsxHyperlink(hyperlinkData, _externalRel);
+  }
+
+  /**
+   * @return a copy of this XlsxHyperlink instance but as a XSSFHyperlink
+   * @since 4.0.0
+   */
+  public XSSFHyperlink createXSSFHyperlink(){
+    XSSFHyperlink xssfHyperlink = new XSSFHyperlink(getType()) {};
+    xssfHyperlink.setLocation(getLocation());
+    xssfHyperlink.setFirstRow(getFirstRow());
+    xssfHyperlink.setLastRow(getLastRow());
+    xssfHyperlink.setFirstColumn(getFirstColumn());
+    xssfHyperlink.setLastColumn(getLastColumn());
+    xssfHyperlink.setLabel(getLabel());
+    xssfHyperlink.setTooltip(getTooltip());
+    return xssfHyperlink;
   }
 }
