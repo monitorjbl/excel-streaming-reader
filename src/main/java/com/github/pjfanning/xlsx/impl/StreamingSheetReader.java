@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.CloseableIterator;
 import com.github.pjfanning.xlsx.SharedFormula;
 import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.exceptions.OpenException;
@@ -248,11 +249,11 @@ public class StreamingSheetReader implements Iterable<Row> {
    * calls to this method just returned the same iterator. Creating multiple iterators will slow down
    * your application and should be avoided unless necessary.
    *
-   * @return the streaming iterator, an instance of {@link StreamingRowIterator} which is Closeable -
+   * @return the streaming iterator, an instance of {@link CloseableIterator} -
    * it is recommended that you close the iterator when finished with it if you intend to keep the sheet open.
    */
   @Override
-  public Iterator<Row> iterator() {
+  public CloseableIterator<Row> iterator() {
     try {
       //StreamingRowIterator requires a new XMLEventReader with a new InputStream to be provided to start from the
       //beginning of the Sheet

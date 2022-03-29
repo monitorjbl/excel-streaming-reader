@@ -1,6 +1,7 @@
 package com.github.pjfanning.xlsx.impl;
 
 import com.github.pjfanning.poi.xssf.streaming.SharedStringsTableBase;
+import com.github.pjfanning.xlsx.CloseableIterator;
 import com.github.pjfanning.xlsx.SharedFormula;
 import com.github.pjfanning.xlsx.StreamingReader;
 import com.github.pjfanning.xlsx.XmlUtils;
@@ -34,11 +35,10 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import java.io.Closeable;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class StreamingRowIterator implements Iterator<Row>, Closeable {
+class StreamingRowIterator implements CloseableIterator<Row> {
   private static final Logger LOG = LoggerFactory.getLogger(StreamingRowIterator.class);
   private static final QName QNAME_HIDDEN = QName.valueOf("hidden");
   private static final QName QNAME_HT = QName.valueOf("ht");

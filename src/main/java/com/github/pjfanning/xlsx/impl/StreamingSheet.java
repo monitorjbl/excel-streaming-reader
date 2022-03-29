@@ -1,5 +1,6 @@
 package com.github.pjfanning.xlsx.impl;
 
+import com.github.pjfanning.xlsx.CloseableIterator;
 import com.github.pjfanning.xlsx.SharedFormula;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
@@ -38,9 +39,12 @@ public class StreamingSheet implements Sheet {
 
   /**
    * Alias for {@link #rowIterator()} to allow foreach loops
+   *
+   * @return the streaming iterator, an instance of {@link CloseableIterator} -
+   * it is recommended that you close the iterator when finished with it if you intend to keep the sheet open.
    */
   @Override
-  public Iterator<Row> iterator() {
+  public CloseableIterator<Row> iterator() {
     return reader.iterator();
   }
 
@@ -48,15 +52,15 @@ public class StreamingSheet implements Sheet {
    * Returns a new iterator of the physical rows. This is an iterator of the PHYSICAL rows.
    * Meaning the 3rd element may not be the third row if say for instance the second row is undefined.
    *
-   * This behaviour changed in v4.0.0. Earlier versions only created one iterator and repeated
+   * This behaviour changed in v4.0.0. Earlier versions only created one simple iterator and repeated
    * calls to this method just returned the same iterator. Creating multiple iterators will slow down
    * your application and should be avoided unless necessary.
    *
-   * @return the streaming iterator, an instance of {@link StreamingRowIterator} which is Closeable -
+   * @return the streaming iterator, an instance of {@link CloseableIterator} -
    * it is recommended that you close the iterator when finished with it if you intend to keep the sheet open.
    */
   @Override
-  public Iterator<Row> rowIterator() {
+  public CloseableIterator<Row> rowIterator() {
     return reader.iterator();
   }
 
