@@ -82,6 +82,10 @@ public class StreamingSheetReader implements Iterable<Row> {
     this.sheet = sheet;
   }
 
+  void removeIterator(StreamingRowIterator iterator) {
+    iterators.remove(iterator);
+  }
+
   Map<String, SharedFormula> getSharedFormulaMap() {
     if (getBuilder().readSharedFormulas()) {
       if (sharedFormulaMap == null) {
@@ -302,7 +306,7 @@ public class StreamingSheetReader implements Iterable<Row> {
   }
 
   public void close() {
-    iterators.forEach(StreamingRowIterator::close);
+    iterators.forEach(iter -> iter.close(false));
   }
 
   StreamingReader.Builder getBuilder() {

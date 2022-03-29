@@ -606,7 +606,13 @@ class StreamingRowIterator implements CloseableIterator<Row> {
 
   @Override
   public void close() {
+    close(true);
+  }
+
+  //we avoid ConcurrentModificationException when closing all iterators by setting removeFromReader=false
+  void close(final boolean removeFromReader) {
     try {
+      if (removeFromReader) streamingSheetReader.removeIterator(this);
       parser.close();
     } catch(XMLStreamException e) {
       throw new CloseException(e);
