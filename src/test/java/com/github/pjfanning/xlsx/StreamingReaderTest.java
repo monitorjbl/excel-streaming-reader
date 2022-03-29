@@ -3,10 +3,17 @@ package com.github.pjfanning.xlsx;
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
 import com.github.pjfanning.xlsx.impl.StreamingSheet;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
+import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.ss.util.CellUtil;
+import org.apache.poi.xssf.streaming.SXSSFCell;
+import org.apache.poi.xssf.streaming.SXSSFRow;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -1477,6 +1484,59 @@ public class StreamingReaderTest {
       RichTextString richTextString = sheet2.getCellComment(new CellAddress("A1")).getString();
       assertEquals("date", richTextString.getString());
       assertEquals(0, richTextString.numFormattingRuns());
+    }
+  }
+
+  @Test
+  public void copyToSXSSF() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
+            Workbook wbInput = StreamingReader.builder().setReadHyperlinks(true).open(inputStream);
+            UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream();
+            SXSSFWorkbook wbOutput = new SXSSFWorkbook(5)
+    ) {
+      final CellCopyPolicy cellCopyPolicy = new CellCopyPolicy();
+      final CellCopyContext cellCopyContext = new CellCopyContext();
+      for (Sheet sheetInput : wbInput) {
+        SXSSFSheet sheetOutput = wbOutput.createSheet(sheetInput.getSheetName());
+        for (Row rowInput : sheetInput) {
+          SXSSFRow rowOutput = sheetOutput.createRow(rowInput.getRowNum());
+          for (Cell cellInput : rowInput) {
+            SXSSFCell cellOutput = rowOutput.createCell(cellInput.getColumnIndex());
+            CellUtil.copyCell(cellInput, cellOutput, cellCopyPolicy, cellCopyContext);
+          }
+        }
+      }
+
+      wbOutput.write(bos);
+
+      try (XSSFWorkbook xssfWorkbook = new XSSFWorkbook(bos.toInputStream())) {
+        DataFormatter formatter = new DataFormatter();
+
+        Sheet sheet = xssfWorkbook.getSheet("Sheet0");
+        Iterator<Row> rowIterator = sheet.rowIterator();
+
+        assertTrue(rowIterator.hasNext());
+        // header
+        Row currentRow = rowIterator.next();
+        assertTrue(rowIterator.hasNext());
+        currentRow = rowIterator.next();
+
+        List<String> expected = Arrays.asList(new String[]{
+                "10002", "John", "Doe", "06/09/1976", "1", "NORMAL", "NORMAL", "CUSTOMER", "Customer",
+                "NOT_CONFIRMED", "94", "2", "FALSE()"
+        });
+
+        for (int i = 0; i < currentRow.getLastCellNum(); i++) {
+          Cell cell = currentRow.getCell(i, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+          String value = formatter.formatCellValue(cell);
+
+          assertEquals(expected.get(i), value);
+        }
+
+        assertEquals("1976-09-06T00:00", currentRow.getCell(3).getLocalDateTimeCellValue().toString());
+      }
     }
   }
 
