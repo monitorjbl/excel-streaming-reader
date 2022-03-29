@@ -761,6 +761,66 @@ public class StreamingWorkbookTest {
     }
   }
 
+  @Test
+  public void testSheetReadWrongOrder() throws Exception {
+    try (
+            XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
+            UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()
+    ) {
+      Sheet sheet1 = xssfWorkbook.createSheet("s1");
+      Sheet sheet2 = xssfWorkbook.createSheet("s2");
+      Random rnd = new Random();
+      final int rowCount1 = rnd.nextInt(20);
+      final int rowCount2 = rnd.nextInt(20);
+      final AtomicInteger total1 = new AtomicInteger();
+      final AtomicInteger total2 = new AtomicInteger();
+      for (int i = 0; i < rowCount1; i++) {
+        int value = rnd.nextInt(1000);
+        total1.addAndGet(value);
+        sheet1.createRow(i).createCell(0).setCellValue(value);
+      }
+      for (int i = 0; i < rowCount2; i++) {
+        int value = rnd.nextInt(1000);
+        total2.addAndGet(value);
+        sheet2.createRow(i).createCell(0).setCellValue(value);
+      }
+      xssfWorkbook.write(bos);
+
+      try (Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        assertEquals(2, wb.getNumberOfSheets());
+        final Sheet wbSheet2 = wb.getSheet("s2");
+        assertEquals("s2", wbSheet2.getSheetName());
+        final Sheet wbSheet1 = wb.getSheet("s1");
+        assertEquals("s1", wbSheet1.getSheetName());
+        Iterator<Sheet> siter = wb.sheetIterator();
+        ArrayList<Sheet> sheets = new ArrayList<>();
+        siter.forEachRemaining(sheets::add);
+        assertEquals(2, sheets.size());
+        assertEquals("s1", sheets.get(0).getSheetName());
+        assertEquals("s2", sheets.get(1).getSheetName());
+        assertEquals(wbSheet1.hashCode(), sheets.get(0).hashCode());
+        assertEquals(wbSheet2.hashCode(), sheets.get(1).hashCode());
+
+        int readRowCount1 = 0;
+        double readTotal1 = 0.0;
+        for (Row row : wbSheet1) {
+          readRowCount1++;
+          readTotal1 += row.getCell(0).getNumericCellValue();
+        }
+        assertEquals(rowCount1, readRowCount1);
+        assertEquals(total1.get(), (int)readTotal1);
+        int readRowCount2 = 0;
+        double readTotal2 = 0.0;
+        for (Row row : wbSheet2) {
+          readRowCount2++;
+          readTotal2 += row.getCell(0).getNumericCellValue();
+        }
+        assertEquals(rowCount2, readRowCount2);
+        assertEquals(total2.get(), (int)readTotal2);
+      }
+    }
+  }
+
   private void validateFormatsSheet(Sheet sheet) {
     Iterator<Row> rowIterator = sheet.rowIterator();
 
