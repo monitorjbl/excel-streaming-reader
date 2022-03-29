@@ -821,7 +821,7 @@ public class StreamingWorkbookTest {
     }
   }
 
-  private void validateFormatsSheet(Sheet sheet) {
+  private void validateFormatsSheet(Sheet sheet) throws IOException {
     Iterator<Row> rowIterator = sheet.rowIterator();
 
     Cell A1 = getCellFromNextRow(rowIterator, 0);
@@ -831,6 +831,9 @@ public class StreamingWorkbookTest {
     expectFormattedContent(A1, "1234.6");
     expectFormattedContent(A2, "1918-11-11");
     expectFormattedContent(A3, "50%");
+
+    assertTrue(rowIterator instanceof Closeable);
+    ((Closeable)rowIterator).close();
   }
 
   private static class ExploitServer extends NanoHTTPD implements AutoCloseable {
