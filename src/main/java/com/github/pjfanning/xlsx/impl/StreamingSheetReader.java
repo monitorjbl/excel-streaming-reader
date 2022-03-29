@@ -241,7 +241,15 @@ public class StreamingSheetReader implements Iterable<Row> {
    * guaranteed to have all rows in memory, and any particular iteration may
    * trigger a load from disk to read in new data.
    *
-   * @return the streaming iterator
+   * This is an iterator of the PHYSICAL rows.
+   * Meaning the 3rd element may not be the third row if say for instance the second row is undefined.
+   *
+   * This behaviour changed in v4.0.0. Earlier versions only created one iterator and repeated
+   * calls to this method just returned the same iterator. Creating multiple iterators will slow down
+   * your application and should be avoided unless necessary.
+   *
+   * @return the streaming iterator, an instance of {@link StreamingRowIterator} which is Closeable -
+   * it is recommended that you close the iterator when finished with it if you intend to keep the sheet open.
    */
   @Override
   public Iterator<Row> iterator() {
