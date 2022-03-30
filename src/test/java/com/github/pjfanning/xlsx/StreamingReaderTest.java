@@ -3,19 +3,12 @@ package com.github.pjfanning.xlsx;
 import com.github.pjfanning.xlsx.exceptions.MissingSheetException;
 import com.github.pjfanning.xlsx.impl.StreamingSheet;
 import com.github.pjfanning.xlsx.impl.StreamingWorkbook;
-import com.github.pjfanning.xlsx.impl.XlsxHyperlink;
 import org.apache.commons.io.output.UnsynchronizedByteArrayOutputStream;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
-import org.apache.poi.ss.util.CellUtil;
-import org.apache.poi.xssf.streaming.SXSSFCell;
-import org.apache.poi.xssf.streaming.SXSSFRow;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFHyperlink;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -1494,31 +1487,15 @@ public class StreamingReaderTest {
   public void copyToSXSSF() throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
-            Workbook wbInput = StreamingReader.builder().setReadHyperlinks(true).open(inputStream);
             UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream();
-            SXSSFWorkbook wbOutput = new SXSSFWorkbook(5)
     ) {
-      //note that StreamingReader.builder().setReadHyperlinks(true) and that cellCopyPolicy.setCopyHyperlink(false)
-      //the hyperlinks appear at end of sheet, so we need to iterate them separately at the end
-      final CellCopyPolicy cellCopyPolicy = new CellCopyPolicy();
-      cellCopyPolicy.setCopyHyperlink(false);
-      final CellCopyContext cellCopyContext = new CellCopyContext();
-      for (Sheet sheetInput : wbInput) {
-        SXSSFSheet sheetOutput = wbOutput.createSheet(sheetInput.getSheetName());
-        for (Row rowInput : sheetInput) {
-          SXSSFRow rowOutput = sheetOutput.createRow(rowInput.getRowNum());
-          for (Cell cellInput : rowInput) {
-            SXSSFCell cellOutput = rowOutput.createCell(cellInput.getColumnIndex());
-            CellUtil.copyCell(cellInput, cellOutput, cellCopyPolicy, cellCopyContext);
-          }
-        }
-        XSSFSheet xssfSheet = wbOutput.getXSSFWorkbook().getSheet(sheetInput.getSheetName());
-        for (Hyperlink hyperlink : sheetInput.getHyperlinkList()) {
-          xssfSheet.addHyperlink(((XlsxHyperlink)hyperlink).createXSSFHyperlink());
-        }
+      SXSSFWorkbook wbOutput = CopyToSXSSFUtil.copyToSXSSF(inputStream);
+      try {
+        wbOutput.write(bos);
+      } finally {
+        wbOutput.close();
+        wbOutput.dispose();
       }
-
-      wbOutput.write(bos);
 
       try (XSSFWorkbook xssfWorkbook = new XSSFWorkbook(bos.toInputStream())) {
         DataFormatter formatter = new DataFormatter();
