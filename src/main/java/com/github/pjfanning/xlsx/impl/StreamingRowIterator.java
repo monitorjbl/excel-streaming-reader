@@ -161,6 +161,18 @@ class StreamingRowIterator implements CloseableIterator<Row> {
         currentRow = new StreamingRow(sheet, rowIndex, isHidden);
         currentRow.setStreamingSheetReader(streamingSheetReader);
         currentRow.setHeight(height);
+        if (stylesTable != null) {
+          Attribute styleAttr = startElement.getAttributeByName(QNAME_S);
+          if (styleAttr != null) {
+            String indexStr = styleAttr.getValue();
+            try {
+              int index = Integer.parseInt(indexStr);
+              currentRow.setRowStyle(stylesTable.getStyleAt(index));
+            } catch (NumberFormatException nfe) {
+              LOG.warn("Ignoring invalid row style index {}", indexStr);
+            }
+          }
+        }
         currentColNum = firstColNum;
       } else if ("col".equals(tagLocalName)) {
         Attribute isHiddenAttr = startElement.getAttributeByName(QNAME_HIDDEN);
