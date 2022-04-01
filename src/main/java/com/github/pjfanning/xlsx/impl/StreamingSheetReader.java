@@ -263,8 +263,8 @@ public class StreamingSheetReader implements Iterable<Row> {
       //beginning of the Sheet
       XMLEventReader parser = getXmlInputFactory().createXMLEventReader(packagePart.getInputStream());
       StreamingRowIterator iterator = new StreamingRowIterator(this,
-          sst, stylesTable, parser, use1904Dates, rowCacheSize, hiddenColumns, columnWidths, mergedCells, hyperlinks,
-          sharedFormulaMap, defaultRowHeight, sheet);
+              sst, stylesTable, parser, use1904Dates, rowCacheSize, hiddenColumns, columnWidths, mergedCells, hyperlinks,
+              sharedFormulaMap, defaultRowHeight, sheet);
       iterators.add(iterator);
       return iterator;
     } catch (IOException e) {

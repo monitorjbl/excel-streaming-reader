@@ -32,7 +32,7 @@ public class StreamingRow implements Row {
     return cellMap;
   }
 
- /* Supported */
+  /* Supported */
 
   /**
    * Get row number this row represents

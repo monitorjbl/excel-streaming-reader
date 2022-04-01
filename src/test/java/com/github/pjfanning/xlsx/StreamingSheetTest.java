@@ -19,7 +19,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import static com.github.pjfanning.xlsx.TestUtils.*;
+import static com.github.pjfanning.xlsx.TestUtils.getInputStream;
+import static com.github.pjfanning.xlsx.TestUtils.nextRow;
 import static org.junit.Assert.*;
 
 public class StreamingSheetTest {
@@ -337,6 +338,28 @@ public class StreamingSheetTest {
           rowIterator.next();
         }
       }
+    }
+  }
+
+  @Test
+  public void testRowStyle() throws IOException {
+    try (
+        InputStream is = getInputStream("row-style.xlsx");
+        Workbook wb = StreamingReader.builder().open(is)
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+      Row row0 = null, row1 = null;
+      for (Row row : sheet) {
+        if (row.getRowNum() == 0) {
+          row0 = row;
+        } else if (row.getRowNum() == 1) {
+          row1 = row;
+        }
+      }
+      assertNotNull(row0);
+      assertNotNull(row1);
+      assertFalse(row0.isFormatted());
+      assertTrue(row1.isFormatted());
     }
   }
 }
