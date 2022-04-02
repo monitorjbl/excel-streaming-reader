@@ -29,7 +29,7 @@ public class CopyToSXSSFUtil {
             CellUtil.copyCell(cellInput, cellOutput, cellCopyPolicy, cellCopyContext);
           }
         }
-        //POI 5.2.3 adds a SXSSFSheet.addHyperlink so there will no need tp get the XSSFSheet
+        //POI 5.2.3 adds a SXSSFSheet.addHyperlink so there will be no need to get the XSSFSheet
         XSSFSheet xssfSheet = sxssfWorkbook.getXSSFWorkbook().getSheet(sheetInput.getSheetName());
         for (Hyperlink hyperlink : sheetInput.getHyperlinkList()) {
           xssfSheet.addHyperlink(((XlsxHyperlink)hyperlink).createXSSFHyperlink());
