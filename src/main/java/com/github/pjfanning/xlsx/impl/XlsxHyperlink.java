@@ -20,7 +20,7 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
   private final HyperlinkType _type;
   private final PackageRelationship _externalRel;
   private final HyperlinkData hyperlinkData; //contains a reference to the cell where the hyperlink is anchored, getRef()
-  private String _location; //what the hyperlink refers to
+  private String _address; //what the hyperlink refers to
 
   /**
    * Create a XlsxHyperlink and initialize it from the supplied HyperlinkData bean and package relationship
@@ -38,7 +38,7 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
       // If it has a location, it's internal
       if (hyperlinkData.getLocation() != null) {
         _type = HyperlinkType.DOCUMENT;
-        _location = hyperlinkData.getLocation();
+        _address = hyperlinkData.getLocation();
       } else if (hyperlinkData.getId() != null) {
         throw new IllegalStateException("The hyperlink for cell "
                 + hyperlinkData.getRef() + " references relation "
@@ -49,17 +49,17 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
       }
     } else {
       URI target = _externalRel.getTargetURI();
-      _location = target.toString();
+      _address = target.toString();
       if (hyperlinkData.getLocation() != null) {
         // URI fragment
-        _location += "#" + hyperlinkData.getLocation();
+        _address += "#" + hyperlinkData.getLocation();
       }
 
       // Try to figure out the type
-      if (_location.startsWith("http://") || _location.startsWith("https://")
-              || _location.startsWith("ftp://")) {
+      if (_address.startsWith("http://") || _address.startsWith("https://")
+              || _address.startsWith("ftp://")) {
         _type = HyperlinkType.URL;
-      } else if (_location.startsWith("mailto:")) {
+      } else if (_address.startsWith("mailto:")) {
         _type = HyperlinkType.EMAIL;
       } else {
         _type = HyperlinkType.FILE;
@@ -87,13 +87,22 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
 
   /**
    * Hyperlink address. Depending on the hyperlink type it can be URL, e-mail, path to a file.
-   * The is the hyperlink target.
+   * This is the hyperlink target.
    *
    * @return the address of this hyperlink
    */
   @Override
   public String getAddress() {
-    return _location;
+    return _address;
+  }
+
+  private String getAddressWithoutLocation() {
+    String addr = _address;
+    String locn = getLocation();
+    if (addr != null && !addr.equals(locn) && addr.endsWith(locn)) {
+      return addr.substring(0, addr.length() - locn.length() - 1);
+    }
+    return addr;
   }
 
   /**
@@ -238,12 +247,12 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     XlsxHyperlink that = (XlsxHyperlink) o;
-    return _type == that._type && Objects.equals(_externalRel, that._externalRel) && Objects.equals(hyperlinkData, that.hyperlinkData) && Objects.equals(_location, that._location);
+    return _type == that._type && Objects.equals(_externalRel, that._externalRel) && Objects.equals(hyperlinkData, that.hyperlinkData) && Objects.equals(_address, that._address);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_type, _externalRel, hyperlinkData, _location);
+    return Objects.hash(_type, _externalRel, hyperlinkData, _address);
   }
 
   /**
@@ -261,13 +270,14 @@ public class XlsxHyperlink implements Hyperlink, Duplicatable {
    */
   public XSSFHyperlink createXSSFHyperlink(){
     XSSFHyperlink xssfHyperlink = new XSSFHyperlink(getType()) {};
-    xssfHyperlink.setLocation(getLocation());
     xssfHyperlink.setFirstRow(getFirstRow());
     xssfHyperlink.setLastRow(getLastRow());
     xssfHyperlink.setFirstColumn(getFirstColumn());
     xssfHyperlink.setLastColumn(getLastColumn());
     xssfHyperlink.setLabel(getLabel());
     xssfHyperlink.setTooltip(getTooltip());
+    xssfHyperlink.setAddress(getAddressWithoutLocation());
+    xssfHyperlink.setLocation(getLocation());
     return xssfHyperlink;
   }
 }

@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.PaneInformation;
+import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
@@ -165,24 +166,28 @@ public class StreamingSheetTest {
       assertEquals("A2", link1.getCellRef());
       assertEquals(HyperlinkType.URL, link1.getType());
       assertEquals("http://twitter.com/#!/apacheorg", link1.getAddress());
+      assertEquals("!/apacheorg", link1.getLocation());
       assertTrue(hps.contains(link1));
 
       XlsxHyperlink link2 = (XlsxHyperlink)sheet.getHyperlink(A3);
       assertEquals("A3", link2.getCellRef());
       assertEquals(HyperlinkType.URL, link2.getType());
       assertEquals("http://www.bailii.org/databases.html#ie", link2.getAddress());
+      assertEquals("ie", link2.getLocation());
       assertTrue(hps.contains(link2));
 
       XlsxHyperlink link3 = (XlsxHyperlink)sheet.getHyperlink(A4);
       assertEquals("A4", link3.getCellRef());
       assertEquals(HyperlinkType.URL, link3.getType());
       assertEquals("https://en.wikipedia.org/wiki/Apache_POI#See_also", link3.getAddress());
+      assertEquals("See_also", link3.getLocation());
       assertTrue(hps.contains(link3));
 
       XlsxHyperlink link4 = (XlsxHyperlink)sheet.getHyperlink(A7);
       assertEquals("A7", link4.getCellRef());
       assertEquals(HyperlinkType.DOCUMENT, link4.getType());
       assertEquals("Sheet1", link4.getAddress());
+      assertEquals("Sheet1", link4.getLocation());
       assertTrue(hps.contains(link4));
 
       assertEquals(hps, sheet.getHyperlinkList());
@@ -190,8 +195,92 @@ public class StreamingSheetTest {
       XlsxHyperlink link1a = (XlsxHyperlink) link1.copy();
       assertEquals(link1, link1a);
       assertEquals(link1.hashCode(), link1a.hashCode());
+
+      XSSFHyperlink link1b = link1.createXSSFHyperlink();
+      //TODO needs investigation
+      //assertEquals(link1.getAddress(), link1b.getAddress());
+      assertEquals(link1.getLocation(), link1b.getLocation());
+      assertEquals(link1.getCellRef(), link1b.getCellRef());
+      assertEquals(link1.getType(), link1b.getType());
+      assertEquals(link1.getLabel(), link1b.getLabel());
+      assertEquals(link1.getTooltip(), link1b.getTooltip());
     }
   }
+
+  @Test
+  public void testXSSFHyperlinks() throws Exception {
+    try (
+            InputStream is = getInputStream("59775.xlsx");
+            XSSFWorkbook workbook = new XSSFWorkbook(is)
+    ) {
+      XSSFSheet sheet = workbook.getSheetAt(0);
+      Iterator<Row> rowIterator = sheet.rowIterator();
+      Cell a2 = null, a3 = null, a4 = null, a7 = null;
+      while(rowIterator.hasNext()) {
+        Row row = nextRow(rowIterator);
+        if (row.getRowNum() == 1) {
+          a2 = row.getCell(0);
+        } else if (row.getRowNum() == 2) {
+          a3 = row.getCell(0);
+        } else if (row.getRowNum() == 3) {
+          a4 = row.getCell(0);
+        } else if (row.getRowNum() == 6) {
+          a7 = row.getCell(0);
+        }
+      }
+      assertNotNull( "a2 found", a2);
+      assertNotNull( "a3 found", a3);
+      assertNotNull( "a4 found", a4);
+      assertNotNull( "a7 found", a7);
+      assertEquals("http://twitter.com/#!/apacheorg", a2.getStringCellValue());
+      assertEquals("http://www.bailii.org/databases.html#ie", a3.getStringCellValue());
+      assertEquals("https://en.wikipedia.org/wiki/Apache_POI#See_also", a4.getStringCellValue());
+      assertEquals("#Sheet1", a7.getStringCellValue());
+
+      for (Row row : sheet) {
+        //iterate again to make sure we don't duplicate the hyperlink data
+      }
+
+      List<? extends Hyperlink> hps = sheet.getHyperlinkList();
+      assertEquals(4, hps.size());
+
+      CellAddress A2 = new CellAddress("A2");
+      CellAddress A3 = new CellAddress("A3");
+      CellAddress A4 = new CellAddress("A4");
+      CellAddress A7 = new CellAddress("A7");
+
+      XSSFHyperlink link1 = sheet.getHyperlink(A2);
+      assertEquals("A2", link1.getCellRef());
+      assertEquals(HyperlinkType.URL, link1.getType());
+      assertEquals("http://twitter.com/#!/apacheorg", link1.getAddress());
+      assertEquals("!/apacheorg", link1.getLocation());
+      assertTrue(hps.contains(link1));
+
+      XSSFHyperlink link2 = sheet.getHyperlink(A3);
+      assertEquals("A3", link2.getCellRef());
+      assertEquals(HyperlinkType.URL, link2.getType());
+      assertEquals("http://www.bailii.org/databases.html#ie", link2.getAddress());
+      assertEquals("ie", link2.getLocation());
+      assertTrue(hps.contains(link2));
+
+      XSSFHyperlink link3 = sheet.getHyperlink(A4);
+      assertEquals("A4", link3.getCellRef());
+      assertEquals(HyperlinkType.URL, link3.getType());
+      assertEquals("https://en.wikipedia.org/wiki/Apache_POI#See_also", link3.getAddress());
+      assertEquals("See_also", link3.getLocation());
+      assertTrue(hps.contains(link3));
+
+      XSSFHyperlink link4 = sheet.getHyperlink(A7);
+      assertEquals("A7", link4.getCellRef());
+      assertEquals(HyperlinkType.DOCUMENT, link4.getType());
+      assertEquals("Sheet1", link4.getAddress());
+      assertEquals("Sheet1", link4.getLocation());
+      assertTrue(hps.contains(link4));
+
+      assertEquals(hps, sheet.getHyperlinkList());
+    }
+  }
+
 
   @Test
   public void testHyperlinksDisabled() throws Exception {
