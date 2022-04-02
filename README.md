@@ -14,6 +14,12 @@ This implementation has some extra features
 * More methods are implemented. Some require that features are enabled in the StreamingReader.Builder instance because they might have an additional overhead.
 * Check [Builder](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.5.0/com/github/pjfanning/xlsx/StreamingReader.Builder.html) implementation to see what options are available.
 
+## Supported Releases
+|Release|Branch|Status|
+|---|---|---|
+|`4.0.0-rc1`|main|Not yet released -- 4.0.0-SNAPSHOT is available. Aim is to release at least one RC release. There have been some big changes to the internals and I would discourage anyone who needs complete release stability from using 4.x yet.|
+|`3.6.1`|v3.x|Stable. Bugs will be fixed on main and v3.x for at least the next few weeks.|
+
 ## Used By
 * [Apache Drill](https://drill.apache.org/)
 * [Apache Linkis](https://linkis.apache.org/)
@@ -139,6 +145,10 @@ consider setting these properties:
   org.apache.poi.openxml4j.util.ZipInputStreamZipEntrySource.setThresholdBytesForTempFiles(16384); //16KB
   org.apache.poi.openxml4j.opc.ZipPackage.setUseTempFilePackageParts(true);
 ```
+
+## Modifying Existing Large Xlsx Files
+
+* [Streaming copy with SXSSF](https://github.com/pjfanning/excel-streaming-reader/wiki/Streaming-copy-with-SXSSF)
 
 # Supported Methods
 
