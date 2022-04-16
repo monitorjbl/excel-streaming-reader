@@ -1,30 +1,28 @@
 package com.monitorjbl.xlsx.impl;
 
-import com.monitorjbl.xlsx.exceptions.NotSupportedException;
+import com.monitorjbl.xlsx.notsupportedoperations.RowAdapter;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class StreamingRow implements Row {
-  private final Sheet sheet;
-  private int rowIndex;
-  private boolean isHidden;
-  private TreeMap<Integer, Cell> cellMap = new TreeMap<>();
+public class StreamingRow implements RowAdapter {
+	private final Sheet sheet;
+	private final int rowIndex;
+	private final boolean isHidden;
+	private TreeMap<Integer, Cell> cellMap = new TreeMap<>();
 
-  public StreamingRow(Sheet sheet, int rowIndex, boolean isHidden) {
-    this.sheet = sheet;
-    this.rowIndex = rowIndex;
-    this.isHidden = isHidden;
-  }
+	public StreamingRow(Sheet sheet, int rowIndex, boolean isHidden) {
+		this.sheet = sheet;
+		this.rowIndex = rowIndex;
+		this.isHidden = isHidden;
+	}
 
-  @Override
-  public Sheet getSheet() {
+	@Override
+	public Sheet getSheet() {
     return sheet;
   }
 
@@ -131,128 +129,6 @@ public class StreamingRow implements Row {
       if(cell == null || cell.getCellType() == CellType.BLANK) { return null; }
     }
     return cell;
-  }
-
-  /* Not supported */
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Cell createCell(int column) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public Cell createCell(int i, CellType cellType) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void removeCell(Cell cell) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setRowNum(int rowNum) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setHeight(short height) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setZeroHeight(boolean zHeight) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setHeightInPoints(float height) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public short getHeight() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public float getHeightInPoints() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public boolean isFormatted() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public CellStyle getRowStyle() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void setRowStyle(CellStyle style) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public int getOutlineLevel() {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void shiftCellsRight(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
-    throw new NotSupportedException();
-  }
-
-  /**
-   * Not supported
-   */
-  @Override
-  public void shiftCellsLeft(int firstShiftColumnIndex, int lastShiftColumnIndex, int step) {
-    throw new NotSupportedException();
   }
 
 }

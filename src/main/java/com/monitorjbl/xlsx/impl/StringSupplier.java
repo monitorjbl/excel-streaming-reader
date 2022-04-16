@@ -1,6 +1,6 @@
 package com.monitorjbl.xlsx.impl;
 
-class StringSupplier implements Supplier {
+final class StringSupplier implements Supplier {
     private final String val;
 
     StringSupplier(String val) {

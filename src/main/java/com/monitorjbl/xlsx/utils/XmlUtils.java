@@ -1,4 +1,4 @@
-package com.monitorjbl.xlsx;
+package com.monitorjbl.xlsx.utils;
 
 import com.monitorjbl.xlsx.exceptions.ParseException;
 import org.apache.poi.ooxml.util.DocumentHelper;
@@ -16,11 +16,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-public class XmlUtils {
+public final class XmlUtils {
+  private XmlUtils() {
+    throw new RuntimeException("It is not good practice to instantiate utility classes.");
+  }
+
   public static Document document(InputStream is) {
     try {
       return DocumentHelper.readDocument(is);
-    } catch(SAXException | IOException e) {
+    } catch (SAXException | IOException e) {
       throw new ParseException(e);
     }
   }
@@ -39,11 +43,12 @@ public class XmlUtils {
   }
 
   private static class NamespaceContextImpl implements NamespaceContext {
-    private Map<String, String> urisByPrefix = new HashMap<String, String>();
-
-    private Map<String, Set> prefixesByURI = new HashMap<String, Set>();
+    private final Map<String, String> urisByPrefix;
+    private final Map<String, Set<String>> prefixesByURI;
 
     public NamespaceContextImpl() {
+      prefixesByURI = new HashMap<>();
+      urisByPrefix = new HashMap<>();
       addNamespace(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
       addNamespace(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI);
     }
@@ -53,7 +58,7 @@ public class XmlUtils {
       if (prefixesByURI.containsKey(namespaceURI)) {
         (prefixesByURI.get(namespaceURI)).add(prefix);
       } else {
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add(prefix);
         prefixesByURI.put(namespaceURI, set);
       }
@@ -62,24 +67,17 @@ public class XmlUtils {
     public String getNamespaceURI(String prefix) {
       if (prefix == null)
         throw new IllegalArgumentException("prefix cannot be null");
-      if (urisByPrefix.containsKey(prefix))
-        return (String) urisByPrefix.get(prefix);
-      else
-        return XMLConstants.NULL_NS_URI;
+      return urisByPrefix.getOrDefault(prefix, XMLConstants.NULL_NS_URI);
     }
 
     public String getPrefix(String namespaceURI) {
-      return (String) getPrefixes(namespaceURI).next();
+      return getPrefixes(namespaceURI).next();
     }
 
-    public Iterator getPrefixes(String namespaceURI) {
+    public Iterator<String> getPrefixes(String namespaceURI) {
       if (namespaceURI == null)
         throw new IllegalArgumentException("namespaceURI cannot be null");
-      if (prefixesByURI.containsKey(namespaceURI)) {
-        return ((Set) prefixesByURI.get(namespaceURI)).iterator();
-      } else {
-        return Collections.EMPTY_SET.iterator();
-      }
+      return prefixesByURI.getOrDefault(namespaceURI, Collections.EMPTY_SET).iterator();
     }
   }
 }

@@ -7,7 +7,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
@@ -29,36 +29,55 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+
+import static com.monitorjbl.xlsx.impl.CellTypeConstants.STRING;
+import static com.monitorjbl.xlsx.impl.CellTypeConstants.INLINE_STR;
+import static com.monitorjbl.xlsx.impl.CellTypeConstants.NUMERIC;
+import static com.monitorjbl.xlsx.impl.CellTypeConstants.ERROR;
+import static com.monitorjbl.xlsx.impl.CellTypeConstants.STR;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_C;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_F;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_R;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_S;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_T;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_V;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_COL;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_DIMENSION;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_HIDDEN;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_MAX;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_MIN;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_ROW;
+import static com.monitorjbl.xlsx.impl.LocalPartConstants.LOCAL_PART_REF;
+
 public class StreamingSheetReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingSheetReader.class);
 
-  private final SharedStringsTable sst;
+  private final SharedStrings sst;
   private final StylesTable stylesTable;
   private final XMLEventReader parser;
   private final DataFormatter dataFormatter = new DataFormatter();
   private final Set<Integer> hiddenColumns = new HashSet<>();
-
+  private final int rowCacheSize;
+  private final List<Row> rowCache;
+  private final boolean use1904Dates;
   private int lastRowNum;
   private int currentRowNum;
   private int firstColNum = 0;
   private int currentColNum;
-  private int rowCacheSize;
-  private List<Row> rowCache = new ArrayList<>();
   private Iterator<Row> rowCacheIterator;
-
   private String lastContents;
   private Sheet sheet;
   private StreamingRow currentRow;
   private StreamingCell currentCell;
-  private boolean use1904Dates;
 
-  public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser,
+  public StreamingSheetReader(SharedStrings sst, StylesTable stylesTable, XMLEventReader parser,
                               final boolean use1904Dates, int rowCacheSize) {
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.parser = parser;
     this.use1904Dates = use1904Dates;
     this.rowCacheSize = rowCacheSize;
+    rowCache = new ArrayList<>(rowCacheSize);
   }
 
   void setSheet(StreamingSheet sheet) {
@@ -114,34 +133,34 @@ public class StreamingSheetReader implements Iterable<Row> {
     } else if(event.getEventType() == XMLStreamConstants.START_ELEMENT
         && isSpreadsheetTag(event.asStartElement().getName())) {
       StartElement startElement = event.asStartElement();
-      String tagLocalName = startElement.getName().getLocalPart();
+      final String tagLocalName = startElement.getName().getLocalPart();
 
-      if("row".equals(tagLocalName)) {
-        Attribute rowNumAttr = startElement.getAttributeByName(new QName("r"));
+      if (LOCAL_PART_ROW.isConstantEquals(tagLocalName)) {
+        Attribute rowNumAttr = startElement.getAttributeByName(LOCAL_PART_R.getQname());
         int rowIndex = currentRowNum;
-        if(rowNumAttr != null) {
+        if (rowNumAttr != null) {
           rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
           currentRowNum = rowIndex;
         }
-        Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
+        Attribute isHiddenAttr = startElement.getAttributeByName(LOCAL_PART_HIDDEN.getQname());
         boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
         currentRow = new StreamingRow(sheet, rowIndex, isHidden);
         currentColNum = firstColNum;
-      } else if("col".equals(tagLocalName)) {
-        Attribute isHiddenAttr = startElement.getAttributeByName(new QName("hidden"));
+      } else if (LOCAL_PART_COL.isConstantEquals(tagLocalName)) {
+        Attribute isHiddenAttr = startElement.getAttributeByName(LOCAL_PART_HIDDEN.getQname());
         boolean isHidden = isHiddenAttr != null && ("1".equals(isHiddenAttr.getValue()) || "true".equals(isHiddenAttr.getValue()));
-        if(isHidden) {
-          Attribute minAttr = startElement.getAttributeByName(new QName("min"));
-          Attribute maxAttr = startElement.getAttributeByName(new QName("max"));
+        if (isHidden) {
+          Attribute minAttr = startElement.getAttributeByName(LOCAL_PART_MIN.getQname());
+          Attribute maxAttr = startElement.getAttributeByName(LOCAL_PART_MAX.getQname());
           int min = Integer.parseInt(minAttr.getValue()) - 1;
           int max = Integer.parseInt(maxAttr.getValue()) - 1;
-          for(int columnIndex = min; columnIndex <= max; columnIndex++)
+          for (int columnIndex = min; columnIndex <= max; columnIndex++)
             hiddenColumns.add(columnIndex);
         }
-      } else if("c".equals(tagLocalName)) {
-        Attribute ref = startElement.getAttributeByName(new QName("r"));
+      } else if (LOCAL_PART_C.isConstantEquals(tagLocalName)) {
+        Attribute ref = startElement.getAttributeByName(LOCAL_PART_R.getQname());
 
-        if(ref != null) {
+        if (ref != null) {
           String[] coord = splitCellRef(ref.getValue());
           currentColNum = CellReference.convertColStringToIndex(coord[0]);
           currentCell = new StreamingCell(sheet, currentColNum, Integer.parseInt(coord[1]) - 1, use1904Dates);
@@ -150,47 +169,48 @@ public class StreamingSheetReader implements Iterable<Row> {
         }
         setFormatString(startElement, currentCell);
 
-        Attribute type = startElement.getAttributeByName(new QName("t"));
+        Attribute type = startElement.getAttributeByName(LOCAL_PART_T.getQname());
         if(type != null) {
           currentCell.setType(type.getValue());
         } else {
           currentCell.setType("n");
         }
 
-        Attribute style = startElement.getAttributeByName(new QName("s"));
+        Attribute style = startElement.getAttributeByName(LOCAL_PART_S.getQname());
         if(style != null) {
           String indexStr = style.getValue();
           try {
             int index = Integer.parseInt(indexStr);
             currentCell.setCellStyle(stylesTable.getStyleAt(index));
-          } catch(NumberFormatException nfe) {
+          } catch (NumberFormatException nfe) {
             log.warn("Ignoring invalid style index {}", indexStr);
           }
         } else {
           currentCell.setCellStyle(stylesTable.getStyleAt(0));
         }
-      } else if("dimension".equals(tagLocalName)) {
-        Attribute refAttr = startElement.getAttributeByName(new QName("ref"));
+      } else if (LOCAL_PART_DIMENSION.isConstantEquals(tagLocalName)) {
+        Attribute refAttr = startElement.getAttributeByName(LOCAL_PART_REF.getQname());
         String ref = refAttr != null ? refAttr.getValue() : null;
-        if(ref != null) {
+        if (ref != null) {
           // ref is formatted as A1 or A1:F25. Take the last numbers of this string and use it as lastRowNum
-          for(int i = ref.length() - 1; i >= 0; i--) {
-            if(!Character.isDigit(ref.charAt(i))) {
+          for (int i = ref.length() - 1; i >= 0; i--) {
+            if (!Character.isDigit(ref.charAt(i))) {
               try {
                 lastRowNum = Integer.parseInt(ref.substring(i + 1)) - 1;
-              } catch(NumberFormatException ignore) { }
+              } catch (NumberFormatException ignore) {
+              }
               break;
             }
           }
-          for(int i = 0; i < ref.length(); i++) {
-            if(!Character.isAlphabetic(ref.charAt(i))) {
+          for (int i = 0; i < ref.length(); i++) {
+            if (!Character.isAlphabetic(ref.charAt(i))) {
               firstColNum = CellReference.convertColStringToIndex(ref.substring(0, i));
               break;
             }
           }
         }
-      } else if("f".equals(tagLocalName)) {
-        if(currentCell != null) {
+      } else if (LOCAL_PART_F.isConstantEquals(tagLocalName)) {
+        if (currentCell != null) {
           currentCell.setFormulaType(true);
         }
       }
@@ -200,24 +220,24 @@ public class StreamingSheetReader implements Iterable<Row> {
     } else if(event.getEventType() == XMLStreamConstants.END_ELEMENT
         && isSpreadsheetTag(event.asEndElement().getName())) {
       EndElement endElement = event.asEndElement();
-      String tagLocalName = endElement.getName().getLocalPart();
+      final String tagLocalName = endElement.getName().getLocalPart();
 
-      if("v".equals(tagLocalName) || "t".equals(tagLocalName)) {
+      if (LOCAL_PART_V.isConstantEquals(tagLocalName) || LOCAL_PART_T.isConstantEquals(tagLocalName)) {
         currentCell.setRawContents(unformattedContents());
         currentCell.setContentSupplier(formattedContents());
-      } else if("row".equals(tagLocalName) && currentRow != null) {
+      } else if (LOCAL_PART_ROW.isConstantEquals(tagLocalName) && currentRow != null) {
         rowCache.add(currentRow);
         currentRowNum++;
-      } else if("c".equals(tagLocalName)) {
+      } else if (LOCAL_PART_C.isConstantEquals(tagLocalName)) {
+        assert currentRow != null;
         currentRow.getCellMap().put(currentCell.getColumnIndex(), currentCell);
         currentCell = null;
         currentColNum++;
-      } else if("f".equals(tagLocalName)) {
-        if(currentCell != null) {
+      } else if (LOCAL_PART_F.isConstantEquals(tagLocalName)) {
+        if (currentCell != null) {
           currentCell.setFormula(lastContents);
         }
       }
-
     }
   }
 
@@ -270,7 +290,7 @@ public class StreamingSheetReader implements Iterable<Row> {
    * @param cell
    */
   void setFormatString(StartElement startElement, StreamingCell cell) {
-    Attribute cellStyle = startElement.getAttributeByName(new QName("s"));
+    Attribute cellStyle = startElement.getAttributeByName(LOCAL_PART_S.getQname());
     String cellStyleString = (cellStyle != null) ? cellStyle.getValue() : null;
     XSSFCellStyle style = null;
 
@@ -313,19 +333,19 @@ public class StreamingSheetReader implements Iterable<Row> {
    */
   private Supplier getFormatterForType(String type) {
     switch(type) {
-      case "s":           //string stored in shared table
-        if(!lastContents.isEmpty()) {
+      case STRING:           //string stored in shared table
+        if (!lastContents.isEmpty()) {
           int idx = Integer.parseInt(lastContents);
           return new StringSupplier(sst.getItemAt(idx).toString());
         }
         return new StringSupplier(lastContents);
-      case "inlineStr":   //inline string (not in sst)
-      case "str":
+      case INLINE_STR:   //inline string (not in sst)
+      case STR:
         return new StringSupplier(new XSSFRichTextString(lastContents).toString());
-      case "e":           //error type
+      case ERROR:           //error type
         return new StringSupplier("ERROR:  " + lastContents);
-      case "n":           //numeric type
-        if(currentCell.getNumericFormat() != null && lastContents.length() > 0) {
+      case NUMERIC:           //numeric type
+        if (currentCell.getNumericFormat() != null && lastContents.length() > 0) {
           // the formatRawCellContents operation incurs a significant overhead on large sheets,
           // and we want to defer the execution of this method until the value is actually needed.
           // it is not needed in all cases..
@@ -363,13 +383,13 @@ public class StreamingSheetReader implements Iterable<Row> {
    */
   String unformattedContents() {
     switch(currentCell.getType()) {
-      case "s":           //string stored in shared table
+      case STRING:           //string stored in shared table
         if(!lastContents.isEmpty()) {
           int idx = Integer.parseInt(lastContents);
           return sst.getItemAt(idx).toString();
         }
         return lastContents;
-      case "inlineStr":   //inline string (not in sst)
+      case INLINE_STR:   //inline string (not in sst)
         return new XSSFRichTextString(lastContents).toString();
       default:
         return lastContents;

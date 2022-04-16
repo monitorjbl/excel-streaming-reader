@@ -39,7 +39,7 @@ class LRUCache  {
 //  just an estimation
     private static long strSize(String str) {
         long size = Integer.BYTES; // hashCode
-        size += Character.BYTES * str.length(); // characters
+        size += (long) Character.BYTES * str.length(); // characters
         return size;
     }
 

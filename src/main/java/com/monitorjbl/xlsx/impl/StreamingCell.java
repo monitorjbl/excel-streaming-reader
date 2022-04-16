@@ -1,35 +1,27 @@
 package com.monitorjbl.xlsx.impl;
 
 import com.monitorjbl.xlsx.exceptions.NotSupportedException;
-import org.apache.poi.ss.formula.FormulaParseException;
-import org.apache.poi.ss.usermodel.Cell;
+import com.monitorjbl.xlsx.notsupportedoperations.CellAdapter;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Hyperlink;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellAddress;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Calendar;
 import java.util.Date;
 
-public class StreamingCell implements Cell {
+public class StreamingCell implements CellAdapter {
 
     private static final Supplier NULL_SUPPLIER = () -> null;
     private static final String FALSE_AS_STRING = "0";
     private static final String TRUE_AS_STRING = "1";
 
     private final Sheet sheet;
-    private int columnIndex;
-    private int rowIndex;
+    private final int columnIndex;
+    private final int rowIndex;
     private final boolean use1904Dates;
 
     private Supplier contentsSupplier = NULL_SUPPLIER;
@@ -151,23 +143,18 @@ public class StreamingCell implements Cell {
      */
     @Override
     public CellType getCellType() {
-        if(formulaType) {
+        if (formulaType) {
             return CellType.FORMULA;
-        } else if(contentsSupplier.getContent() == null || type == null) {
-            return CellType.BLANK;
-        } else if("n".equals(type)) {
-            return CellType.NUMERIC;
-        } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
-            return CellType.STRING;
-        } else if("str".equals(type)) {
-            return CellType.FORMULA;
-        } else if("b".equals(type)) {
-            return CellType.BOOLEAN;
-        } else if("e".equals(type)) {
-            return CellType.ERROR;
         } else {
-            throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
+            return findCellType();
         }
+    }
+
+    private CellType findCellType() {
+        if (contentsSupplier.getContent() == null || type == null) {
+            return CellType.BLANK;
+        }
+        return CellTypeHelper.getCellTypeFromShortHand(type);
     }
 
     /**
@@ -213,7 +200,12 @@ public class StreamingCell implements Cell {
 
     @Override
     public LocalDateTime getLocalDateTimeCellValue() {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(getDateCellValue().getTime()), ZoneOffset.systemDefault());
+        if (this.getCellType() == CellType.BLANK) {
+            return null;
+        } else {
+            double value = this.getNumericCellValue();
+            return DateUtil.getLocalDateTime(value, use1904Dates);
+        }
     }
 
     /**
@@ -229,7 +221,7 @@ public class StreamingCell implements Cell {
             case BLANK:
                 return false;
             case BOOLEAN:
-                return rawContents != null && TRUE_AS_STRING.equals(rawContents);
+                return TRUE_AS_STRING.equals(rawContents);
             case FORMULA:
                 throw new NotSupportedException();
             default:
@@ -279,21 +271,7 @@ public class StreamingCell implements Cell {
      * Used to help format error messages
      */
     private static String getCellTypeName(CellType cellType) {
-        switch(cellType) {
-            case BLANK:
-                return "blank";
-            case STRING:
-                return "text";
-            case BOOLEAN:
-                return "boolean";
-            case ERROR:
-                return "error";
-            case NUMERIC:
-                return "numeric";
-            case FORMULA:
-                return "formula";
-        }
-        return "#unknown cell type (" + cellType + ")#";
+        return CellTypeHelper.getValueFromCellType(cellType);
     }
 
     /**
@@ -302,6 +280,11 @@ public class StreamingCell implements Cell {
     @Override
     public CellStyle getCellStyle() {
         return this.cellStyle;
+    }
+
+    @Override
+    public CellAddress getAddress() {
+        return new CellAddress(this);
     }
 
     /**
@@ -327,207 +310,8 @@ public class StreamingCell implements Cell {
     @Override
     public CellType getCachedFormulaResultType() {
         if(formulaType) {
-            if(contentsSupplier.getContent() == null || type == null) {
-                return CellType.BLANK;
-            } else if("n".equals(type)) {
-                return CellType.NUMERIC;
-            } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
-                return CellType.STRING;
-            } else if("b".equals(type)) {
-                return CellType.BOOLEAN;
-            } else if("e".equals(type)) {
-                return CellType.ERROR;
-            } else {
-                throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
-            }
-        } else {
-            throw new IllegalStateException("Only formula cells have cached results");
+            return findCellType();
         }
-    }
-
-    /* Not supported */
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellType(CellType cellType) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellValue(double value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellValue(Date value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellValue(LocalDateTime value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellValue(Calendar value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellValue(RichTextString value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellValue(String value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellFormula(String formula) throws FormulaParseException {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellValue(boolean value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellErrorValue(byte value) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public byte getErrorCellValue() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setAsActiveCell() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public CellAddress getAddress() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setCellComment(Comment comment) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public Comment getCellComment() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void removeCellComment() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public Hyperlink getHyperlink() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setHyperlink(Hyperlink link) {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void removeHyperlink() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public CellRangeAddress getArrayFormulaRange() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public boolean isPartOfArrayFormulaGroup() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void setBlank() {
-        throw new NotSupportedException();
-    }
-
-    /**
-     * Not supported
-     */
-    @Override
-    public void removeFormula() throws IllegalStateException {
-        throw new NotSupportedException();
+        throw new IllegalStateException("Only formula cells have cached results");
     }
 }

@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,28 +29,23 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static com.monitorjbl.xlsx.XmlUtils.document;
-import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
-import static com.monitorjbl.xlsx.impl.TempFileUtil.writeInputStreamToFile;
+import static com.monitorjbl.xlsx.utils.XmlUtils.document;
+import static com.monitorjbl.xlsx.utils.XmlUtils.searchForNodeList;
+import static com.monitorjbl.xlsx.utils.TempFileUtil.writeInputStreamToFile;
 import static java.util.Arrays.asList;
 
 public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private static final Logger log = LoggerFactory.getLogger(StreamingWorkbookReader.class);
 
   private final List<StreamingSheet> sheets;
-  private final List<Map<String, String>> sheetProperties = new ArrayList<>();
+  private final List<Map<String, String>> sheetProperties;
   private final Builder builder;
   private File tmp;
   private File sstCache;
   private OPCPackage pkg;
-  private SharedStringsTable sst;
+  private SharedStrings sst;
   private boolean use1904Dates = false;
 
   /**
@@ -65,17 +60,19 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
    * @param builder  The builder containing all options
    */
   @Deprecated
-  public StreamingWorkbookReader(SharedStringsTable sst, File sstCache, OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
+  public StreamingWorkbookReader(SharedStrings sst, File sstCache, OPCPackage pkg, StreamingSheetReader reader, Builder builder) {
     this.sst = sst;
     this.sstCache = sstCache;
     this.pkg = pkg;
     this.sheets = asList(new StreamingSheet(null, reader));
     this.builder = builder;
+    sheetProperties = new ArrayList<>();
   }
 
   public StreamingWorkbookReader(Builder builder) {
     this.sheets = new ArrayList<>();
     this.builder = builder;
+    sheetProperties = new ArrayList<>();
   }
 
   public StreamingSheetReader first() {
@@ -94,7 +91,9 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
       throw new ReadException("Unable to read input stream", e);
     } catch(RuntimeException e) {
       if(f != null) {
-        f.delete();
+        if (f.delete()) {
+          log.debug("Deleted temp file [" + f.getAbsolutePath() + "]");
+        }
       }
       throw e;
     }
@@ -141,7 +140,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     }
   }
 
-  void loadSheets(XSSFReader reader, SharedStringsTable sst, StylesTable stylesTable, int rowCacheSize)
+  void loadSheets(XSSFReader reader, SharedStrings sst, StylesTable stylesTable, int rowCacheSize)
           throws IOException, InvalidFormatException, XMLStreamException {
     lookupSheetNames(reader);
 
@@ -150,7 +149,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     //The sheets are listed in order, so we must keep track of insertion order.
     SheetIterator iter = (SheetIterator) reader.getSheetsData();
     Map<URI, InputStream> sheetStreams = new LinkedHashMap<>();
-    while(iter.hasNext()) {
+    while (iter.hasNext()) {
       InputStream is = iter.next();
       sheetStreams.put(iter.getSheetPart().getPartName().getURI(), is);
     }

@@ -17,7 +17,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.StaxHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.apache.poi.xssf.model.StylesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +34,9 @@ import java.security.GeneralSecurityException;
 import java.util.Iterator;
 import java.util.Objects;
 
-import static com.monitorjbl.xlsx.XmlUtils.document;
-import static com.monitorjbl.xlsx.XmlUtils.searchForNodeList;
-import static com.monitorjbl.xlsx.impl.TempFileUtil.writeInputStreamToFile;
+import static com.monitorjbl.xlsx.utils.XmlUtils.document;
+import static com.monitorjbl.xlsx.utils.XmlUtils.searchForNodeList;
+import static com.monitorjbl.xlsx.utils.TempFileUtil.writeInputStreamToFile;
 
 /**
  * Streaming Excel workbook implementation. Most advanced features of POI are not supported.
@@ -325,7 +325,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
         boolean use1904Dates = false;
         XSSFReader reader = new XSSFReader(pkg);
 
-        SharedStringsTable sst;
+        SharedStrings sst;
         File sstCache = null;
         if(sstCacheSizeBytes > 0) {
           sstCache = Files.createTempFile("", "").toFile();

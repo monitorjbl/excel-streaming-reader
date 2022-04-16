@@ -1,5 +1,6 @@
 package com.monitorjbl.xlsx.sst;
 
+import com.monitorjbl.xlsx.impl.LocalPartConstants;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackagePart;
 import org.apache.poi.ss.usermodel.RichTextString;
@@ -57,15 +58,15 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
     StringBuilder buf = new StringBuilder();
     XMLEvent xmlEvent;
     while((xmlEvent = xmlEventReader.nextTag()).isStartElement()) {
-      switch(xmlEvent.asStartElement().getName().getLocalPart()) {
-        case "t": // Text
+      switch(LocalPartConstants.parseValue(xmlEvent.asStartElement().getName().getLocalPart())) {
+        case LOCAL_PART_T: // Text
           buf.append(xmlEventReader.getElementText());
           break;
-        case "r": // Rich Text Run
+        case LOCAL_PART_R: // Rich Text Run
           parseCT_RElt(xmlEventReader, buf);
           break;
-        case "rPh": // Phonetic Run
-        case "phoneticPr": // Phonetic Properties
+        case LOCAL_PART_RPR: // Phonetic Run
+        case LOCAL_PART_PHONETIC_PR: // Phonetic Properties
           skipElement(xmlEventReader);
           break;
         default:
@@ -84,11 +85,11 @@ public class BufferedStringsTable extends SharedStringsTable implements AutoClos
     // Precondition: pointing to <r>;  Post condition: pointing to </r>
     XMLEvent xmlEvent;
     while((xmlEvent = xmlEventReader.nextTag()).isStartElement()) {
-      switch(xmlEvent.asStartElement().getName().getLocalPart()) {
-        case "t": // Text
+      switch(LocalPartConstants.parseValue(xmlEvent.asStartElement().getName().getLocalPart())) {
+        case LOCAL_PART_T: // Text
           buf.append(xmlEventReader.getElementText());
           break;
-        case "rPr": // Run Properties
+        case LOCAL_PART_RPR: // Run Properties
           skipElement(xmlEventReader);
           break;
         default:
