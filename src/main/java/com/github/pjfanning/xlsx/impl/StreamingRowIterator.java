@@ -522,25 +522,14 @@ class StreamingRowIterator implements CloseableIterator<Row> {
           // the formatRawCellContents operation incurs a significant overhead on large sheets,
           // and we want to defer the execution of this method until the value is actually needed.
           // it is not needed in all cases..
-          final String currentLastContents = lastContents;
           final int currentNumericFormatIndex = currentCell.getNumericFormatIndex();
           final String currentNumericFormat = currentCell.getNumericFormat();
 
-          return new Supplier() {
-            String cachedContent;
+          return new LazySupplier<>(() -> dataFormatter.formatRawCellContents(
+                  Double.parseDouble(lastContents),
+                  currentNumericFormatIndex,
+                  currentNumericFormat));
 
-            @Override
-            public Object getContent() {
-              if (cachedContent == null) {
-                cachedContent = dataFormatter.formatRawCellContents(
-                        Double.parseDouble(currentLastContents),
-                        currentNumericFormatIndex,
-                        currentNumericFormat);
-              }
-
-              return cachedContent;
-            }
-          };
         } else {
           return new StringSupplier(lastContents);
         }
