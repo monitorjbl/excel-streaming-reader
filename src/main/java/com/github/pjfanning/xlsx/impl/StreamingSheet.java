@@ -195,7 +195,7 @@ public class StreamingSheet implements Sheet {
    * @throws IllegalStateException if {@link com.github.pjfanning.xlsx.StreamingReader.Builder#setReadShapes(boolean)} is not set to true
    */
   @Override
-  public Drawing getDrawingPatriarch() {
+  public Drawing<?> getDrawingPatriarch() {
     return reader.getDrawingPatriarch();
   }
 
