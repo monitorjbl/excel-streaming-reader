@@ -15,9 +15,9 @@ import java.util.*;
 
 public class XmlUtils {
 
-  private static NamespaceContext transitionalFormatNamespaceContext =
+  private static final NamespaceContext transitionalFormatNamespaceContext =
           new NamespaceContextImpl("ss", "http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-  private static NamespaceContextImpl strictFormatNamespaceContext =
+  private static final NamespaceContextImpl strictFormatNamespaceContext =
           new NamespaceContextImpl("ss", "http://purl.oclc.org/ooxml/spreadsheetml/main");
 
   public static final String FALSE_AS_STRING = "0";
@@ -49,9 +49,9 @@ public class XmlUtils {
   }
 
   private static class NamespaceContextImpl implements NamespaceContext {
-    private Map<String, String> urisByPrefix = new HashMap<>();
+    private final Map<String, String> urisByPrefix = new HashMap<>();
 
-    private Map<String, Set<String>> prefixesByURI = new HashMap<>();
+    private final Map<String, Set<String>> prefixesByURI = new HashMap<>();
 
     public NamespaceContextImpl() {
       addNamespace(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
@@ -78,25 +78,22 @@ public class XmlUtils {
     public String getNamespaceURI(String prefix) {
       if (prefix == null)
         throw new IllegalArgumentException("prefix cannot be null");
-      if (urisByPrefix.containsKey(prefix))
-        return urisByPrefix.get(prefix);
-      else
-        return XMLConstants.NULL_NS_URI;
+      return urisByPrefix.getOrDefault(prefix, XMLConstants.NULL_NS_URI);
     }
 
     @Override
     public String getPrefix(String namespaceURI) {
-      return (String) getPrefixes(namespaceURI).next();
+      return getPrefixes(namespaceURI).next();
     }
 
     @Override
-    public Iterator getPrefixes(String namespaceURI) {
+    public Iterator<String> getPrefixes(String namespaceURI) {
       if (namespaceURI == null)
         throw new IllegalArgumentException("namespaceURI cannot be null");
       if (prefixesByURI.containsKey(namespaceURI)) {
         return (prefixesByURI.get(namespaceURI)).iterator();
       } else {
-        return Collections.emptySet().iterator();
+        return Collections.emptyIterator();
       }
     }
   }
