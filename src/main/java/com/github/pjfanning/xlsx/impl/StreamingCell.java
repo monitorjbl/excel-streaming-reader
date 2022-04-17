@@ -155,23 +155,12 @@ public class StreamingCell implements Cell {
    */
   @Override
   public CellType getCellType() {
-    if(formulaType) {
+    if (formulaType) {
       return CellType.FORMULA;
-    } else if(contentsSupplier.getContent() == null || type == null) {
+    } else if (contentsSupplier.getContent() == null || type == null) {
       return CellType.BLANK;
-    } else if("n".equals(type)) {
-      return CellType.NUMERIC;
-    } else if("d".equals(type)) {
-      return CellType.NUMERIC;
-    } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
-      return CellType.STRING;
-    } else if("b".equals(type)) {
-      return CellType.BOOLEAN;
-    } else if("e".equals(type)) {
-      return CellType.ERROR;
-    } else {
-      throw new UnsupportedOperationException("Unsupported cell type '" + type + "'");
     }
+    return getCellTypeFromShortHandType(type);
   }
 
   /**
@@ -344,22 +333,11 @@ public class StreamingCell implements Cell {
   @Override
   public CellType getCachedFormulaResultType() {
     if (formulaType) {
-      if(contentsSupplier.getContent() == null || type == null) {
+      if (contentsSupplier.getContent() == null || type == null) {
         return CellType.BLANK;
-      } else if("n".equals(type)) {
-        return CellType.NUMERIC;
-      } else if("d".equals(type)) {
-        return CellType.NUMERIC;
-      } else if("s".equals(type) || "inlineStr".equals(type) || "str".equals(type)) {
-        return CellType.STRING;
-      } else if("b".equals(type)) {
-        return CellType.BOOLEAN;
-      } else if("e".equals(type)) {
-        return CellType.ERROR;
-      } else {
-        throw new NotSupportedException("Unsupported cell type '" + type + "'");
       }
-    } else  {
+      return getCellTypeFromShortHandType(type);
+    } else {
       throw new IllegalStateException("Only formula cells have cached results");
     }
   }
@@ -576,5 +554,22 @@ public class StreamingCell implements Cell {
   @Override
   public boolean isPartOfArrayFormulaGroup() {
     throw new NotSupportedException();
+  }
+
+  private static CellType getCellTypeFromShortHandType(final String cellType) {
+    switch (cellType) {
+      case "n":
+      case "d":
+        return CellType.NUMERIC;
+      case "s":
+      case "inlineStr":
+      case "str":
+        return CellType.STRING;
+      case "b":
+        return CellType.BOOLEAN;
+      case "e":
+        return CellType.ERROR;
+    }
+    throw new UnsupportedOperationException("Unsupported cell cell type '" + cellType + "'");
   }
 }
