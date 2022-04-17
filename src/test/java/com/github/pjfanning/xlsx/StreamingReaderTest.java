@@ -9,7 +9,6 @@ import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.AfterClass;
@@ -1329,7 +1328,7 @@ public class StreamingReaderTest {
         map.put(sheet.getSheetName(), count.get());
       });
       assertEquals(1, map.size());
-      assertEquals(new Integer(20), map.get("TestSheet1"));
+      assertEquals(Integer.valueOf(20), map.get("TestSheet1"));
     }
   }
 
