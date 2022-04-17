@@ -507,9 +507,9 @@ class StreamingRowIterator implements CloseableIterator<Row> {
         if (!lastContents.isEmpty()) {
           int idx = Integer.parseInt(lastContents);
           if (!getBuilder().fullFormatRichText() && sst instanceof SharedStringsTableBase) {
-            return new StringSupplier(((SharedStringsTableBase)sst).getString(idx));
+            return new LazySupplier<>(() -> ((SharedStringsTableBase)sst).getString(idx));
           }
-          return new RichTextStringSupplier(sst.getItemAt(idx));
+          return new LazySupplier<>(() -> sst.getItemAt(idx));
         }
         return new StringSupplier(lastContents);
       case "inlineStr":   //inline string (not in sst)
