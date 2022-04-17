@@ -538,36 +538,27 @@ class StreamingRowIterator implements CloseableIterator<Row> {
           // the formatRawCellContents operation incurs a significant overhead on large sheets,
           // and we want to defer the execution of this method until the value is actually needed.
           // it is not needed in all cases..
-          final String currentLastContents = lastContents;
           final int currentNumericFormatIndex = currentCell.getNumericFormatIndex();
           final String currentNumericFormat = currentCell.getNumericFormat();
 
-          return new Supplier() {
-            String cachedContent;
-
-            @Override
-            public Object getContent() {
-              if (cachedContent == null) {
-                try {
-                  Double dv;
-                  try {
-                    LocalDateTime dt = DateTimeUtil.parseDateTime(currentLastContents);
-                    dv = DateUtil.getExcelDate(dt, use1904Dates);
-                  } catch (Exception e) {
-                    dv = DateTimeUtil.convertTime(currentLastContents);
-                  }
-                  cachedContent = dataFormatter.formatRawCellContents(
-                          dv,
-                          currentNumericFormatIndex,
-                          currentNumericFormat);
-                } catch (Exception e) {
-                  LOG.warn("cannot format strict format date/time {}", currentLastContents);
-                  cachedContent = currentLastContents;
-                }
+          return new LazySupplier<>(() -> {
+            try {
+              Double dv;
+              try {
+                LocalDateTime dt = DateTimeUtil.parseDateTime(lastContents);
+                dv = DateUtil.getExcelDate(dt, use1904Dates);
+              } catch (Exception e) {
+                dv = DateTimeUtil.convertTime(lastContents);
               }
-              return cachedContent;
+              return dataFormatter.formatRawCellContents(
+                      dv,
+                      currentNumericFormatIndex,
+                      currentNumericFormat);
+            } catch (Exception e) {
+              LOG.warn("cannot format strict format date/time {}", lastContents);
+              return lastContents;
             }
-          };
+          });
         } else {
           return new StringSupplier(lastContents);
         }
