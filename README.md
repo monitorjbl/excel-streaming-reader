@@ -17,7 +17,7 @@ This implementation has some extra features
 ## Supported Releases
 |Release|Branch|Status|
 |---|---|---|
-|`4.0.0`|main|There have been some big changes to the internals and I would discourage anyone who needs complete release stability from using 4.x yet. A user recently suggested some more changes to the internals and I plan to release them soon.|
+|`4.0.1`|main|There have been some big changes to the internals and I would discourage anyone who needs complete release stability from using 4.x yet.|
 |`3.6.1`|v3.x|Stable. Bugs will be fixed on main and v3.x for at least the next few weeks.|
 
 ## Used By
