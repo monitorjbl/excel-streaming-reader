@@ -52,6 +52,7 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
   private OPCPackage pkg;
   private SharedStringsTable sst;
   private boolean use1904Dates = false;
+  private StreamingWorkbook streamingWorkbook;
 
   /**
    * This constructor exists only so the StreamingReader can instantiate
@@ -80,6 +81,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
 
   public StreamingSheetReader first() {
     return sheets.get(0).getReader();
+  }
+
+  public void setStreamingWorkbook(StreamingWorkbook streamingWorkbook) {
+    this.streamingWorkbook = streamingWorkbook;
   }
 
   public void init(InputStream is) {
@@ -159,7 +164,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
     int i = 0;
     for(URI uri : sheetStreams.keySet()) {
       XMLEventReader parser = StaxHelper.newXMLInputFactory().createXMLEventReader(sheetStreams.get(uri));
-      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"), new StreamingSheetReader(sst, stylesTable, parser, use1904Dates, rowCacheSize)));
+      sheets.add(new StreamingSheet(sheetProperties.get(i++).get("name"),
+      new StreamingSheetReader(streamingWorkbook, sst, stylesTable, parser, use1904Dates, rowCacheSize)));
     }
   }
 
@@ -211,6 +217,10 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         sstCache.delete();
       }
     }
+  }
+
+  public boolean isUse1904Dates() {
+    return use1904Dates;
   }
 
   static class StreamingSheetIterator implements Iterator<Sheet> {

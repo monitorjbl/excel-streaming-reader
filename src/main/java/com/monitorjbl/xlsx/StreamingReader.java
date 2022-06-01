@@ -247,9 +247,11 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the stream
      */
     public Workbook open(InputStream is) {
-      StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
-      workbook.init(is);
-      return new StreamingWorkbook(workbook);
+      StreamingWorkbookReader workbookReader = new StreamingWorkbookReader(this);
+      StreamingWorkbook streamingWorkbook = new StreamingWorkbook(workbookReader);
+      workbookReader.setStreamingWorkbook(streamingWorkbook);
+      workbookReader.init(is);
+      return streamingWorkbook;
     }
 
     /**
@@ -262,9 +264,11 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
      * @throws com.monitorjbl.xlsx.exceptions.ReadException if there is an issue reading the file
      */
     public Workbook open(File file) {
-      StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
-      workbook.init(file);
-      return new StreamingWorkbook(workbook);
+      StreamingWorkbookReader workbookReader = new StreamingWorkbookReader(this);
+      StreamingWorkbook streamingWorkbook = new StreamingWorkbook(workbookReader);
+      workbookReader.setStreamingWorkbook(streamingWorkbook);
+      workbookReader.init(file);
+      return streamingWorkbook;
     }
 
     /**
@@ -350,7 +354,7 @@ public class StreamingReader implements Iterable<Row>, AutoCloseable {
 
         XMLEventReader parser = StaxHelper.newXMLInputFactory().createXMLEventReader(sheet);
 
-        return new StreamingReader(new StreamingWorkbookReader(sst, sstCache, pkg, new StreamingSheetReader(sst, styles, parser, use1904Dates, rowCacheSize),
+        return new StreamingReader(new StreamingWorkbookReader(sst, sstCache, pkg, new StreamingSheetReader(null, sst, styles, parser, use1904Dates, rowCacheSize),
             this));
       } catch(IOException e) {
         throw new OpenException("Failed to open file", e);
