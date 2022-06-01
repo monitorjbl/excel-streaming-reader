@@ -32,6 +32,8 @@ import java.util.Set;
 public class StreamingSheetReader implements Iterable<Row> {
   private static final Logger log = LoggerFactory.getLogger(StreamingSheetReader.class);
 
+
+  private final StreamingWorkbook streamingWorkbook;
   private final SharedStringsTable sst;
   private final StylesTable stylesTable;
   private final XMLEventReader parser;
@@ -52,8 +54,9 @@ public class StreamingSheetReader implements Iterable<Row> {
   private StreamingCell currentCell;
   private boolean use1904Dates;
 
-  public StreamingSheetReader(SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser,
+  public StreamingSheetReader(StreamingWorkbook streamingWorkbook, SharedStringsTable sst, StylesTable stylesTable, XMLEventReader parser,
                               final boolean use1904Dates, int rowCacheSize) {
+    this.streamingWorkbook = streamingWorkbook;
     this.sst = sst;
     this.stylesTable = stylesTable;
     this.parser = parser;
@@ -63,6 +66,10 @@ public class StreamingSheetReader implements Iterable<Row> {
 
   void setSheet(StreamingSheet sheet) {
     this.sheet = sheet;
+  }
+
+  public StreamingWorkbook getStreamingWorkbook() {
+    return streamingWorkbook;
   }
 
   /**

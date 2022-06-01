@@ -4,23 +4,15 @@ import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.udf.UDFFinder;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.DataFormat;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Name;
-import org.apache.poi.ss.usermodel.PictureData;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.SheetVisibility;
-import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
 
-public class StreamingWorkbook implements Workbook, AutoCloseable {
+public class StreamingWorkbook implements Workbook, Date1904Support, AutoCloseable {
   private final StreamingWorkbookReader reader;
 
   public StreamingWorkbook(StreamingWorkbookReader reader) {
@@ -503,6 +495,11 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
   @Override
   public int addOlePackage(byte[] bytes, String s, String s1, String s2) throws IOException {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isDate1904() {
+    return reader.isUse1904Dates();
   }
 
   @Override

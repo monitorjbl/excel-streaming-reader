@@ -3,12 +3,7 @@ package com.monitorjbl.xlsx;
 import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -215,6 +210,50 @@ public class StreamingReaderTest {
         obj.get(0).get(0).getDateCellValue();
         fail("Should have thrown IllegalStateException");
       } catch(IllegalStateException e) { }
+    }
+  }
+
+  @Test
+  public void testDataFormatter1900() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/data_types.xlsx"));
+        Workbook wb = StreamingReader.builder().open(is);
+    ) {
+
+      List<List<Cell>> obj = new ArrayList<>();
+
+      for(Row r : wb.getSheetAt(0)) {
+        List<Cell> o = new ArrayList<>();
+        for(Cell c : r) {
+          o.add(c);
+        }
+        obj.add(o);
+      }
+
+      DataFormatter dataFormatter = new DataFormatter(Locale.ENGLISH);
+      assertEquals("1/1/2014", dataFormatter.formatCellValue(obj.get(4).get(1)));
+    }
+  }
+
+  @Test
+  public void testDataFormatter1904() throws Exception {
+    try(
+        InputStream is = new FileInputStream(new File("src/test/resources/1904Dates.xlsx"));
+        Workbook wb = StreamingReader.builder().open(is);
+    ) {
+
+      List<List<Cell>> obj = new ArrayList<>();
+
+      for(Row r : wb.getSheetAt(0)) {
+        List<Cell> o = new ArrayList<>();
+        for(Cell c : r) {
+          o.add(c);
+        }
+        obj.add(o);
+      }
+
+      DataFormatter dataFormatter = new DataFormatter(Locale.ENGLISH);
+      assertEquals("10/14/1991", dataFormatter.formatCellValue(obj.get(1).get(5)));
     }
   }
 

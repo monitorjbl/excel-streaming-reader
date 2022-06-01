@@ -854,7 +854,7 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public Workbook getWorkbook() {
-    throw new UnsupportedOperationException();
+    return reader.getStreamingWorkbook();
   }
 
   /**
