@@ -122,16 +122,6 @@
       <artifactId>poi-ooxml</artifactId>
       <version>${apache.poi.version}</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.apache.poi</groupId>-->
-<!--      <artifactId>poi-ooxml-schemas</artifactId>-->
-<!--      <version>${apache.poi.version}</version>-->
-<!--    </dependency>-->
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>1.4.01</version>
-    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
