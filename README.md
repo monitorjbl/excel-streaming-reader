@@ -14,12 +14,6 @@ This implementation has some extra features
 * More methods are implemented. Some require that features are enabled in the StreamingReader.Builder instance because they might have an additional overhead.
 * Check [Builder](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.5.0/com/github/pjfanning/xlsx/StreamingReader.Builder.html) implementation to see what options are available.
 
-## Supported Releases
-|Release|Branch|Status|
-|---|---|---|
-|`4.0.1`|main|There have been some big changes to the internals. So far, there have been no reported issues.|
-|`3.6.1`|v3.x|Stable. Bugs will be fixed on main and v3.x for at least the next few weeks.|
-
 ## Used By
 * [Apache Drill](https://drill.apache.org/)
 * [Apache Linkis](https://linkis.apache.org/)
@@ -35,7 +29,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>3.6.1</version>
+    <version>4.0.1</version>
   </dependency>
 </dependencies>  
 ```
