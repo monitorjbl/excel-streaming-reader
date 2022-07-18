@@ -63,10 +63,18 @@ nexusPublishing {
     }
 }
 
+publish.dependsOn cyclonedxBom
+
+def bomFile = layout.buildDirectory.file('reports/bom.xml')
+def bomArtifact = artifacts.add('archives', bomFile.asFile) {
+    type 'bom'
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from(components.java)
+            artifact bomArtifact
             pom {
                 name = 'excel-streaming-reader'
                 description = 'Streaming Excel reader'
