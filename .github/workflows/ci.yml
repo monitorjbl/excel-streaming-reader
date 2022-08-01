@@ -6,6 +6,8 @@ on:
   push:
     branches: ['main', 'v3.x']
 
+permissions: {}
+
 jobs:
   build:
     name: Compile and Test code
