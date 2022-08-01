@@ -186,3 +186,8 @@ Workbook workbook = StreamingReader.builder()
 ```
 
 This library will ONLY work with XLSX files. The older XLS format is not capable of being streamed.
+
+# Contributing
+
+[Contributing](Contributing.md)
+
