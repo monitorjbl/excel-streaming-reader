@@ -107,7 +107,7 @@ You can use the `setUseSstTempFile(true)` option to have this data stored in a t
   Workbook workbook = StreamingReader.builder()
           .setUseSstTempFile(true)
           .setEncryptSstTempFile(false)
-          .fullFormatRichText(true) //if you want the rich text formatting as well as the text
+          .setFullFormatRichText(true) //if you want the rich text formatting as well as the text
           .open(is);
 ```
 
@@ -122,7 +122,7 @@ choose whether you want them stored in memory or in a temp file while reading th
           .setReadComments(true)
           .setUseCommentsTempFile(true)
           .setEncryptCommentsTempFile(false)
-          .fullFormatRichText(true) //if you want the rich text formatting as well as the text
+          .setFullFormatRichText(true) //if you want the rich text formatting as well as the text
           .open(is);
 ```
 
