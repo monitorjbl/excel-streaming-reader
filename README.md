@@ -19,7 +19,6 @@ This implementation has some extra features
 * [Apache Drill](https://drill.apache.org/)
 * [Apache Linkis](https://linkis.apache.org/)
 * [Spark-Excel](https://github.com/crealytics/spark-excel)
-* [Sirius Web](https://sirius-lib.net/#web-features)
 
 # Include
 
