@@ -371,6 +371,7 @@ public class StreamingWorkbookTest {
       for (Shape shape : drawingPatriarch) {
         if (shape instanceof XSSFPicture) {
           pictures.add((XSSFPicture)shape);
+          assertNotNull(((XSSFPicture)shape).getClientAnchor());
         } else {
           //there is one text box and 5 pictures on the sheet
           XSSFSimpleShape textBox = (XSSFSimpleShape)shape;
