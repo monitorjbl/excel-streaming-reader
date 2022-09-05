@@ -7,6 +7,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.PaneInformation;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFHyperlink;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -448,6 +449,61 @@ public class StreamingSheetTest {
       assertNotNull(row1);
       assertFalse(row0.isFormatted());
       assertTrue(row1.isFormatted());
+    }
+  }
+
+  @Test
+  public void testCellWithLineBreak() throws IOException {
+    final String testValue = "1\n2\r\n3";
+    try (
+            XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
+            UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()
+    ) {
+      Sheet xssfSheet = xssfWorkbook.createSheet();
+      xssfSheet.createRow(0).createCell(0).setCellValue(testValue);
+
+      xssfWorkbook.write(bos);
+
+      try (Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        Sheet sheet = wb.getSheetAt(0);
+        Iterator<Row> rowIterator = sheet.rowIterator();
+        if (rowIterator.hasNext()) {
+          Row row = rowIterator.next();
+          if (row.getRowNum() == 0) {
+            Cell cell0 = row.getCell(0);
+            assertNotNull(cell0);
+            assertEquals(testValue, cell0.getStringCellValue());
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void testCellWithLineBreakNoSharedStrings() throws IOException {
+    //SXSSFWorkbook does not use SharedStrings by default
+    final String testValue = "1\n2\r\n3";
+    try (
+            SXSSFWorkbook sxssfWorkbook = new SXSSFWorkbook();
+            UnsynchronizedByteArrayOutputStream bos = new UnsynchronizedByteArrayOutputStream()
+    ) {
+      Sheet xssfSheet = sxssfWorkbook.createSheet();
+      xssfSheet.createRow(0).createCell(0).setCellValue(testValue);
+
+      sxssfWorkbook.write(bos);
+
+      try (Workbook wb = StreamingReader.builder().open(bos.toInputStream())) {
+        Sheet sheet = wb.getSheetAt(0);
+        Iterator<Row> rowIterator = sheet.rowIterator();
+        if (rowIterator.hasNext()) {
+          Row row = rowIterator.next();
+          if (row.getRowNum() == 0) {
+            Cell cell0 = row.getCell(0);
+            assertNotNull(cell0);
+            assertEquals(testValue, cell0.getStringCellValue());
+          }
+        }
+      }
     }
   }
 }
