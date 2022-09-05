@@ -13,10 +13,10 @@ import java.io.InputStream;
  * row.
  */
 public class StreamingReader implements AutoCloseable {
-  private final StreamingWorkbookReader workbook;
+  private final StreamingWorkbookReader workbookReader;
 
-  public StreamingReader(StreamingWorkbookReader workbook) {
-    this.workbook = workbook;
+  public StreamingReader(StreamingWorkbookReader workbookReader) {
+    this.workbookReader = workbookReader;
   }
 
   /**
@@ -26,7 +26,7 @@ public class StreamingReader implements AutoCloseable {
    */
   @Override
   public void close() throws IOException {
-    workbook.close();
+    workbookReader.close();
   }
 
   public static Builder builder() {
@@ -528,9 +528,9 @@ public class StreamingReader implements AutoCloseable {
      * @throws com.github.pjfanning.xlsx.exceptions.ReadException if there is an issue reading the stream
      */
     public Workbook open(InputStream is) {
-      StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
-      workbook.init(is);
-      return new StreamingWorkbook(workbook);
+      StreamingWorkbookReader workbookReader = new StreamingWorkbookReader(this);
+      workbookReader.init(is);
+      return new StreamingWorkbook(workbookReader);
     }
 
     /**
@@ -543,9 +543,9 @@ public class StreamingReader implements AutoCloseable {
      * @throws com.github.pjfanning.xlsx.exceptions.ReadException if there is an issue reading the file
      */
     public Workbook open(File file) {
-      StreamingWorkbookReader workbook = new StreamingWorkbookReader(this);
-      workbook.init(file);
-      return new StreamingWorkbook(workbook);
+      StreamingWorkbookReader workbookReader = new StreamingWorkbookReader(this);
+      workbookReader.init(file);
+      return new StreamingWorkbook(workbookReader);
     }
   }
 }
