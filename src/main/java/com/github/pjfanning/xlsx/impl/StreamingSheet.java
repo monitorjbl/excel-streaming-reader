@@ -689,10 +689,26 @@ public class StreamingSheet implements Sheet {
   }
 
   /**
+   * Not supported
+   */
+  @Override
+  public double getMargin(PageMargin margin) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Update operations are not supported
    */
   @Override
   public void setMargin(short margin, double size) {
+    throw new UnsupportedOperationException("update operations are not supported");
+  }
+
+  /**
+   * Update operations are not supported
+   */
+  @Override
+  public void setMargin(PageMargin margin, double size) {
     throw new UnsupportedOperationException("update operations are not supported");
   }
 
@@ -797,6 +813,14 @@ public class StreamingSheet implements Sheet {
    */
   @Override
   public void createSplitPane(int xSplitPos, int ySplitPos, int leftmostColumn, int topRow, int activePane) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Not supported
+   */
+  @Override
+  public void createSplitPane(int xSplitPos, int ySplitPos, int leftmostColumn, int topRow, PaneType activePane) {
     throw new UnsupportedOperationException();
   }
 

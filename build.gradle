@@ -24,12 +24,12 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    //maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    //maven { url 'https://repository.apache.org/content/repositories/staging' }
 }
 
 dependencies {
-    api 'org.apache.poi:poi:5.2.2'
-    api 'org.apache.poi:poi-ooxml:5.2.2'
+    api 'org.apache.poi:poi:5.2.3'
+    api 'org.apache.poi:poi-ooxml:5.2.3'
     implementation 'com.github.pjfanning:poi-shared-strings:2.5.3'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'commons-io:commons-io:2.11.0'
@@ -65,18 +65,10 @@ nexusPublishing {
 
 publish.dependsOn cyclonedxBom
 
-/*
-def bomFile = layout.buildDirectory.file('reports/bom.xml')
-def bomArtifact = artifacts.add('archives', bomFile.asFile) {
-    type 'bom'
-}
-*/
-
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from(components.java)
-            //artifact bomArtifact
             pom {
                 name = 'excel-streaming-reader'
                 description = 'Streaming Excel reader'
