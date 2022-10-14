@@ -1215,6 +1215,39 @@ public class StreamingReaderTest {
   }
 
   @Test
+  public void testReadSharedFormulasSimple() throws Exception {
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/sharedformula-simple.xlsx");
+            Workbook wb = StreamingReader.builder()
+                    .setReadSharedFormulas(true)
+                    .open(inputStream)
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+      for (Row row : sheet) {
+        assertEquals("\"SHARED\"", row.getCell(0).getCellFormula());
+        assertEquals("1+1", row.getCell(1).getCellFormula());
+      }
+
+      StreamingSheet ss = (StreamingSheet)sheet;
+      Map<String, SharedFormula> sharedFormulaMap = ss.getSharedFormulaMap();
+      // For some reason shared formula cells not so optimized
+      assertEquals(4, sharedFormulaMap.size());
+
+      assertEquals("\"SHARED\"", sharedFormulaMap.get("0").getFormula());
+      assertEquals("A2", sharedFormulaMap.get("0").getCellAddress().toString());
+
+      assertEquals("1+1", sharedFormulaMap.get("1").getFormula());
+      assertEquals("B2", sharedFormulaMap.get("1").getCellAddress().toString());
+
+      assertEquals("\"SHARED\"", sharedFormulaMap.get("2").getFormula());
+      assertEquals("A66", sharedFormulaMap.get("2").getCellAddress().toString());
+
+      assertEquals("1+1", sharedFormulaMap.get("3").getFormula());
+      assertEquals("B66", sharedFormulaMap.get("3").getCellAddress().toString());
+    }
+  }
+
+  @Test
   public void testIteratingRowsOnSheetTwice() throws Exception {
     try (
             Workbook wb = StreamingReader.builder()

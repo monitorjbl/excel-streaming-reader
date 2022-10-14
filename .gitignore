@@ -4,3 +4,6 @@
 *.ipr
 .idea
 target
+
+.gradle
+build

@@ -361,13 +361,14 @@ class StreamingRowIterator implements CloseableIterator<Row> {
                   }
                   try {
                     Ptg[] ptgs = FormulaParser.parse(sf.getFormula(), evaluationWorkbook, FormulaType.CELL, sheetIndex, currentRow.getRowNum());
-                    String shiftedFmla = null;
                     final int rowsToMove = currentRowNum - sf.getCellAddress().getRow();
                     FormulaShifter formulaShifter = FormulaShifter.createForRowShift(sheetIndex, sheet.getSheetName(),
                             0, SpreadsheetVersion.EXCEL2007.getLastRowIndex(), rowsToMove, SpreadsheetVersion.EXCEL2007);
-                    if (formulaShifter.adjustFormula(ptgs, sheetIndex)) {
-                      shiftedFmla = FormulaRenderer.toFormulaString(evaluationWorkbook, ptgs);
-                    }
+                    formulaShifter.adjustFormula(ptgs, sheetIndex);
+                    // There are some corner cases regarding formulas in this PR
+                    // https://github.com/pjfanning/excel-streaming-reader/issues/151
+                    String shiftedFmla = FormulaRenderer.toFormulaString(evaluationWorkbook, ptgs);
+
                     LOG.debug("cell {} should have formula {} based on shared formula {} (rowsToMove={})",
                             currentCell.getAddress(), shiftedFmla, sf.getFormula(), rowsToMove);
                     currentCell.setFormula(shiftedFmla);
