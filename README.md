@@ -29,7 +29,7 @@ To use it, add this to your POM:
   <dependency>
     <groupId>com.github.pjfanning</groupId>
     <artifactId>excel-streaming-reader</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.4</version>
   </dependency>
 </dependencies>  
 ```
