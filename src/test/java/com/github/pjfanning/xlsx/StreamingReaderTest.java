@@ -1593,6 +1593,22 @@ public class StreamingReaderTest {
     }
   }
 
+  @Test
+  public void bug66365() throws Exception {
+    //https://bz.apache.org/bugzilla/show_bug.cgi?id=66365
+    try (
+            InputStream inputStream = new FileInputStream("src/test/resources/66365.xlsx");
+            Workbook wb = StreamingReader.builder().open(inputStream)
+    ) {
+      Sheet sheet = wb.getSheetAt(0);
+      for (Row row : sheet) {
+        if (row.getRowNum() < 2) {
+          assertEquals(row.getCell(0).getStringCellValue(), row.getCell(1).getStringCellValue());
+        }
+      }
+    }
+  }
+
   private void testReadFile(boolean useReadOnlySst) throws Exception {
     try (
             InputStream inputStream = new FileInputStream("src/test/resources/stream_reader_test.xlsx");
