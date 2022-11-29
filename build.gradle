@@ -24,13 +24,13 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    //maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 dependencies {
     api 'org.apache.poi:poi:5.2.3'
     api 'org.apache.poi:poi-ooxml:5.2.3'
-    implementation 'com.github.pjfanning:poi-shared-strings:2.5.6-20221128.174602-6'
+    implementation 'com.github.pjfanning:poi-shared-strings:2.5.6'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'commons-io:commons-io:2.11.0'
     testImplementation 'junit:junit:4.13.2'
