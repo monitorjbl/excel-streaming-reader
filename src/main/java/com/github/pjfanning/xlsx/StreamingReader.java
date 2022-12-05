@@ -51,10 +51,27 @@ public class StreamingReader implements AutoCloseable {
     private boolean fullFormatRichText = false;
     private String password;
 
+    /**
+     * Gets the number of rows to keep in memory at any given point.
+     * <p>
+     * Defaults to 10.
+     * </p>
+     *
+     * @return number of rows to keep in memory at any given point
+     */
     public int getRowCacheSize() {
       return rowCacheSize;
     }
 
+    /**
+     * Gets the number of bytes to read into memory from the input
+     * resource.
+     * <p>
+     * Defaults to 1024.
+     * </p>
+     *
+     * @return the number of bytes to read into memory from the input resource
+     */
     public int getBufferSize() {
       return bufferSize;
     }
@@ -208,7 +225,7 @@ public class StreamingReader implements AutoCloseable {
     /**
      * The number of rows to keep in memory at any given point.
      * <p>
-     * Defaults to 10
+     * Defaults to 10.
      * </p>
      *
      * @param rowCacheSize number of rows
@@ -223,7 +240,7 @@ public class StreamingReader implements AutoCloseable {
      * The number of bytes to read into memory from the input
      * resource.
      * <p>
-     * Defaults to 1024
+     * Defaults to 1024.
      * </p>
      *
      * @param bufferSize buffer size in bytes
@@ -446,7 +463,7 @@ public class StreamingReader implements AutoCloseable {
     }
 
     /**
-     * Enables the reading of hyperlink data associated with sheets).
+     * Enables the reading of hyperlink data associated with sheets.
      *
      * @param readHyperlinks whether to read hyperlink data (associated with sheets)
      * @return reference to current {@code Builder}
