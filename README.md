@@ -1,6 +1,7 @@
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/6321/badge)](https://bestpractices.coreinfrastructure.org/projects/6321)
 ![Build Status](https://github.com/pjfanning/excel-streaming-reader/actions/workflows/ci.yml/badge.svg)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.pjfanning/excel-streaming-reader/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.pjfanning/excel-streaming-reader)
+[![Javadoc](https://javadoc.io/badge/com.github.pjfanning/excel-streaming-reader.svg)](http://www.javadoc.io/doc/com.github.pjfanning/excel-streaming-reader)
 
 # Excel Streaming Reader
 
@@ -89,12 +90,6 @@ try (
 ```
 
 You may access cells randomly within a row, as the entire row is cached. **However**, there is no way to randomly access rows. As this is a streaming implementation, only a small number of rows are kept in memory at any given time.
-
-## Javadocs
-
-* [latest](https://pjfanning.github.io/excel-streaming-reader/)
-* [v3.3.0](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.3.0/)
-* [v3.1.6](https://pjfanning.github.io/excel-streaming-reader/javadocs/3.1.6/)
 
 ## Temp File Shared Strings
 
