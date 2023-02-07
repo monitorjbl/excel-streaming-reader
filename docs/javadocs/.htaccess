@@ -1,1 +1,0 @@
-RedirectMatch 301 ^(.*) https://www.javadoc.io/doc/com.github.pjfanning/excel-streaming-reader/$1
