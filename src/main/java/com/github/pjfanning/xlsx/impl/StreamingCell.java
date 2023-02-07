@@ -177,7 +177,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Get the value of the cell as a number. For strings we throw an exception. For
+   * Get the value of the cell as a number. For strings, we throw an exception. For
    * blank cells we return a 0.
    *
    * @return the value of the cell as a number
@@ -201,7 +201,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Get the value of the cell as a date. For strings we throw an exception. For
+   * Get the value of the cell as a date. For strings, we throw an exception. For
    * blank cells we return a null.
    *
    * @return the value of the cell as a date
@@ -217,7 +217,7 @@ public class StreamingCell implements Cell {
   }
 
   /**
-   * Get the value of the cell as a boolean. For strings we throw an exception. For
+   * Get the value of the cell as a boolean. For strings, we throw an exception. For
    * blank cells we return a false.
    *
    * @return the value of the cell as a date
