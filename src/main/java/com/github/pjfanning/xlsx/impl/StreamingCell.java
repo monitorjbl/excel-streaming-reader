@@ -165,7 +165,7 @@ public class StreamingCell implements Cell {
 
   /**
    * Get the value of the cell as a string.
-   * For blank cells we return an empty string.
+   * For blank cells, we return an empty string.
    *
    * @return the value of the cell as a string
    */
@@ -178,7 +178,7 @@ public class StreamingCell implements Cell {
 
   /**
    * Get the value of the cell as a number. For strings, we throw an exception. For
-   * blank cells we return a 0.
+   * blank cells, we return a 0.
    *
    * @return the value of the cell as a number
    * @throws NumberFormatException if the cell value isn't a parseable <code>double</code>.
@@ -202,7 +202,7 @@ public class StreamingCell implements Cell {
 
   /**
    * Get the value of the cell as a date. For strings, we throw an exception. For
-   * blank cells we return a null.
+   * blank cells, we return a null.
    *
    * @return the value of the cell as a date
    * @throws IllegalStateException if the cell type returned by {@link #getCellType()} is CELL_TYPE_STRING
@@ -218,7 +218,7 @@ public class StreamingCell implements Cell {
 
   /**
    * Get the value of the cell as a boolean. For strings, we throw an exception. For
-   * blank cells we return a false.
+   * blank cells, we return a false.
    *
    * @return the value of the cell as a date
    */
@@ -289,8 +289,8 @@ public class StreamingCell implements Cell {
   /**
    * Get the value of the cell as a XSSFRichTextString
    * <p>
-   * For numeric cells we throw an exception. For blank cells we return an empty string.
-   * For formula cells we return the pre-calculated value if a string, otherwise an exception
+   * For numeric cells, we throw an exception. For blank cells, we return an empty string.
+   * For formula cells, we return the pre-calculated value if a string, otherwise an exception
    * </p>
    * @return the value of the cell as a XSSFRichTextString
    * @throws NotSupportedException if the cell type is unsupported
