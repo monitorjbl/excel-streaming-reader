@@ -4,6 +4,7 @@ import com.monitorjbl.xlsx.exceptions.MissingSheetException;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.formula.EvaluationWorkbook;
 import org.apache.poi.ss.formula.udf.UDFFinder;
+import org.apache.poi.ss.usermodel.CellReferenceType;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -508,5 +509,15 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
   @Override
   public EvaluationWorkbook createEvaluationWorkbook() {
     return null;
+  }
+
+  @Override
+  public CellReferenceType getCellReferenceType() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setCellReferenceType(CellReferenceType cellReferenceType) {
+    throw new UnsupportedOperationException();
   }
 }
