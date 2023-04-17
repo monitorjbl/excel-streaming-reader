@@ -388,6 +388,43 @@ public class StreamingWorkbookTest {
     }
   }
 
+  @Test
+  public void testGetPicturesWithIssue180Xlsx() throws Exception {
+    try (
+            InputStream stream = getInputStream("issue180.xlsx");
+            Workbook workbook = StreamingReader.builder().setReadShapes(true).open(stream)
+    ) {
+      List<? extends PictureData> pictureList = workbook.getAllPictures();
+      assertEquals(1, pictureList.size());
+      for(PictureData picture : pictureList) {
+        XlsxPictureData xlsxPictureData = (XlsxPictureData)picture;
+        assertTrue("picture data is not empty", picture.getData().length > 0);
+        assertArrayEquals(picture.getData(), IOUtils.toByteArray(xlsxPictureData.getInputStream()));
+      }
+      Sheet sheet0 = workbook.getSheetAt(0);
+      sheet0.rowIterator().hasNext();
+      Drawing<?> drawingPatriarch = sheet0.getDrawingPatriarch();
+      assertNotNull("drawingPatriarch should not be null", drawingPatriarch);
+      List<XSSFPicture> pictures = new ArrayList<>();
+      int nonPictureCount = 0;
+      for (Shape shape : drawingPatriarch) {
+        if (shape instanceof XSSFPicture) {
+          pictures.add((XSSFPicture)shape);
+          assertNotNull(((XSSFPicture)shape).getClientAnchor());
+        } else {
+          nonPictureCount++;
+        }
+        assertTrue("shape is an XSSFShape", shape instanceof XSSFShape);
+        assertNotNull("shape has anchor", shape.getAnchor());
+      }
+      assertEquals(1, pictures.size());
+      assertEquals(0, nonPictureCount);
+      Sheet sheet1 = workbook.getSheetAt(1);
+      sheet1.rowIterator().hasNext();
+      assertNull("sheet1 should have no drawing patriarch", sheet1.getDrawingPatriarch());
+    }
+  }
+
   @Test(expected = OpenException.class)
   public void testEntityExpansionWithPoiDefaultSst() throws Exception {
     ExploitServer.withServer(s -> fail("Should not have made request"), () -> {
