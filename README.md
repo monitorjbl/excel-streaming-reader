@@ -19,6 +19,7 @@ This implementation has some extra features
 ## Used By
 * [Apache Drill](https://drill.apache.org/)
 * [Apache Linkis](https://linkis.apache.org/)
+* [Apache NiFi](https://nifi.apache.org/)
 * [Spark-Excel](https://github.com/crealytics/spark-excel)
 
 # Include
