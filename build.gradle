@@ -52,6 +52,7 @@ tasks.named('jar') {
     }
 }
 
+compileTestJava.dependsOn('copyLicenseToBuildResources')
 jar.dependsOn('copyLicenseToBuildResources')
 javadoc.dependsOn('copyLicenseToBuildResources')
 
