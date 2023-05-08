@@ -53,6 +53,7 @@ tasks.named('jar') {
 }
 
 jar.dependsOn('copyLicenseToBuildResources')
+javadoc.dependsOn('copyLicenseToBuildResources')
 
 java {
     withJavadocJar()
