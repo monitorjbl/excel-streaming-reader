@@ -52,6 +52,8 @@ tasks.named('jar') {
     }
 }
 
+jar.dependsOn('copyLicenseToBuildResources')
+
 java {
     withJavadocJar()
     withSourcesJar()
@@ -105,4 +107,9 @@ signing {
     def signingPassword = findProperty("signingPassword")
     useInMemoryPgpKeys(signingKey, signingPassword)
     sign publishing.publications.mavenJava
+}
+
+tasks.register('copyLicenseToBuildResources', Copy) {
+    from layout.projectDirectory.file("LICENSE")
+    into layout.buildDirectory.dir("resources/main/META-INF")
 }
