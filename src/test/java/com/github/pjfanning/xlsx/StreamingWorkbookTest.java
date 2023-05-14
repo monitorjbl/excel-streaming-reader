@@ -410,7 +410,6 @@ public class StreamingWorkbookTest {
       for (Shape shape : drawingPatriarch) {
         if (shape instanceof XSSFPicture) {
           pictures.add((XSSFPicture)shape);
-          assertNotNull(((XSSFPicture)shape).getClientAnchor());
         } else {
           nonPictureCount++;
         }
@@ -422,6 +421,14 @@ public class StreamingWorkbookTest {
       Sheet sheet1 = workbook.getSheetAt(1);
       sheet1.rowIterator().hasNext();
       assertNull("sheet1 should have no drawing patriarch", sheet1.getDrawingPatriarch());
+
+      XSSFPicture picture = pictures.get(0);
+      assertNotNull(picture.getClientAnchor());
+      assertEquals(1, picture.getClientAnchor().getCol1());
+      assertEquals(1, picture.getClientAnchor().getCol2());
+      assertEquals(0, picture.getClientAnchor().getRow1());
+      assertEquals(0, picture.getClientAnchor().getRow2());
+      //assertNotNull(picture.getPictureData());
     }
   }
 
