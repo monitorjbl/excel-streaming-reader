@@ -5,6 +5,7 @@ on:
     branches: ['**']
   push:
     branches: ['main', 'v3.x']
+    tags: [v*]
 
 permissions: {}
 
