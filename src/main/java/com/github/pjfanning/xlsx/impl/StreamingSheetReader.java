@@ -37,6 +37,8 @@ import javax.xml.stream.events.StartElement;
 import java.io.IOException;
 import java.util.*;
 
+import static com.github.pjfanning.xlsx.impl.NumberUtil.parseInt;
+
 public class StreamingSheetReader implements Iterable<Row> {
   private static final Logger LOG = LoggerFactory.getLogger(StreamingSheetReader.class);
 
@@ -200,7 +202,7 @@ public class StreamingSheetReader implements Iterable<Row> {
 
     if (stylesTable != null) {
       if(cellStyleString != null) {
-        style = stylesTable.getStyleAt(Integer.parseInt(cellStyleString));
+        style = stylesTable.getStyleAt(parseInt(cellStyleString));
       } else if(stylesTable.getNumCellStyles() > 0) {
         style = stylesTable.getStyleAt(0);
       }

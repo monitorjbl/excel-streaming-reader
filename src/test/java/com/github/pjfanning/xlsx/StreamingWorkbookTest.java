@@ -866,6 +866,18 @@ public class StreamingWorkbookTest {
     }
   }
 
+  @Test
+  public void testExtraWhitespace() throws Exception {
+    try (Workbook workbook = openWorkbook("extra_whitespace.xlsx")) {
+      Sheet sheet = workbook.getSheetAt(0);
+      for(Row row : sheet) {
+        for(Cell cell : row) {
+          
+        }
+      }
+    }
+  }
+
   private void validateFormatsSheet(Sheet sheet) throws IOException {
     Iterator<Row> rowIterator = sheet.rowIterator();
 

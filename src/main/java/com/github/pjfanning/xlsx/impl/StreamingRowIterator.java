@@ -38,6 +38,9 @@ import javax.xml.stream.events.XMLEvent;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.github.pjfanning.xlsx.impl.NumberUtil.parseDouble;
+import static com.github.pjfanning.xlsx.impl.NumberUtil.parseInt;
+
 class StreamingRowIterator implements CloseableIterator<Row> {
   private static final Logger LOG = LoggerFactory.getLogger(StreamingRowIterator.class);
   private static final QName QNAME_HIDDEN = QName.valueOf("hidden");
@@ -144,7 +147,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
         Attribute rowNumAttr = startElement.getAttributeByName(QNAME_R);
         int rowIndex = currentRowNum;
         if (rowNumAttr != null) {
-          rowIndex = Integer.parseInt(rowNumAttr.getValue()) - 1;
+          rowIndex = parseInt(rowNumAttr.getValue()) - 1;
           currentRowNum = rowIndex;
         }
         Attribute isHiddenAttr = startElement.getAttributeByName(QNAME_HIDDEN);
@@ -166,7 +169,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
           if (styleAttr != null) {
             String indexStr = styleAttr.getValue();
             try {
-              int index = Integer.parseInt(indexStr);
+              final int index = parseInt(indexStr);
               currentRow.setRowStyle(stylesTable.getStyleAt(index));
             } catch (NumberFormatException nfe) {
               LOG.warn("Ignoring invalid row style index {}", indexStr);
@@ -189,8 +192,8 @@ class StreamingRowIterator implements CloseableIterator<Row> {
         if (isHidden || width >= 0) {
           Attribute minAttr = startElement.getAttributeByName(QNAME_MIN);
           Attribute maxAttr = startElement.getAttributeByName(QNAME_MAX);
-          int min = Integer.parseInt(minAttr.getValue()) - 1;
-          int max = Integer.parseInt(maxAttr.getValue()) - 1;
+          int min = parseInt(minAttr.getValue()) - 1;
+          int max = parseInt(maxAttr.getValue()) - 1;
           for (int columnIndex = min; columnIndex <= max; columnIndex++) {
             if (isHidden) hiddenColumns.add(columnIndex);
             if (width >= 0) columnWidths.put(columnIndex, width);
@@ -226,7 +229,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
           if (style != null) {
             String indexStr = style.getValue();
             try {
-              int index = Integer.parseInt(indexStr);
+              final int index = Integer.parseInt(indexStr);
               currentCell.setCellStyle(stylesTable.getStyleAt(index));
             } catch (NumberFormatException nfe) {
               LOG.warn("Ignoring invalid style index {}", indexStr);
@@ -249,7 +252,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
           for (int i = ref.length() - 1; i >= 0; i--) {
             if (!Character.isDigit(ref.charAt(i))) {
               try {
-                streamingSheetReader.setLastRowNum(Integer.parseInt(ref.substring(i + 1)) - 1);
+                streamingSheetReader.setLastRowNum(parseInt(ref.substring(i + 1)) - 1);
               } catch (NumberFormatException ignore) {
               }
               break;
@@ -467,7 +470,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
     final Attribute baseColWidthAtt = startElement.getAttributeByName(QName.valueOf("baseColWidth"));
     if (baseColWidthAtt != null) {
       try {
-        streamingSheetReader.setBaseColWidth(Integer.parseInt(baseColWidthAtt.getValue()));
+        streamingSheetReader.setBaseColWidth(parseInt(baseColWidthAtt.getValue()));
       } catch (Exception e) {
         LOG.warn("unable to parse baseColWidth {}", baseColWidthAtt.getValue());
       }
@@ -504,7 +507,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
     switch(type) {
       case "s":           //string stored in shared table
         if (!lastContents.isEmpty()) {
-          int idx = Integer.parseInt(lastContents);
+          final int idx = parseInt(lastContents);
           if (!getBuilder().fullFormatRichText() && sst instanceof SharedStringsTableBase) {
             return new LazySupplier<>(() -> ((SharedStringsTableBase)sst).getString(idx));
           }
@@ -525,7 +528,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
           final String currentNumericFormat = currentCell.getNumericFormat();
 
           return new LazySupplier<>(() -> dataFormatter.formatRawCellContents(
-                  Double.parseDouble(lastContents),
+                  parseDouble(lastContents),
                   currentNumericFormatIndex,
                   currentNumericFormat));
 
@@ -580,7 +583,7 @@ class StreamingRowIterator implements CloseableIterator<Row> {
           return formattedContent.toString();
         }
         if (!lastContents.isEmpty()) {
-          int idx = Integer.parseInt(lastContents);
+          final int idx = parseInt(lastContents);
           if (sst == null) throw new NullPointerException("sst is null");
           if (sst instanceof SharedStringsTableBase) {
             return ((SharedStringsTableBase)sst).getString(idx);

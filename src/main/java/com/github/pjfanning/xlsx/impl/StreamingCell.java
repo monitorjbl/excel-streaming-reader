@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.github.pjfanning.xlsx.impl.NumberUtil.parseDouble;
+
 public class StreamingCell implements Cell {
 
   private static final Supplier NULL_SUPPLIER = () -> null;
@@ -197,7 +199,7 @@ public class StreamingCell implements Cell {
         }
       }
     }
-    return rawContents == null ? 0.0 : Double.parseDouble(rawContents);
+    return rawContents == null ? 0.0 : parseDouble(rawContents);
   }
 
   /**

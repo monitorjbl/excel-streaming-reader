@@ -15,6 +15,8 @@ import org.apache.poi.util.NotImplemented;
 import org.apache.poi.xssf.usermodel.XSSFName;
 import org.apache.poi.xssf.usermodel.XSSFTable;
 
+import static com.github.pjfanning.xlsx.impl.NumberUtil.parseInt;
+
 /**
  * Copied from POI BaseXSSFEvaluationWorkbook but a lot of stuff is removed because it is not easy
  * or impossible to support in excel-streaming-reader
@@ -78,7 +80,7 @@ abstract class BaseEvaluationWorkbook implements FormulaRenderingWorkbook, Evalu
 
     // Is it already in numeric form?
     try {
-      return Integer.parseInt(bookName);
+      return parseInt(bookName);
     } catch (NumberFormatException e) {}
 
     // Not properly referenced
