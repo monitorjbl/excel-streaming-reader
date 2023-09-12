@@ -872,7 +872,7 @@ public class StreamingWorkbookTest {
       Sheet sheet = workbook.getSheetAt(0);
       for(Row row : sheet) {
         for(Cell cell : row) {
-          
+
         }
       }
     }
