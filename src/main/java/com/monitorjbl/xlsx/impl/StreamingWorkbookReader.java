@@ -119,7 +119,8 @@ public class StreamingWorkbookReader implements Iterable<Sheet>, AutoCloseable {
         log.debug("Created sst cache file [" + sstCache.getAbsolutePath() + "]");
         sst = BufferedStringsTable.getSharedStringsTable(sstCache, builder.getSstCacheSizeBytes(), pkg);
       } else {
-        sst = reader.getSharedStringsTable();
+        reader.setUseReadOnlySharedStringsTable(false);
+        sst = (SharedStringsTable) reader.getSharedStringsTable();
       }
 
       StylesTable styles = reader.getStylesTable();
