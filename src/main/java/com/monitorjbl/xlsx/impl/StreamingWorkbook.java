@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.poi.ss.usermodel.CellReferenceType;
 
 public class StreamingWorkbook implements Workbook, AutoCloseable {
   private final StreamingWorkbookReader reader;
@@ -509,4 +510,14 @@ public class StreamingWorkbook implements Workbook, AutoCloseable {
   public EvaluationWorkbook createEvaluationWorkbook() {
     return null;
   }
+
+    @Override
+    public CellReferenceType getCellReferenceType() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void setCellReferenceType(CellReferenceType crt) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.poi.ss.usermodel.PageMargin;
+import org.apache.poi.ss.usermodel.PaneType;
 
 public class StreamingSheet implements Sheet {
 
@@ -1000,4 +1002,19 @@ public class StreamingSheet implements Sheet {
   public void setActiveCell(CellAddress cellAddress) {
     throw new UnsupportedOperationException();
   }
+
+    @Override
+    public double getMargin(PageMargin pm) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void setMargin(PageMargin pm, double d) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void createSplitPane(int i, int i1, int i2, int i3, PaneType pt) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }
